@@ -35,7 +35,7 @@ const ensureNodeModulesExists = () =>
     });
 };
 
-const updateBuild = () => 
+module.exports = () => 
 {
     return new Promise((resolve) => 
     {
@@ -46,13 +46,3 @@ const updateBuild = () =>
         });
     });
 };
-
-const main = () => 
-{
-    updateBuild().then(() => 
-    {
-        execCmd("node server.js");
-    });
-};
-
-main();
