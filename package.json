@@ -1,12 +1,19 @@
 {
   "name": "spok",
-  "version": "0.0.1",
-  "description": "spok online",
-  "scripts": {
-    "start": "node server.js"
-  },
+  "version": "0.1.0",
+  "private": true,
   "dependencies": {
+    "react": "^16.4.1",
+    "react-dom": "^16.4.1",
+    "react-scripts": "1.1.4",
     "express": "^4.16.3",
     "socket.io": "^2.1.1"
+  },
+  "scripts": {
+    "react": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject",
+    "start": "node start.js"
   }
 }
