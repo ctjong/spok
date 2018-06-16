@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="description" content="This is an online version of the classic party/gathering game from Indonesia, SPOK, where each player writes down a phrase which is then combined to form an interesting sentence. Check it out!" />
+    <meta name="keywords" content="SPOK, subjek, predikat, object, keterangan, game, online game, indonesia, funny, party, interesting" />
+    <title>SPOK</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <link href="styles/styles.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+    <div class="page homePage">
+        <h1>SPOK</h1>
+        <button class="btn btn-success createBtn">Create session</button>
+        <button class="btn btn-danger joinBtn">Join session</button>
+        <button class="btn btn-primary howToBtn">How to play</button>
+    </div>
+
+    <div class="page joinPage">
+        <h1>Join room</h1>
+        <div class="error"></div>
+        <div class="form-inline">
+            <label>Room code:</label>
+            <input type="text" class="input form-control" id="joinPage_roomCode" />
+        </div>
+        <div class="form-inline">
+            <label>Your user name:</label>
+            <input type="text" class="input form-control" id="joinPage_userName" />
+        </div>
+        <button class="btn btn-success submitBtn">Submit</button>
+        <button class="btn btn-danger backBtn">Back</button>
+    </div>
+
+    <div class="page createPage">
+        <h1>Create room</h1>
+        <div class="form-inline">
+            <label>Your user name:</label>
+            <input type="text" class="input form-control" id="createPage_userName" />
+        </div>
+        <button class="btn btn-success submitBtn">Submit</button>
+        <button class="btn btn-danger backBtn">Back</button>
+    </div>
+
+    <div class="page howToPage">
+        <h1>How to play</h1>
+        <p>
+            This is an online version of the classic party/gathering game from Indonesia, SPOK. This usually involves 2 or more people.
+            In the classic version, each participant is given a pencil and a small piece of paper, which they use for writing a part of a sentence in each turn.
+            There are typically 4 turns in each round of the game, the first turn is for writing the subject of a sentence, the second is for the verb, third is object,
+            fourth is adjective/adverb. At the end of each turn, each player folds the paper to cover the words they just wrote and hands over the paper to the person 
+            next to them, so that in the end, the final sentence on that paper is a combination of phrases written by different people. At the end of the round, each 
+            player unfolds the paper they get and read out loud the sentence on it (which is often times pretty hilarious). After that the players can continue to 
+            have as many rounds as they want until they get tired of laughing. 
+        </p>
+        <p>
+            To start, a person needs to be the host and create a room. After a room is created, a 5-character room code is generated,
+            which other players can use to join. After all expected players have joined, the host can start a round. There is an option for the host to change the 
+            language of the round, default is Indonesian. At the end of the round, the host can either start a new round or go back to the lobby to allow more people to join.
+        </p>
+        <button class="btn btn-primary backBtn">Back to home</button>
+    </div>
+
+    <div class="page errorPage">
+        <h1>Something went wrong :)</h1>
+        <div>Please try join the room again from the home page</div>
+        <button class="btn btn-success homeBtn">Back to home page</button>
+    </div>
+
+    <div class="page loadingPage">
+        <img src="/assets/loading.gif" />
+    </div>
+
+    <div class="page lobbyPage">
+        <h1>Room #<span class="roomCode"></span></h1>
+        <div class="waitForHostText nonHostOnly">
+            Waiting for host to start the round
+        </div>
+        <div class="hostOnly">
+            <select class="langOptions"></select>
+            <div class="joinLinkSection">
+                <div>Share this link to your friends for joining this room:</div>
+                <div class="joinLink"></div>
+                <div><a target="_blank" href="" class="joinLinkWa" data-action="share/whatsapp/share">Share via Whatsapp</a></div>
+            </div>
+            <button class="btn btn-success startBtn">Start</button>
+        </div>
+    </div>
+
+    <div class="page writePage">
+        <h1><span class="userName"></span>@<span class="roomCode"></span></h1>
+        <h2 class="sentenceIdHeading">Sentence #<span class="sentenceId"></span></h2>
+        <div class="form-inline phrase1">
+            <label></label>
+            <input type="text" class="input form-control"/>
+            <button class="btn btn-primary submitBtn">Submit</button>
+        </div>
+    </div>
+
+    <div class="page phraseSubmittedPage">
+        <h1><span class="userName"></span>@<span class="roomCode"></span></h1>
+        <h2 class="sentenceIdHeading">Sentence #<span class="sentenceId"></span></h2>
+        <div>Your phrase has been submitted</div>
+        <div>Waiting for:</div>
+        <div class="waitList"></div>
+    </div>
+
+    <div class="page revealPage">
+        <h1><span class="userName"></span>@<span class="roomCode"></span></h1>
+        <h2 class="sentenceIdHeading">Sentence #<span class="sentenceId"></span></h2>
+        <h2 class="resultSentence"></h2>
+        <div class="sentenceAuthors"></div>
+        <div class="shareResultLinkDiv">
+            <a class="shareResultLink">Share via chat</a>
+        </div>
+        <button class="btn btn-success newRoundBtn hostOnly">New round</button>
+        <button class="btn btn-danger endRoundBtn hostOnly">Back to lobby</button>
+        <div class="revealModeWaitText nonHostOnly"></div>
+    </div>
+
+    <div class="participantsBox">
+        <h2>In the game</h2>
+        <div class="participants"></div>
+    </div>
+
+    <div class="chatbox">
+        <h2>Chat</h2>
+        <div class="chatbox-chats"><div class="chatbox-innerchats"></div></div>
+        <input type="text" placeholder="type a message" class="form-control chatbox-input" />
+        <button class="btn btn-primary chat-send">Send</button>
+        <button class="btn btn-danger chat-clear">Clear</button>
+    </div>
+
+    <div class="footerbox">
+        <div>&copy; 2016 <a href="http://www.ctjong.com" target="_blank">Christopher Tjong</a>. All Rights Reserved.</div>
+    </div>
+
+    <script src="assets/jquery-1.6.4.min.js"></script>
+    <script src="assets/jquery.signalR-2.2.1.js"></script>
+    <script src="build/script.min.js"></script>
+</body>
+</html>
