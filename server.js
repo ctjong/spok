@@ -1,5 +1,10 @@
 const express = require('express');
 const path = require('path');
+const path = require('path');
+const appInsights = require("applicationinsights");
+
+appInsights.setup("06ac4247-0b06-4ee0-8ddd-c5879bd2fb14");
+appInsights.start();
 
 const app = express();
 app.use('/static', express.static(path.join(__dirname, 'build/static')));
