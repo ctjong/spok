@@ -1,28 +1,47 @@
-.App {
-  text-align: center;
+body
+{
+    text-align: center;
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 10px;
+    background: url("letters.jpg");
 }
 
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 80px;
+a
+{
+    cursor: pointer;
 }
 
-.App-header {
-  background-color: #222;
-  height: 150px;
-  padding: 20px;
-  color: white;
+.page
+{
+    display: none;
+    background-color: rgba(255,255,255,0.8);
+    padding: 10px;
+    overflow: hidden;
+    position: relative;
 }
 
-.App-title {
-  font-size: 1.5em;
+.input
+{
+    text-align: center;
+    color: black;
 }
 
-.App-intro {
-  font-size: large;
+.form-inline
+{
+    margin: 10px 0;
 }
 
-@keyframes App-logo-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+button
+{
+    width: 100%;
+}
+
+.hostOnly, .nonHostOnly { display: none;}
+body.host .hostOnly { display: block; }
+body.nonHost .nonHostOnly { display: block; }
+
+.sentenceIdHeading
+{
+    margin-bottom: 50px;
 }
