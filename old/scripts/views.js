@@ -200,8 +200,8 @@ Spok.Views.ParticipantsBox = {
         var text = "";
         for (var key in Spok.GameState.players) {
             if (!Spok.GameState.players.hasOwnProperty(key)) continue;
-            var str = "<span><span class='playerName'>" + key + "</span>";
-            if (Spok.IsHostUser && key !== Spok.UserName) str += " (<a class='playerKick'>kick</a>) ";
+            var str = "<span><span className='playerName'>" + key + "</span>";
+            if (Spok.IsHostUser && key !== Spok.UserName) str += " (<a className='playerKick'>kick</a>) ";
             str += "</span>";
             text += (text === "" ? "" : ", ") + str;
         }
@@ -226,9 +226,9 @@ Spok.Views.ChatBox = {
     Update: function (message, author) {
         if (!message) return;
         if (!author) {
-            $(".chatbox-innerchats").append("<div class='announcement'>" + message + "</div>");
+            $(".chatbox-innerchats").append("<div className='announcement'>" + message + "</div>");
         } else {
-            $(".chatbox-innerchats").append("<div class='chat'><span class='chat-author'>" + author + "</span><span class='chat-content'>" + message + "</span></div>");
+            $(".chatbox-innerchats").append("<div className='chat'><span className='chat-author'>" + author + "</span><span className='chat-content'>" + message + "</span></div>");
         }
         $(".chatbox-chats").scrollTop($(".chatbox-innerchats").height());
     },

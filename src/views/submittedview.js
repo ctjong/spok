@@ -1,5 +1,6 @@
-import React, { Component } from 'react';
-import ViewModel from '../view-model';
+import React from 'react';
+import View from '../view';
+import ViewModel from '../services/view-model';
 import './submittedview.css';
 
 
@@ -7,17 +8,17 @@ import './submittedview.css';
 // View
 //-----------------------------
 
-class SubmittedView extends Component
+class SubmittedView extends View
 {
     render() 
     {
         return (
-            <div class="page phraseSubmittedPage">
-                <h1><span class="userName"></span>@<span class="roomCode"></span></h1>
-                <h2 class="sentenceIdHeading">Sentence #<span class="sentenceId"></span></h2>
+            <div className="page phraseSubmittedPage">
+                <h1><span className="userName"></span>@<span className="roomCode"></span></h1>
+                <h2 className="sentenceIdHeading">Sentence #<span className="sentenceId"></span></h2>
                 <div>Your phrase has been submitted</div>
                 <div>Waiting for:</div>
-                <div class="waitList"></div>
+                <div className="waitList"></div>
             </div>
         );
     }

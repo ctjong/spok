@@ -1,5 +1,6 @@
-import React, { Component } from 'react';
-import ViewModel from '../view-model';
+import React from 'react';
+import View from '../view';
+import ViewModel from '../services/view-model';
 import './writeview.css';
 
 
@@ -7,7 +8,7 @@ import './writeview.css';
 // View
 //-----------------------------
 
-class WriteView extends Component
+class WriteView extends View
 {
     handleSubmitClick()
     {
@@ -18,13 +19,13 @@ class WriteView extends Component
     render() 
     {
         return (
-            <div class="page writePage">
-                <h1><span class="userName"></span>@<span class="roomCode"></span></h1>
-                <h2 class="sentenceIdHeading">Sentence #<span class="sentenceId"></span></h2>
-                <div class="form-inline phrase1">
+            <div className="page writePage">
+                <h1><span className="userName"></span>@<span className="roomCode"></span></h1>
+                <h2 className="sentenceIdHeading">Sentence #<span className="sentenceId"></span></h2>
+                <div className="form-inline phrase1">
                     <label></label>
-                    <input type="text" class="input form-control"/>
-                    <button class="btn btn-primary submitBtn" onClick={e => this.handleSubmitClick()}>Submit</button>
+                    <input type="text" className="input form-control"/>
+                    <button className="btn btn-primary submitBtn" onClick={e => this.handleSubmitClick()}>Submit</button>
                 </div>
             </div>
         );

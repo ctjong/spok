@@ -1,5 +1,6 @@
-import React, { Component } from 'react';
-import ViewModel from '../view-model';
+import React from 'react';
+import View from '../view';
+import ViewModel from '../services/view-model';
 import './errorview.css';
 
 
@@ -7,7 +8,7 @@ import './errorview.css';
 // View
 //-----------------------------
 
-class ErrorView extends Component
+class ErrorView extends View
 {
     handleHomeClick()
     {
@@ -17,10 +18,10 @@ class ErrorView extends Component
     render() 
     {
         return (
-            <div class="page errorPage">
+            <div className="page errorPage">
                 <h1>Something went wrong :)</h1>
                 <div>Please try join the room again from the home page</div>
-                <button class="btn btn-success homeBtn" onClick={e => this.handleHomeClick()}>Back to home page</button>
+                <button className="btn btn-success homeBtn" onClick={e => this.handleHomeClick()}>Back to home page</button>
             </div>
         );
     }

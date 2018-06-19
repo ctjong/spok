@@ -1,5 +1,6 @@
-import React, { Component } from 'react';
-import ViewModel from '../view-model';
+import React from 'react';
+import View from '../view';
+import ViewModel from '../services/view-model';
 import './joinview.css';
 
 
@@ -7,7 +8,7 @@ import './joinview.css';
 // View
 //-----------------------------
 
-class JoinView extends Component
+class JoinView extends View
 {
     constructor(props)
     {
@@ -24,25 +25,25 @@ class JoinView extends Component
 
     handleBackClick()
     {
-        ViewModel.GoTo("/");
+        ViewModel.GoTo("");
     }
 
     render() 
     {
         return(
-            <div class="page joinPage">
+            <div className="page joinPage">
                 <h1>Join room</h1>
-                <div class="error"></div>
-                <div class="form-inline">
+                <div className="error"></div>
+                <div className="form-inline">
                     <label>Room code:</label>
-                    <input type="text" class="input form-control" id="joinPage_roomCode" ref={this.roomCodeRef}/>
+                    <input type="text" className="input form-control" id="joinPage_roomCode" ref={this.roomCodeRef}/>
                 </div>
-                <div class="form-inline">
+                <div className="form-inline">
                     <label>Your user name:</label>
-                    <input type="text" class="input form-control" id="joinPage_userName" ref={this.userNameRef}/>
+                    <input type="text" className="input form-control" id="joinPage_userName" ref={this.userNameRef}/>
                 </div>
-                <button class="btn btn-success submitBtn" onClick={e => this.handleSubmitClick()}>Submit</button>
-                <button class="btn btn-danger backBtn" onClick={e => this.handleBackClick()}>Back</button>
+                <button className="btn btn-success submitBtn" onClick={e => this.handleSubmitClick()}>Submit</button>
+                <button className="btn btn-danger backBtn" onClick={e => this.handleBackClick()}>Back</button>
             </div>
         );
     }

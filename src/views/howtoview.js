@@ -1,5 +1,6 @@
-import React, { Component } from 'react';
-import ViewModel from '../view-model';
+import React from 'react';
+import View from '../view';
+import ViewModel from '../services/view-model';
 import './howtoview.css';
 
 
@@ -7,7 +8,7 @@ import './howtoview.css';
 // View
 //-----------------------------
 
-class HowToView extends Component
+class HowToView extends View
 {
     handleBackClick()
     {
@@ -17,7 +18,7 @@ class HowToView extends Component
     render() 
     {
         return (
-            <div class="page howToPage">
+            <div className="page howToPage">
                 <h1>How to play</h1>
                 <p>
                     This is an online version of the classic party/gathering game from Indonesia, SPOK. This usually involves 2 or more people.
@@ -33,7 +34,7 @@ class HowToView extends Component
                     which other players can use to join. After all expected players have joined, the host can start a round. There is an option for the host to change the 
                     language of the round, default is Indonesian. At the end of the round, the host can either start a new round or go back to the lobby to allow more people to join.
                 </p>
-                <button class="btn btn-primary backBtn" onClick={e => this.handleBackClick()}>Back to home</button>
+                <button className="btn btn-primary backBtn" onClick={e => this.handleBackClick()}>Back to home</button>
             </div>
         );
     }

@@ -1,5 +1,6 @@
-import React, { Component } from 'react';
-import ViewModel from '../view-model';
+import React from 'react';
+import View from '../view';
+import ViewModel from '../services/view-model';
 import './createview.css';
 
 
@@ -7,7 +8,7 @@ import './createview.css';
 // View
 //-----------------------------
 
-class CreateView extends Component
+class CreateView extends View
 {
     constructor(props)
     {
@@ -23,20 +24,20 @@ class CreateView extends Component
 
     handleBackClick()
     {
-        ViewModel.GoTo("/");
+        ViewModel.GoTo("");
     }
 
     render() 
     {
         return (
-            <div class="page createPage">
+            <div className="page createPage">
                 <h1>Create room</h1>
-                <div class="form-inline">
+                <div className="form-inline">
                     <label>Your user name:</label>
-                    <input type="text" class="input form-control" id="createPage_userName" ref={this.userNameRef}/>
+                    <input type="text" className="input form-control" id="createPage_userName" ref={this.userNameRef}/>
                 </div>
-                <button class="btn btn-success submitBtn" onClick={e => this.handleSubmitClick()}>Submit</button>
-                <button class="btn btn-danger backBtn" onClick={e => this.handleBackClick()}>Back</button>
+                <button className="btn btn-success submitBtn" onClick={e => this.handleSubmitClick()}>Submit</button>
+                <button className="btn btn-danger backBtn" onClick={e => this.handleBackClick()}>Back</button>
             </div>
         );
     }

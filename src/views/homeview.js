@@ -1,5 +1,6 @@
-import React, { Component } from 'react';
-import ViewModel from '../view-model';
+import React from 'react';
+import View from '../view';
+import ViewModel from '../services/view-model';
 import './homeview.css';
 
 
@@ -7,7 +8,7 @@ import './homeview.css';
 // View
 //-----------------------------
 
-class HomeView extends Component
+class HomeView extends View
 {
     handleCreateClick()
     {
@@ -27,11 +28,11 @@ class HomeView extends Component
     render() 
     {
         return (
-            <div class="page homePage">
+            <div className="page homePage">
                 <h1>SPOK</h1>
-                <button class="btn btn-success createBtn" onClick={e => this.handleCreateClick()}>Create session</button>
-                <button class="btn btn-danger joinBtn" onClick={e => this.handleJoinClick()}>Join session</button>
-                <button class="btn btn-primary howToBtn" onClick={e => this.handleHowToClick()}>How to play</button>
+                <button className="btn btn-success createBtn" onClick={e => this.handleCreateClick()}>Create session</button>
+                <button className="btn btn-danger joinBtn" onClick={e => this.handleJoinClick()}>Join session</button>
+                <button className="btn btn-primary howToBtn" onClick={e => this.handleHowToClick()}>How to play</button>
             </div>
         );
     }

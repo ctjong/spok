@@ -1,4 +1,5 @@
-import React, { Component } from 'react';
+import React from 'react';
+import View from '../view';
 import ViewModel from '../view-model';
 import './lobbyview.css';
 
@@ -7,7 +8,7 @@ import './lobbyview.css';
 // View
 //-----------------------------
 
-class LobbyView extends Component
+class LobbyView extends View
 {
     handleWhatsappShareClick()
     {
@@ -24,24 +25,24 @@ class LobbyView extends Component
     render() 
     {
         return (
-            <div class="page lobbyPage">
-                <h1>Room #<span class="roomCode"></span></h1>
-                <div class="waitForHostText nonHostOnly">
+            <div className="page lobbyPage">
+                <h1>Room #<span className="roomCode"></span></h1>
+                <div className="waitForHostText nonHostOnly">
                     Waiting for host to start the round
                 </div>
-                <div class="hostOnly">
-                    <select class="langOptions"></select>
-                    <div class="joinLinkSection">
+                <div className="hostOnly">
+                    <select className="langOptions"></select>
+                    <div className="joinLinkSection">
                         <div>Share this link to your friends for joining this room:</div>
-                        <div class="joinLink"></div>
+                        <div className="joinLink"></div>
                         <div>
-                            <a target="_blank" href="" class="joinLinkWa" data-action="share/whatsapp/share"
+                            <a target="_blank" href="" className="joinLinkWa" data-action="share/whatsapp/share"
                                 onClick={e => this.handleWhatsappShareClick()}>
                                 Share via Whatsapp
                             </a>
                         </div>
                     </div>
-                    <button class="btn btn-success startBtn" onClick={e => this.handleStartClick()}>Start</button>
+                    <button className="btn btn-success startBtn" onClick={e => this.handleStartClick()}>Start</button>
                 </div>
             </div>
         );

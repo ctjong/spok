@@ -1,24 +1,16 @@
-import createHistory from 'history/createBrowserHistory';
 import $ from 'jquery';
 
 const ViewModel = {};
-
-ViewModel.App = null;
-
+ViewModel.ActiveView = null;
+ViewModel.History = null;
 
 //-------------------------------------------
 // PUBLIC FUNCTIONS
 //-------------------------------------------
 
-ViewModel.Initialize = () => 
-{
-    ViewModel.History = createHistory();
-};
-
 ViewModel.GoTo = (path) => 
 {
     ViewModel.History.push(path);
-    ViewModel.App.setState({ path: path });
 };
 
 ViewModel.ApplyAssignments = (assignments) =>

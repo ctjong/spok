@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import ViewModel from '../view-model';
+import ViewModel from '../services/view-model';
 import './participantbox.css';
 
 
@@ -11,9 +11,9 @@ class ParticipantBox extends Component
 {
     render() 
     {
-        <div class="participantsBox">
+        <div className="participantsBox">
             <h2>In the game</h2>
-            <div class="participants"></div>
+            <div className="participants"></div>
         </div>
     }
 }
