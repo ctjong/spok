@@ -1,5 +1,5 @@
 import React from 'react';
-import View from '../view-base';
+import ViewBase from '../view-base';
 import ViewModel from '../services/view-model';
 import './error-view.css';
 
@@ -8,7 +8,7 @@ import './error-view.css';
 // View
 //-----------------------------
 
-class ErrorView extends View
+class ErrorView extends ViewBase
 {
     handleHomeClick()
     {

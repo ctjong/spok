@@ -1,12 +1,7 @@
 import { Component } from 'react';
 import ViewModel from './services/view-model';
 
-
-//-----------------------------
-// View
-//-----------------------------
-
-class View extends Component
+class ViewBase extends Component
 {
     constructor(props)
     {
@@ -16,4 +11,4 @@ class View extends Component
     }
 }
 
-export default View;
+export default ViewBase;

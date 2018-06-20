@@ -1,5 +1,5 @@
 import React from 'react';
-import View from '../view-base';
+import ViewBase from '../view-base';
 import ViewModel from '../services/view-model';
 import './howto-view.css';
 
@@ -8,7 +8,7 @@ import './howto-view.css';
 // View
 //-----------------------------
 
-class HowToView extends View
+class HowToView extends ViewBase
 {
     handleBackClick()
     {

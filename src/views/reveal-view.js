@@ -1,5 +1,5 @@
 import React from 'react';
-import View from '../view-base';
+import ViewBase from '../view-base';
 import ViewModel from '../services/view-model';
 import './reveal-view.css';
 
@@ -8,7 +8,7 @@ import './reveal-view.css';
 // View
 //-----------------------------
 
-class RevealView extends View
+class RevealView extends ViewBase
 {
     handleChatShareClick()
     {

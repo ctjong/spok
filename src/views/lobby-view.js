@@ -1,5 +1,5 @@
 import React from 'react';
-import View from '../view-base';
+import ViewBase from '../view-base';
 import ViewModel from '../view-model';
 import './lobby-view.css';
 
@@ -8,7 +8,7 @@ import './lobby-view.css';
 // View
 //-----------------------------
 
-class LobbyView extends View
+class LobbyView extends ViewBase
 {
     handleWhatsappShareClick()
     {

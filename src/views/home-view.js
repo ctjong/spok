@@ -1,5 +1,5 @@
 import React from 'react';
-import View from '../view-base';
+import ViewBase from '../view-base';
 import ViewModel from '../services/view-model';
 import './home-view.css';
 
@@ -8,7 +8,7 @@ import './home-view.css';
 // View
 //-----------------------------
 
-class HomeView extends View
+class HomeView extends ViewBase
 {
     handleCreateClick()
     {

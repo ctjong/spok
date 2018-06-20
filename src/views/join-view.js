@@ -1,5 +1,5 @@
 import React from 'react';
-import View from '../view-base';
+import ViewBase from '../view-base';
 import ViewModel from '../services/view-model';
 import './join-view.css';
 
@@ -8,7 +8,7 @@ import './join-view.css';
 // View
 //-----------------------------
 
-class JoinView extends View
+class JoinView extends ViewBase
 {
     constructor(props)
     {

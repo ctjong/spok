@@ -1,5 +1,5 @@
 import React from 'react';
-import View from '../view-base';
+import ViewBase from '../view-base';
 import ViewModel from '../services/view-model';
 import './write-view.css';
 
@@ -8,7 +8,7 @@ import './write-view.css';
 // View
 //-----------------------------
 
-class WriteView extends View
+class WriteView extends ViewBase
 {
     handleSubmitClick()
     {

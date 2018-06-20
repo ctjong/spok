@@ -1,5 +1,5 @@
 import React from 'react';
-import View from '../view-base';
+import ViewBase from '../view-base';
 import ViewModel from '../services/view-model';
 import './create-view.css';
 
@@ -8,7 +8,7 @@ import './create-view.css';
 // View
 //-----------------------------
 
-class CreateView extends View
+class CreateView extends ViewBase
 {
     constructor(props)
     {
