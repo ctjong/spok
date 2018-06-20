@@ -1,6 +1,6 @@
 import React from 'react';
 import ViewBase from '../view-base';
-import ViewModel from '../services/view-model';
+import ViewModel from '../view-model';
 import './error-view.css';
 
 

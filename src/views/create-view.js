@@ -1,6 +1,7 @@
 import React from 'react';
+import io from 'socket.io-client';
 import ViewBase from '../view-base';
-import ViewModel from '../services/view-model';
+import ViewModel from '../view-model';
 import './create-view.css';
 
 
@@ -14,8 +15,18 @@ class CreateView extends ViewBase
 
     handleSubmitClick()
     {
-        //TODO
-        // ViewModel.GoTo("/create");
+        const userName = this.userNameRef.current.value;
+        ViewModel.GameState = 
+        {
+            roomCode: ViewModel.RandomCode(),
+            userName: userName
+        };
+        ViewModel.IsHostUser = true;
+        ViewModel.Socket = io(`http://${window.location.hostname}`, 
+        {
+            query: { roomCode: ViewModel.GameState.roomCode }
+        });
+        ViewModel.GoTo("/lobby");
     }
 
     handleBackClick()

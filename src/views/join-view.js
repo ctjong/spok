@@ -1,6 +1,7 @@
 import React from 'react';
+import io from 'socket.io-client';
 import ViewBase from '../view-base';
-import ViewModel from '../services/view-model';
+import ViewModel from '../view-model';
 import './join-view.css';
 
 
@@ -15,8 +16,19 @@ class JoinView extends ViewBase
 
     handleSubmitClick()
     {
-        //TODO
-        // ViewModel.GoTo("/create");
+        const roomCode = this.roomCodeRef.current.value;
+        const userName = this.userNameRef.current.value;
+        ViewModel.GameState = 
+        {
+            room: roomCode,
+            userName: userName
+        };
+        ViewModel.IsHostUser = false;
+        ViewModel.Socket = io(`http://${window.location.hostname}`, 
+        {
+            query: { room: ViewModel.GameState.room }
+        });
+        ViewModel.GoTo("/lobby");
     }
 
     handleBackClick()

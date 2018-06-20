@@ -4,6 +4,7 @@ import { BrowserRouter, Switch, Route } from 'react-router-dom';
 import HomeView from './views/home-view';
 import JoinView from './views/join-view';
 import CreateView from './views/create-view';
+import LobbyView from './views/lobby-view';
 import WriteView from './views/write-view';
 import SubmittedView from './views/submitted-view';
 import RevealView from './views/reveal-view';
@@ -23,6 +24,7 @@ class App extends Component
                     <Switch>
                         <Route path='/join' component={JoinView} />
                         <Route path='/create' component={CreateView} />
+                        <Route path='/lobby' component={LobbyView} />
                         <Route path='/write' component={WriteView} />
                         <Route path='/submitted' component={SubmittedView} />
                         <Route path='/reveal' component={RevealView} />

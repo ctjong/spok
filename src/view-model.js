@@ -3,6 +3,9 @@ import $ from 'jquery';
 const ViewModel = {};
 ViewModel.ActiveView = null;
 ViewModel.History = null;
+ViewModel.IsHostUser = false;
+ViewModel.Socket = null;
+ViewModel.GameState = {};
 
 //-------------------------------------------
 // PUBLIC FUNCTIONS
@@ -88,13 +91,11 @@ ViewModel.CreateRoom = (roomCode, userName) =>
     if (!userName) return;
     ViewModel.UserName = userName;
     ViewModel.RoomCode = roomCode;
-    ViewModel.GameState =
-        {};
+    ViewModel.GameState = {};
     ViewModel.GameState.lang = ViewModel.DefaultLang;
     ViewModel.GameState.key = ViewModel.RandomCode() + ViewModel.RandomCode();
     ViewModel.GameState.hostUserName = ViewModel.UserName;
-    ViewModel.GameState.players =
-        {};
+    ViewModel.GameState.players = {};
     //TODO: ViewModel.GameState.players[ViewModel.UserName] = ViewModel.SignalHub.GetConnectionId();
     ViewModel.GameState.status = 0;
     ViewModel.IsHostUser = true;

@@ -12,13 +12,25 @@ app.use('/favicon.ico', express.static(path.join(__dirname, 'build/favicon.ico')
 app.use('/manifest.json', express.static(path.join(__dirname, 'build/manifest.json')));
 app.use('/service-worker.js', express.static(path.join(__dirname, 'build/service-worker.js')));
 
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
+io.on('connection', (socket) =>
+{
+    const roomCode = socket.handshake.query.roomCode;
+    if (roomCode)
+    {
+        console.log(`Requested to join ${roomCode}`);
+        socket.join(roomCode);
+    }
+});
+
 app.get("*", (req, res) => 
 {
     res.sendFile(path.join(__dirname, "build/index.html"));
 });
 
 const port = process.env.port || 3000;
-app.listen(port, () => 
+http.listen(port, () => 
 {
     console.log(`listening on ${port}`);
 });

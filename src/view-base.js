@@ -1,5 +1,5 @@
 import { Component } from 'react';
-import ViewModel from './services/view-model';
+import ViewModel from './view-model';
 
 class ViewBase extends Component
 {
