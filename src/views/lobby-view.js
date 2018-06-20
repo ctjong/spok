@@ -4,10 +4,6 @@ import ViewModel from '../view-model';
 import './lobby-view.css';
 
 
-//-----------------------------
-// View
-//-----------------------------
-
 class LobbyView extends ViewBase
 {
     handleWhatsappShareClick()

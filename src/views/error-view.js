@@ -4,10 +4,6 @@ import ViewModel from '../services/view-model';
 import './error-view.css';
 
 
-//-----------------------------
-// View
-//-----------------------------
-
 class ErrorView extends ViewBase
 {
     handleHomeClick()

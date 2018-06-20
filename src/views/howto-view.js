@@ -4,10 +4,6 @@ import ViewModel from '../services/view-model';
 import './howto-view.css';
 
 
-//-----------------------------
-// View
-//-----------------------------
-
 class HowToView extends ViewBase
 {
     handleBackClick()

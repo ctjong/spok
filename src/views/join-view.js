@@ -4,10 +4,6 @@ import ViewModel from '../services/view-model';
 import './join-view.css';
 
 
-//-----------------------------
-// View
-//-----------------------------
-
 class JoinView extends ViewBase
 {
     constructor(props)

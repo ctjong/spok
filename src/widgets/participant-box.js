@@ -3,9 +3,9 @@ import ViewModel from '../services/view-model';
 import './participant-box.css';
 
 
-//-----------------------------
-// View
-//-----------------------------
+
+
+
 
 class ParticipantBox extends Component
 {

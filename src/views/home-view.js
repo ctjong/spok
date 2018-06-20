@@ -4,10 +4,6 @@ import ViewModel from '../services/view-model';
 import './home-view.css';
 
 
-//-----------------------------
-// View
-//-----------------------------
-
 class HomeView extends ViewBase
 {
     handleCreateClick()

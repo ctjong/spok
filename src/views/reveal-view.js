@@ -4,10 +4,6 @@ import ViewModel from '../services/view-model';
 import './reveal-view.css';
 
 
-//-----------------------------
-// View
-//-----------------------------
-
 class RevealView extends ViewBase
 {
     handleChatShareClick()

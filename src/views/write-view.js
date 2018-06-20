@@ -4,10 +4,6 @@ import ViewModel from '../services/view-model';
 import './write-view.css';
 
 
-//-----------------------------
-// View
-//-----------------------------
-
 class WriteView extends ViewBase
 {
     handleSubmitClick()

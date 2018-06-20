@@ -4,10 +4,6 @@ import ViewModel from '../services/view-model';
 import './create-view.css';
 
 
-//-----------------------------
-// View
-//-----------------------------
-
 class CreateView extends ViewBase
 {
     constructor(props)

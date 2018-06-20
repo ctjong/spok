@@ -3,9 +3,9 @@ import ViewModel from '../services/view-model';
 import './chat-box.css';
 
 
-//-----------------------------
-// View
-//-----------------------------
+
+
+
 
 class ChatBox extends Component
 {

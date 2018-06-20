@@ -4,10 +4,6 @@ import ViewModel from '../services/view-model';
 import './submitted-view.css';
 
 
-//-----------------------------
-// View
-//-----------------------------
-
 class SubmittedView extends ViewBase
 {
     render() 
