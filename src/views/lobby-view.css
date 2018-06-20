@@ -1,9 +1,9 @@
-.lobbyPage .joinLink
+.lobby-view .join-link
 {
     font-weight: bold;
 }
 
-.lobbyPage .startBtn
+.lobby-view .start-btn
 {
     margin-top: 30px;
 }

@@ -1,7 +1,7 @@
 import React from 'react';
-import View from '../view';
+import View from '../view-base';
 import ViewModel from '../services/view-model';
-import './writeview.css';
+import './write-view.css';
 
 
 //-----------------------------
@@ -19,13 +19,13 @@ class WriteView extends View
     render() 
     {
         return (
-            <div className="page writePage">
-                <h1><span className="userName"></span>@<span className="roomCode"></span></h1>
-                <h2 className="sentenceIdHeading">Sentence #<span className="sentenceId"></span></h2>
+            <div className="view write-view">
+                <h1><span className="user-name"></span>@<span className="room-code"></span></h1>
+                <h2 className="sentence-id-heading">Sentence #<span className="sentence-id"></span></h2>
                 <div className="form-inline phrase1">
                     <label></label>
                     <input type="text" className="input form-control"/>
-                    <button className="btn btn-primary submitBtn" onClick={e => this.handleSubmitClick()}>Submit</button>
+                    <button className="btn btn-primary submit-btn" onClick={e => this.handleSubmitClick()}>Submit</button>
                 </div>
             </div>
         );

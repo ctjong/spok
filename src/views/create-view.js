@@ -1,7 +1,7 @@
 import React from 'react';
-import View from '../view';
+import View from '../view-base';
 import ViewModel from '../services/view-model';
-import './createview.css';
+import './create-view.css';
 
 
 //-----------------------------
@@ -30,14 +30,14 @@ class CreateView extends View
     render() 
     {
         return (
-            <div className="page createPage">
+            <div className="view create-view">
                 <h1>Create room</h1>
                 <div className="form-inline">
                     <label>Your user name:</label>
                     <input type="text" className="input form-control" id="createPage_userName" ref={this.userNameRef}/>
                 </div>
-                <button className="btn btn-success submitBtn" onClick={e => this.handleSubmitClick()}>Submit</button>
-                <button className="btn btn-danger backBtn" onClick={e => this.handleBackClick()}>Back</button>
+                <button className="btn btn-success submit-btn" onClick={e => this.handleSubmitClick()}>Submit</button>
+                <button className="btn btn-danger back-btn" onClick={e => this.handleBackClick()}>Back</button>
             </div>
         );
     }

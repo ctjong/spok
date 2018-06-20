@@ -1,7 +1,7 @@
 import React from 'react';
-import View from '../view';
+import View from '../view-base';
 import ViewModel from '../services/view-model';
-import './joinview.css';
+import './join-view.css';
 
 
 //-----------------------------
@@ -31,7 +31,7 @@ class JoinView extends View
     render() 
     {
         return(
-            <div className="page joinPage">
+            <div className="view join-view">
                 <h1>Join room</h1>
                 <div className="error"></div>
                 <div className="form-inline">
@@ -42,8 +42,8 @@ class JoinView extends View
                     <label>Your user name:</label>
                     <input type="text" className="input form-control" id="joinPage_userName" ref={this.userNameRef}/>
                 </div>
-                <button className="btn btn-success submitBtn" onClick={e => this.handleSubmitClick()}>Submit</button>
-                <button className="btn btn-danger backBtn" onClick={e => this.handleBackClick()}>Back</button>
+                <button className="btn btn-success submit-btn" onClick={e => this.handleSubmitClick()}>Submit</button>
+                <button className="btn btn-danger back-btn" onClick={e => this.handleBackClick()}>Back</button>
             </div>
         );
     }

@@ -1,7 +1,7 @@
 import React from 'react';
-import View from '../view';
+import View from '../view-base';
 import ViewModel from '../services/view-model';
-import './errorview.css';
+import './error-view.css';
 
 
 //-----------------------------
@@ -18,10 +18,10 @@ class ErrorView extends View
     render() 
     {
         return (
-            <div className="page errorPage">
+            <div className="view error-view">
                 <h1>Something went wrong :)</h1>
-                <div>Please try join the room again from the home page</div>
-                <button className="btn btn-success homeBtn" onClick={e => this.handleHomeClick()}>Back to home page</button>
+                <div>Please try join the room again from the home view</div>
+                <button className="btn btn-success home-btn" onClick={e => this.handleHomeClick()}>Back to home view</button>
             </div>
         );
     }

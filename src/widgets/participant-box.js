@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import ViewModel from '../services/view-model';
-import './participantbox.css';
+import './participant-box.css';
 
 
 //-----------------------------
@@ -11,7 +11,7 @@ class ParticipantBox extends Component
 {
     render() 
     {
-        <div className="participantsBox">
+        <div className="participants-box">
             <h2>In the game</h2>
             <div className="participants"></div>
         </div>

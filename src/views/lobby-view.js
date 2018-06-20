@@ -1,7 +1,7 @@
 import React from 'react';
-import View from '../view';
+import View from '../view-base';
 import ViewModel from '../view-model';
-import './lobbyview.css';
+import './lobby-view.css';
 
 
 //-----------------------------
@@ -25,24 +25,24 @@ class LobbyView extends View
     render() 
     {
         return (
-            <div className="page lobbyPage">
-                <h1>Room #<span className="roomCode"></span></h1>
-                <div className="waitForHostText nonHostOnly">
+            <div className="view lobby-view">
+                <h1>Room #<span className="room-code"></span></h1>
+                <div className="wait-for-host-text non-host-only">
                     Waiting for host to start the round
                 </div>
-                <div className="hostOnly">
-                    <select className="langOptions"></select>
-                    <div className="joinLinkSection">
+                <div className="host-only">
+                    <select className="lang-options"></select>
+                    <div className="join-link-section">
                         <div>Share this link to your friends for joining this room:</div>
-                        <div className="joinLink"></div>
+                        <div className="join-link"></div>
                         <div>
-                            <a target="_blank" href="" className="joinLinkWa" data-action="share/whatsapp/share"
+                            <a target="_blank" href="" className="join-link-wa" data-action="share/whatsapp/share"
                                 onClick={e => this.handleWhatsappShareClick()}>
                                 Share via Whatsapp
                             </a>
                         </div>
                     </div>
-                    <button className="btn btn-success startBtn" onClick={e => this.handleStartClick()}>Start</button>
+                    <button className="btn btn-success start-btn" onClick={e => this.handleStartClick()}>Start</button>
                 </div>
             </div>
         );
