@@ -1,21 +1,16 @@
 ﻿import ViewModel from '../view-model';
 
-
-const sendStateUpdate = () => 
-{
-    ViewModel.SendToRoom("stateUpdate", "others", ViewModel.GameState);
-};
-
 const handleJoinRequest = (msg, reply) => 
 {
+    if(!ViewModel.ActiveView.isRoomView)
+        return;
     const player = ViewModel.GameState.Players[msg.data.userName];
     if (player && !player.isOnline)
     {
         // the player was disconnected and is reconnecting. accept right away.
         player.isOnline = true;
         reply({ isSuccess: true, gameState: ViewModel.GameState });
-        sendStateUpdate();
-        ViewModel.UpdateRoomUI();
+        ViewModel.ActiveView.syncStates();
 
         //TODO
         // ViewModel.Views.ChatBox.Update(msg.data.userName + " has reconnected");
@@ -30,8 +25,7 @@ const handleJoinRequest = (msg, reply) =>
         // valid name chosen, people are still in the lobby. send acceptance.
         ViewModel.GameState.Players[msg.data.userName] = { isOnline: true };
         reply({ isSuccess: true, gameState: ViewModel.GameState });
-        sendStateUpdate();
-        ViewModel.UpdateRoomUI();
+        ViewModel.ActiveView.syncStates();
 
         //TODO
         // ViewModel.Views.ChatBox.Update(msg.data.userName + " has joined");

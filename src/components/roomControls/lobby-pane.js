@@ -50,7 +50,7 @@ class LobbyPane extends Component
     {
         return (
             <div className="pane lobby-pane">
-                {ViewModel.IsHostUser ? this.getHostContent() : this.getNonHostContent()}
+                {this.props.isHostUser ? this.getHostContent() : this.getNonHostContent()}
             </div>
         );
     }
