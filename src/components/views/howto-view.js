@@ -1,6 +1,6 @@
 import React from 'react';
-import ViewBase from '../view-base';
-import ViewModel from '../view-model';
+import ViewBase from '../../view-base';
+import ViewModel from '../../view-model';
 import './howto-view.css';
 
 

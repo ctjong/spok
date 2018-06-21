@@ -1,15 +1,14 @@
 import React from 'react';
-import ViewBase from '../../view-base';
 import ViewModel from '../../view-model';
 import './submitted-pane.css';
 
 
-class SubmittedView extends ViewBase
+class SubmittedPane
 {
     render() 
     {
         return (
-            <div className="view submitted-pane">
+            <div className="pane submitted-pane">
                 <h1><span className="user-name"></span>@<span className="room-code"></span></h1>
                 <h2 className="paper-id-heading">Paper #<span className="paper-id"></span></h2>
                 <div>Your phrase has been submitted</div>
@@ -20,4 +19,4 @@ class SubmittedView extends ViewBase
     }
 }
 
-export default SubmittedView;
+export default SubmittedPane;

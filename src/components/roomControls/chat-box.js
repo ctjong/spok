@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import ViewModel from '../view-model';
+import ViewModel from '../../view-model';
 import './chat-box.css';
 
 

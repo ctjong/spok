@@ -15,6 +15,7 @@ const handleJoinRequest = (msg, reply) =>
         player.isOnline = true;
         reply({ isSuccess: true });
         sendStateUpdate();
+        ViewModel.UpdateRoomUI();
 
         //TODO
         // ViewModel.Views.ChatBox.Update(msg.data.userName + " has reconnected");
@@ -31,6 +32,7 @@ const handleJoinRequest = (msg, reply) =>
         ViewModel.GameState.Players[msg.data.userName] = { isOnline: true };
         reply({ isSuccess: true });
         sendStateUpdate();
+        ViewModel.UpdateRoomUI();
 
         //TODO
         // ViewModel.Views.ChatBox.Update(msg.data.userName + " has joined");

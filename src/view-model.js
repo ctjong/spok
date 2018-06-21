@@ -8,6 +8,13 @@ ViewModel.History = null;
 ViewModel.IsHostUser = false;
 ViewModel.GameState = null;
 
+ViewModel.States = 
+{
+    LOBBY: 1,
+    WRITE: 2,
+    REVEAL: 3
+};
+
 let socket = null;
 
 //-------------------------------------------
@@ -44,6 +51,11 @@ ViewModel.SocketSend = (type, target, room, data) =>
             response.isSuccess ? resolve(response) : reject(response);
         });
     });
+};
+
+ViewModel.UpdateRoomUI = () => 
+{
+    ViewModel.ActiveView.setState(ViewModel.GameState);
 };
 
 ViewModel.InitHostUser = () => 

@@ -1,6 +1,6 @@
 import React from 'react';
-import ViewBase from '../view-base';
-import ViewModel from '../view-model';
+import ViewBase from '../../view-base';
+import ViewModel from '../../view-model';
 import './create-view.css';
 
 
@@ -21,7 +21,7 @@ class CreateView extends ViewBase
             ViewModel.SetUserState("roomCode", roomCode);
             ViewModel.SetUserState("userName", userName);
             ViewModel.InitHostUser();
-            ViewModel.GoTo("/lobby");
+            ViewModel.GoTo(`/room/${roomCode}`);
         });
     }
 

@@ -1,11 +1,9 @@
 import React from 'react';
-import ViewBase from '../view-base';
-import ViewModel from '../view-model';
-import ParticipantBox from '../widgets/participant-box';
-import './lobby-view.css';
+import ViewModel from '../../view-model';
+import './lobby-pane.css';
 
 
-class LobbyView extends ViewBase
+class LobbyPane
 {
     handleWhatsappShareClick()
     {
@@ -22,7 +20,7 @@ class LobbyView extends ViewBase
     render() 
     {
         return (
-            <div className="view lobby-view">
+            <div className="pane lobby-pane">
                 <h1>Room # {ViewModel.GetUserState("roomCode")}</h1>
                 <div className="wait-for-host-text non-host-only">
                     Waiting for host to start the round
@@ -41,11 +39,9 @@ class LobbyView extends ViewBase
                     </div>
                     <button className="btn btn-success start-btn" onClick={e => this.handleStartClick()}>Start</button>
                 </div>
-
-                <ParticipantBox />
             </div>
         );
     }
 }
 
-export default LobbyView;
+export default LobbyPane;

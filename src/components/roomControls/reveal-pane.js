@@ -1,10 +1,9 @@
 import React from 'react';
-import ViewBase from '../../view-base';
 import ViewModel from '../../view-model';
 import './reveal-pane.css';
 
 
-class RevealPane extends ViewBase
+class RevealPane
 {
     handleChatShareClick()
     {
@@ -27,7 +26,7 @@ class RevealPane extends ViewBase
     render() 
     {
         return (
-            <div className="view reveal-pane">
+            <div className="pane reveal-pane">
                 <h1><span className="user-name"></span>@<span className="room-code"></span></h1>
                 <h2 className="paper-id-heading">Paper #<span className="paper-id"></span></h2>
                 <h2 className="result-paper"></h2>
