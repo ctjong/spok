@@ -19,7 +19,6 @@ const handleJoinRequest = (msg, reply) =>
 
         //TODO
         // ViewModel.Views.ChatBox.Update(msg.data.userName + " has reconnected");
-        // ViewModel.Views.ParticipantsBox.Update();
     }
     else if (player && player.isOnline)
     {
@@ -36,7 +35,6 @@ const handleJoinRequest = (msg, reply) =>
 
         //TODO
         // ViewModel.Views.ChatBox.Update(msg.data.userName + " has joined");
-        // ViewModel.Views.ParticipantsBox.Update();
     }
 };
 
