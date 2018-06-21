@@ -13,7 +13,7 @@ const handleJoinRequest = (msg, reply) =>
     {
         // the player was disconnected and is reconnecting. accept right away.
         player.isOnline = true;
-        reply({ isSuccess: true });
+        reply({ isSuccess: true, gameState: ViewModel.GameState });
         sendStateUpdate();
         ViewModel.UpdateRoomUI();
 
@@ -30,7 +30,7 @@ const handleJoinRequest = (msg, reply) =>
     {
         // valid name chosen, people are still in the lobby. send acceptance.
         ViewModel.GameState.Players[msg.data.userName] = { isOnline: true };
-        reply({ isSuccess: true });
+        reply({ isSuccess: true, gameState: ViewModel.GameState });
         sendStateUpdate();
         ViewModel.UpdateRoomUI();
 

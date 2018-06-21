@@ -17,8 +17,9 @@ class JoinView extends ViewBase
     {
         const roomCode = this.roomCodeRef.current.value;
         const userName = this.userNameRef.current.value;
-        ViewModel.SocketSend("joinRoom", "host", roomCode, { userName }).then(() => 
+        ViewModel.SocketSend("joinRoom", "host", roomCode, { userName }).then((response) => 
         {
+            ViewModel.GameState = response.gameState;
             ViewModel.SetUserState("roomCode", roomCode);
             ViewModel.SetUserState("userName", userName);
             ViewModel.GoTo(`/room/${roomCode}`);

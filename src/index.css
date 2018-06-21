@@ -7,9 +7,13 @@ body
     background: url("images/letters.jpg");
 }
 
-a
+a,
+a:not([href]):not([tabindex]),
+a:not([href]):not([tabindex]):hover
 {
     cursor: pointer;
+    color: blue;
+    text-decoration: underline;
 }
 
 .view, .pane

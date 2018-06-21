@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { Component } from 'react';
 import ViewModel from '../../view-model';
 import './reveal-pane.css';
 
 
-class RevealPane
+class RevealPane extends Component
 {
     handleChatShareClick()
     {

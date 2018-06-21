@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { Component } from 'react';
 import ViewModel from '../../view-model';
 import './write-pane.css';
 
 
-class WriteView
+class WriteView extends Component
 {
     handleSubmitClick()
     {

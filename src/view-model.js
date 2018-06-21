@@ -15,6 +15,11 @@ ViewModel.States =
     REVEAL: 3
 };
 
+ViewModel.Constants = 
+{
+    NUM_PHRASES: 4
+};
+
 let socket = null;
 
 //-------------------------------------------
@@ -66,6 +71,9 @@ ViewModel.InitHostUser = () =>
         ViewModel.GameState = {};
         ViewModel.GameState.Players = {};
         ViewModel.GameState.Players[ViewModel.GetUserState("userName")] = { isOnline: true };
+        ViewModel.GameState.Papers = [];
+        ViewModel.GameState.WriteStage = -1;
+        ViewModel.GameState.State = ViewModel.States.LOBBY;
     }
 
     ensureSocketInit();

@@ -16,6 +16,8 @@ class CreateView extends ViewBase
     {
         const roomCode = ViewModel.RandomCode().substring(0, 5);
         const userName = this.userNameRef.current.value;
+        if(!userName)
+            return;
         ViewModel.SendToServer("createRoom", { roomCode }).then(() => 
         {
             ViewModel.SetUserState("roomCode", roomCode);
