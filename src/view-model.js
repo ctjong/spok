@@ -1,15 +1,64 @@
 import $ from 'jquery';
+import io from 'socket.io-client';
+import msgHandler from './services/host-message-handler';
 
 const ViewModel = {};
 ViewModel.ActiveView = null;
 ViewModel.History = null;
 ViewModel.IsHostUser = false;
-ViewModel.Socket = null;
-ViewModel.GameState = {};
+ViewModel.GameState = null;
+
+let socket = null;
 
 //-------------------------------------------
 // PUBLIC FUNCTIONS
 //-------------------------------------------
+
+ViewModel.GetUserState = (name) => 
+{
+    return sessionStorage.getItem(name);
+};
+
+ViewModel.SetUserState = (name, value) => 
+{
+    sessionStorage.getItem(name, value);
+};
+
+ViewModel.SendToServer = (type, data) => 
+{
+    ViewModel.SocketSend(type, "server", null, data);
+};
+
+ViewModel.SendToRoom = (type, target, data) => 
+{
+    ViewModel.SocketSend(type, target, ViewModel.GetUserState("roomCode"), data);
+};
+
+ViewModel.SocketSend = (type, target, room, data) => 
+{
+    ensureSocketInit();
+    return new Promise((resolve, reject) => 
+    {
+        socket.emit(msgType, { type, target, room, data }, (response) => 
+        {
+            response.isSuccess ? resolve(response) : reject(response);
+        });
+    });
+};
+
+ViewModel.InitHostUser = () => 
+{
+    ViewModel.IsHostUser = true;
+    if(ViewModel.GameState === null)
+    {
+        ViewModel.GameState = {};
+        ViewModel.GameState.Players = {};
+        ViewModel.GameState.Players[ViewModel.GetUserState("userName")] = { isOnline: true };
+    }
+
+    ensureSocketInit();
+    socket.on("message", msgHandler);
+};
 
 ViewModel.GoTo = (path) => 
 {
@@ -276,5 +325,11 @@ const chooseNewHostUser = () =>
     playerUserNames.sort();
     return playerUserNames[0];
 }
+
+const ensureSocketInit = () =>
+{
+    if(socket === null)
+        socket = io(`http://${window.location.hostname}`);
+};
 
 export default ViewModel;

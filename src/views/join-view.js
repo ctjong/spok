@@ -1,5 +1,4 @@
 import React from 'react';
-import io from 'socket.io-client';
 import ViewBase from '../view-base';
 import ViewModel from '../view-model';
 import './join-view.css';
@@ -18,17 +17,12 @@ class JoinView extends ViewBase
     {
         const roomCode = this.roomCodeRef.current.value;
         const userName = this.userNameRef.current.value;
-        ViewModel.GameState = 
+        ViewModel.SocketSend("joinRoom", "host", roomCode, { userName }).then(() => 
         {
-            room: roomCode,
-            userName: userName
-        };
-        ViewModel.IsHostUser = false;
-        ViewModel.Socket = io(`http://${window.location.hostname}`, 
-        {
-            query: { room: ViewModel.GameState.room }
+            ViewModel.SetUserState("roomCode", roomCode);
+            ViewModel.SetUserState("userName", userName);
+            ViewModel.GoTo("/lobby");
         });
-        ViewModel.GoTo("/lobby");
     }
 
     handleBackClick()

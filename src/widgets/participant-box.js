@@ -3,18 +3,21 @@ import ViewModel from '../view-model';
 import './participant-box.css';
 
 
-
-
-
-
 class ParticipantBox extends Component
 {
+    componentDidMount()
+    {
+        
+    }
+
     render() 
     {
-        <div className="participants-box">
-            <h2>In the game</h2>
-            <div className="participants"></div>
-        </div>
+        return (
+            <div className="participants-box">
+                <h2>In the game</h2>
+                <div className="participants"></div>
+            </div>
+        );
     }
 }
 

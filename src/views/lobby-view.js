@@ -1,6 +1,7 @@
 import React from 'react';
 import ViewBase from '../view-base';
 import ViewModel from '../view-model';
+import ParticipantBox from '../widgets/participant-box';
 import './lobby-view.css';
 
 
@@ -22,7 +23,7 @@ class LobbyView extends ViewBase
     {
         return (
             <div className="view lobby-view">
-                <h1>Room # {ViewModel.GameState.roomCode}</h1>
+                <h1>Room # {ViewModel.Get("roomCode")}</h1>
                 <div className="wait-for-host-text non-host-only">
                     Waiting for host to start the round
                 </div>
@@ -40,6 +41,8 @@ class LobbyView extends ViewBase
                     </div>
                     <button className="btn btn-success start-btn" onClick={e => this.handleStartClick()}>Start</button>
                 </div>
+
+                <ParticipantBox />
             </div>
         );
     }
