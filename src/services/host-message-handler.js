@@ -1,4 +1,7 @@
-﻿const sendStateUpdate = () => 
+﻿import ViewModel from '../view-model';
+
+
+const sendStateUpdate = () => 
 {
     ViewModel.SendToRoom("stateUpdate", "others", ViewModel.GameState);
 };

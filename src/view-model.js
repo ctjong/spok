@@ -39,7 +39,7 @@ ViewModel.SocketSend = (type, target, room, data) =>
     ensureSocketInit();
     return new Promise((resolve, reject) => 
     {
-        socket.emit(msgType, { type, target, room, data }, (response) => 
+        socket.emit("message", { type, target, room, data }, (response) => 
         {
             response.isSuccess ? resolve(response) : reject(response);
         });
