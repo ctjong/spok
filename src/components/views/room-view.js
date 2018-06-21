@@ -18,6 +18,7 @@ class RoomView extends ViewBase
         this.state = ViewModel.GameState;
         this.roomCode = props.match.params.roomCode;
         this.userName = ViewModel.GetUserState("userName");
+        this.isRoomView = true;
     }
 
     getActivePane()

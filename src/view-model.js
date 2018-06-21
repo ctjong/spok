@@ -60,7 +60,8 @@ ViewModel.SocketSend = (type, target, room, data) =>
 
 ViewModel.UpdateRoomUI = () => 
 {
-    ViewModel.ActiveView.setState(ViewModel.GameState);
+    if(ViewModel.ActiveView.isRoomView)
+        ViewModel.ActiveView.setState(ViewModel.GameState);
 };
 
 ViewModel.InitHostUser = () => 
