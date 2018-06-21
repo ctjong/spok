@@ -21,17 +21,17 @@ ViewModel.GetUserState = (name) =>
 
 ViewModel.SetUserState = (name, value) => 
 {
-    sessionStorage.getItem(name, value);
+    sessionStorage.setItem(name, value);
 };
 
 ViewModel.SendToServer = (type, data) => 
 {
-    ViewModel.SocketSend(type, "server", null, data);
+    return ViewModel.SocketSend(type, "server", null, data);
 };
 
 ViewModel.SendToRoom = (type, target, data) => 
 {
-    ViewModel.SocketSend(type, target, ViewModel.GetUserState("roomCode"), data);
+    return ViewModel.SocketSend(type, target, ViewModel.GetUserState("roomCode"), data);
 };
 
 ViewModel.SocketSend = (type, target, room, data) => 
@@ -70,7 +70,7 @@ ViewModel.ApplyAssignments = (assignments) =>
     for (var key in assignments)
     {
         if (!assignments.hasOwnProperty(key)) continue;
-        ViewModel.GameState.sentences[key].currentEditor = assignments[key];
+        ViewModel.GameState.papers[key].currentEditor = assignments[key];
     }
 }
 
@@ -117,8 +117,8 @@ ViewModel.KickPlayer = (playerUserName) =>
     ViewModel.GameState.players = deleteKey(ViewModel.GameState.players, playerUserName);
     if (ViewModel.GameState.status > 0)
     {
-        var sentence = ViewModel.GetCurrentSentenceFor(playerUserName);
-        ViewModel.GameState.sentences = deleteKey(ViewModel.GameState.sentences, sentence.id);
+        var paper = ViewModel.GetCurrentPaperFor(playerUserName);
+        ViewModel.GameState.papers = deleteKey(ViewModel.GameState.papers, paper.id);
     }
     if (ViewModel.IsHostUser)
     {
@@ -171,24 +171,24 @@ ViewModel.StartNewRound = (language) =>
 {
     if (!ViewModel.IsHostUser) return;
     ViewModel.GameState.lang = language ? language : ViewModel.DefaultLang;
-    ViewModel.GameState.sentences =
+    ViewModel.GameState.papers =
         {};
     for (var key in ViewModel.GameState.players)
     {
         if (!ViewModel.GameState.players.hasOwnProperty(key)) continue;
-        var sentenceId = ViewModel.RandomCode();
-        ViewModel.GameState.sentences[sentenceId] =
-            { id: sentenceId, currentEditor: key };
+        var paperId = ViewModel.RandomCode();
+        ViewModel.GameState.papers[paperId] =
+            { id: paperId, currentEditor: key };
     }
     ViewModel.GameState.status = 1;
-    //TODO:  ViewModel.SignalHub.Broadcast({ type: "startRound", key: ViewModel.GameState.key, lang: ViewModel.GameState.lang, sentences: ViewModel.GameState.sentences });
+    //TODO:  ViewModel.SignalHub.Broadcast({ type: "startRound", key: ViewModel.GameState.key, lang: ViewModel.GameState.lang, papers: ViewModel.GameState.papers });
     ViewModel.LoadPage(ViewModel.Views.WritePage);
 }
 
 ViewModel.StartNextPhrase = () =>
 {
     if (!ViewModel.IsHostUser) return;
-    var newAssignments = getNewSentenceAssignments();
+    var newAssignments = getNewPaperAssignments();
     ViewModel.ApplyAssignments(newAssignments);
     ViewModel.GameState.status++;
     if (ViewModel.GameState.status > ViewModel.NumPhrases)
@@ -202,13 +202,13 @@ ViewModel.StartNextPhrase = () =>
     }
 }
 
-ViewModel.GetCurrentSentenceFor = (userNameArg) =>
+ViewModel.GetCurrentPaperFor = (userNameArg) =>
 {
-    for (var key in ViewModel.GameState.sentences)
+    for (var key in ViewModel.GameState.papers)
     {
-        if (!ViewModel.GameState.sentences.hasOwnProperty(key)) continue;
-        var sentence = ViewModel.GameState.sentences[key];
-        if (sentence.currentEditor === userNameArg) return sentence;
+        if (!ViewModel.GameState.papers.hasOwnProperty(key)) continue;
+        var paper = ViewModel.GameState.papers[key];
+        if (paper.currentEditor === userNameArg) return paper;
     }
     return null;
 }
@@ -217,10 +217,10 @@ ViewModel.SubmitPhrase = (phrase) =>
 {
     if (!phrase) return;
     console.log("phrase submitted: " + phrase);
-    var sentence = ViewModel.Controller.GetCurrentSentenceFor(ViewModel.UserName);
-    sentence["phrase" + ViewModel.GameState.status] = phrase;
-    sentence["phrase" + ViewModel.GameState.status + "author"] = ViewModel.UserName;
-    //TODO:  ViewModel.SignalHub.Broadcast({ type: "phraseSubmitted", key: ViewModel.GameState.key, value: phrase, sentenceId: sentence.id });
+    var paper = ViewModel.Controller.GetCurrentPaperFor(ViewModel.UserName);
+    paper["phrase" + ViewModel.GameState.status] = phrase;
+    paper["phrase" + ViewModel.GameState.status + "author"] = ViewModel.UserName;
+    //TODO:  ViewModel.SignalHub.Broadcast({ type: "phraseSubmitted", key: ViewModel.GameState.key, value: phrase, paperId: paper.id });
     if (ViewModel.IsHostUser && ViewModel.Controller.GetCurrentUnsubmittedPlayers().length === 0)
     {
         ViewModel.Controller.StartNextPhrase();
@@ -232,20 +232,20 @@ ViewModel.SubmitPhrase = (phrase) =>
 
 ViewModel.IsCurrentPhraseSubmitted = () =>
 {
-    var sentence = ViewModel.Controller.GetCurrentSentenceFor(ViewModel.UserName);
-    return !!sentence["phrase" + ViewModel.GameState.status];
+    var paper = ViewModel.Controller.GetCurrentPaperFor(ViewModel.UserName);
+    return !!paper["phrase" + ViewModel.GameState.status];
 }
 
 ViewModel.GetCurrentUnsubmittedPlayers = () =>
 {
     var players = [];
-    for (var key in ViewModel.GameState.sentences)
+    for (var key in ViewModel.GameState.papers)
     {
-        if (!ViewModel.GameState.sentences.hasOwnProperty(key)) continue;
-        var sentence = ViewModel.GameState.sentences[key];
-        if (!sentence["phrase" + ViewModel.GameState.status])
+        if (!ViewModel.GameState.papers.hasOwnProperty(key)) continue;
+        var paper = ViewModel.GameState.papers[key];
+        if (!paper["phrase" + ViewModel.GameState.status])
         {
-            players.push(sentence.currentEditor);
+            players.push(paper.currentEditor);
         }
     }
     return players;
@@ -283,13 +283,13 @@ ViewModel.GetQueryParameter = (name) =>
 // PRIVATE FUNCTIONS
 //-------------------------------------------
 
-const getNewSentenceAssignments = () =>
+const getNewPaperAssignments = () =>
 {
     var ids = [];
-    for (var key in ViewModel.GameState.sentences)
+    for (var key in ViewModel.GameState.papers)
     {
-        if (!ViewModel.GameState.sentences.hasOwnProperty(key)) continue;
-        ids.push(ViewModel.GameState.sentences[key].id);
+        if (!ViewModel.GameState.papers.hasOwnProperty(key)) continue;
+        ids.push(ViewModel.GameState.papers[key].id);
     }
     ids.sort();
     var assignments =
@@ -297,7 +297,7 @@ const getNewSentenceAssignments = () =>
     for (var i = 0; i < ids.length; i++)
     {
         var index = i === 0 ? ids.length - 1 : i - 1;
-        assignments[ids[i]] = ViewModel.GameState.sentences[ids[index]].currentEditor;
+        assignments[ids[i]] = ViewModel.GameState.papers[ids[index]].currentEditor;
     }
     return assignments;
 }
@@ -328,8 +328,9 @@ const chooseNewHostUser = () =>
 
 const ensureSocketInit = () =>
 {
+    const origin = (window.location.origin.indexOf("localhost") >= 0) ? "http://localhost:1337" : window.location.origin;
     if(socket === null)
-        socket = io(`http://${window.location.hostname}`);
+        socket = io(origin);
 };
 
 export default ViewModel;

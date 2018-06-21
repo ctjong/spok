@@ -23,7 +23,7 @@ class LobbyView extends ViewBase
     {
         return (
             <div className="view lobby-view">
-                <h1>Room # {ViewModel.Get("roomCode")}</h1>
+                <h1>Room # {ViewModel.GetUserState("roomCode")}</h1>
                 <div className="wait-for-host-text non-host-only">
                     Waiting for host to start the round
                 </div>

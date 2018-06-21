@@ -123,7 +123,7 @@ export default (msg, reply) =>
 //     if (!ViewModel.Controller.ValidateMessage(message))
 //         return;
 //     ViewModel.GameState.lang = message.lang;
-//     ViewModel.GameState.sentences = $.extend({}, message.sentences);
+//     ViewModel.GameState.papers = $.extend({}, message.papers);
 //     ViewModel.GameState.status = 1;
 //     ViewModel.Controller.LoadPage(ViewModel.Views.WritePage);
 // };
@@ -132,9 +132,9 @@ export default (msg, reply) =>
 // {
 //     if (!ViewModel.Controller.ValidateMessage(message))
 //         return;
-//     var sentence = ViewModel.GameState.sentences[message.sentenceId];
-//     sentence["phrase" + ViewModel.GameState.status] = message.value;
-//     sentence["phrase" + ViewModel.GameState.status + "author"] = sentence.currentEditor;
+//     var paper = ViewModel.GameState.papers[message.paperId];
+//     paper["phrase" + ViewModel.GameState.status] = message.value;
+//     paper["phrase" + ViewModel.GameState.status + "author"] = paper.currentEditor;
 //     if (ViewModel.Controller.GetCurrentUnsubmittedPlayers().length === 0)
 //     {
 //         ViewModel.Controller.StartNextPhrase();
@@ -167,7 +167,7 @@ export default (msg, reply) =>
 //     if (!ViewModel.Controller.ValidateMessage(message))
 //         return;
 //     ViewModel.GameState.status = 0;
-//     ViewModel.GameState.sentences = {};
+//     ViewModel.GameState.papers = {};
 //     ViewModel.Controller.LoadPage(ViewModel.Views.LobbyPage);
 // };
 

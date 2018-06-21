@@ -29,9 +29,9 @@ class RevealView extends ViewBase
         return (
             <div className="view reveal-view">
                 <h1><span className="user-name"></span>@<span className="room-code"></span></h1>
-                <h2 className="sentence-id-heading">Sentence #<span className="sentence-id"></span></h2>
-                <h2 className="result-sentence"></h2>
-                <div className="sentence-authors"></div>
+                <h2 className="paper-id-heading">Paper #<span className="paper-id"></span></h2>
+                <h2 className="result-paper"></h2>
+                <div className="paper-authors"></div>
                 <div className="share-result-link-div">
                     <a className="share-result-link" onClick={this.handleChatShareClick()}>Share via chat</a>
                 </div>

@@ -14,7 +14,7 @@ class CreateView extends ViewBase
 
     handleSubmitClick()
     {
-        const roomCode = ViewModel.RandomCode();
+        const roomCode = ViewModel.RandomCode().substring(0, 5);
         const userName = this.userNameRef.current.value;
         ViewModel.SendToServer("createRoom", { roomCode }).then(() => 
         {

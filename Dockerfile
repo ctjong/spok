@@ -14,4 +14,4 @@ RUN npm run build
 RUN ls
 
 CMD ["npm", "start"]
-EXPOSE 3000
+EXPOSE 1337
