@@ -8,7 +8,7 @@ ViewModel.History = null;
 ViewModel.IsHostUser = false;
 ViewModel.GameState = null;
 
-ViewModel.States = 
+ViewModel.Phases = 
 {
     LOBBY: 1,
     WRITE: 2,
@@ -68,7 +68,7 @@ ViewModel.InitHostUser = () =>
         ViewModel.GameState.Players[ViewModel.GetUserState("userName")] = { isOnline: true };
         ViewModel.GameState.Papers = [];
         ViewModel.GameState.WriteStage = -1;
-        ViewModel.GameState.State = ViewModel.States.LOBBY;
+        ViewModel.GameState.Phase = ViewModel.Phases.LOBBY;
     }
 
     ensureSocketInit();

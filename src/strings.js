@@ -1,5 +1,17 @@
-export default Strings =
+export default
     {
+        "en":
+        {
+            "langName": "English",
+            "phrase1label": "Enter a subject",
+            "phrase1placeholder": "Examples: Ned, Catelyn, Robb, Obama",
+            "phrase2label": "Enter a verb",
+            "phrase2placeholder": "Examples: bring, eat, drink, look, enjoy",
+            "phrase3label": "Enter an object",
+            "phrase3placeholder": "Examples: ball, fruit, Ned's head, Jon's sword",
+            "phrase4label": "Enter an adjective/adverb",
+            "phrase4placeholder": "Examples: in the woods, until the end of time, while watching TV"
+        },
         "id":
         {
             "langName": "Bahasa Indonesia",
@@ -12,16 +24,4 @@ export default Strings =
             "phrase4label": "Masukkan keterangan (tempat/waktu/dll)",
             "phrase4placeholder": "Contoh: di gunung, sampai puas, karena lelah",
         },
-        "en":
-        {
-            "langName": "English",
-            "phrase1label": "Enter a subject",
-            "phrase1placeholder": "Examples: Ned, Catelyn, Robb, Obama",
-            "phrase2label": "Enter a verb",
-            "phrase2placeholder": "Examples: bring, eat, drink, look, enjoy",
-            "phrase3label": "Enter an object",
-            "phrase3placeholder": "Examples: ball, fruit, Ned's head, Jon's sword",
-            "phrase4label": "Enter an adjective/adverb",
-            "phrase4placeholder": "Examples: in the woods, until the end of time, while watching TV"
-        }
     };

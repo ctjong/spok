@@ -29,11 +29,11 @@ class RoomView extends ViewBase
 
     getActivePane()
     {
-        switch(this.state.game.State)
+        switch(this.state.game.Phase)
         {
-            case ViewModel.States.LOBBY:
+            case ViewModel.Phases.LOBBY:
                 return <LobbyPane isHostUser={this.state.isHostUser}/>;
-            case ViewModel.States.WRITE:
+            case ViewModel.Phases.WRITE:
                 let pane = <WaitPane/>;
                 this.state.game.Papers.some((paper) => 
                 {
@@ -45,7 +45,7 @@ class RoomView extends ViewBase
                     return false;
                 });
                 return pane;
-            case ViewModel.States.REVEAL:
+            case ViewModel.Phases.REVEAL:
                 return <RevealPane/>;
         }
     }
