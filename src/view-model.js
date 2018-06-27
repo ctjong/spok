@@ -108,6 +108,20 @@ ViewModel.initHostUser = () =>
     socket.on(ViewModel.msg.events.MSG, msgHandler);
 };
 
+ViewModel.initClientUser = () =>
+{
+    ViewModel.isHostUser = false;
+    ensureSocketInit();
+    socket.on(ViewModel.msg.events.MSG, (msg, reply) => 
+    {
+        if(msg.type === ViewModel.msg.types.STATE_UPDATE)
+        {
+            ViewModel.gameState = msg.data;
+            ViewModel.activeView.syncStates();
+        }
+    });
+};
+
 ViewModel.goTo = (path) => 
 {
     ViewModel.history.push(path);

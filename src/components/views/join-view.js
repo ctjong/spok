@@ -22,6 +22,7 @@ class JoinView extends ViewBase
             ViewModel.gameState = response.gameState;
             ViewModel.setUserState("roomCode", roomCode);
             ViewModel.setUserState("userName", userName);
+            ViewModel.initClientUser();
             ViewModel.goTo(`/room/${roomCode}`);
         });
     }
