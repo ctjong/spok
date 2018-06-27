@@ -138,7 +138,7 @@ ViewModel.getRandomCode = () =>
 ViewModel.startRound = () => 
 {
     ViewModel.gameState.phase = ViewModel.phases.WRITE;
-    ViewModel.gameState.writeStage = 0;
+    ViewModel.gameState.writeStage = 1;
     Object.keys(ViewModel.gameState.players).forEach(userName => 
     {
         ViewModel.gameState.papers.push(
