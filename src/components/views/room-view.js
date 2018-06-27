@@ -27,6 +27,11 @@ class RoomView extends ViewBase
         ViewModel.sendToRoom(ViewModel.msg.types.STATE_UPDATE, ViewModel.msg.targets.OTHERS, this.state.game);
     }
 
+    handlePartSubmit(part)
+    {
+
+    }
+
     getActivePane()
     {
         switch(this.state.game.phase)
@@ -39,7 +44,7 @@ class RoomView extends ViewBase
                 {
                     if(paper.currentHolder.userName === this.userName && paper.parts.length < this.state.game.activePart)
                     {
-                        pane = <WritePane/>;
+                        pane = <WritePane activePart={this.state.game.activePart} lang={this.state.game.lang} handleSubmit={p => this.handlePartSubmit(p)}/>;
                         return true;
                     }
                     return false;

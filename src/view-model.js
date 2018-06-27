@@ -20,6 +20,7 @@ ViewModel.constants =
         SENTENCE_PART_COUNT: 4,
         ROOM_CODE: "roomCode",
         USER_NAME: "userName",
+        DEFAULT_LANG: "en",
     };
 
 let socket = null;
@@ -99,6 +100,7 @@ ViewModel.initHostUser = () =>
     {
         const userName = ViewModel.getUserState(ViewModel.constants.USER_NAME);
         ViewModel.gameState = {};
+        ViewModel.gameState.lang = null;
         ViewModel.gameState.players = {};
         ViewModel.gameState.players[userName] = { userName, isOnline: true };
         ViewModel.gameState.papers = [];
@@ -135,8 +137,9 @@ ViewModel.getRandomCode = () =>
     return Math.floor((1 + Math.random()) * 0x1000000000).toString(16).substring(10 - ViewModel.randomCodeLength);
 };
 
-ViewModel.startRound = () => 
+ViewModel.startRound = (lang) => 
 {
+    ViewModel.gameState.lang = lang;
     ViewModel.gameState.phase = ViewModel.phases.WRITE;
     ViewModel.gameState.activePart = 1;
     Object.keys(ViewModel.gameState.players).forEach(userName => 

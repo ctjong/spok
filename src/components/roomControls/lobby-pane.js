@@ -20,7 +20,14 @@ class LobbyPane extends Component
 
     handleStartClick()
     {
-        ViewModel.startRound();
+        let lang = ViewModel.constants.DEFAULT_LANG;
+        if(this.langSelectRef.current)
+        {
+            const dropdown = this.langSelectRef.current;
+            const selectedIndex = dropdown.selectedIndex;
+            lang = dropdown.options[selectedIndex].value;
+        }
+        ViewModel.startRound(lang);
     }
 
     getHostContent()

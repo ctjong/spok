@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import ViewModel from '../../view-model';
+import Strings from '../../strings';
 import './write-pane.css';
 
 
-class WriteView extends Component
+class WritePane extends Component
 {
     handleSubmitClick()
     {
@@ -13,11 +14,14 @@ class WriteView extends Component
 
     render() 
     {
+        const label = Strings[this.props.lang][`part${this.props.activePart}label`];
+        const placeholder = Strings[this.props.lang][`part${this.props.activePart}placeholder`];
+
         return (
             <div className="pane write-pane">
                 <div className="form-inline phrase1">
-                    <label></label>
-                    <input type="text" className="input form-control"/>
+                    <label>{label}</label>
+                    <input type="text" className="input form-control" placeholder={placeholder}/>
                     <button className="btn btn-primary submit-btn" onClick={e => this.handleSubmitClick()}>Submit</button>
                 </div>
             </div>
@@ -25,4 +29,4 @@ class WriteView extends Component
     }
 }
 
-export default WriteView;
+export default WritePane;
