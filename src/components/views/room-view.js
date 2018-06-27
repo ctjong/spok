@@ -37,7 +37,7 @@ class RoomView extends ViewBase
                 let pane = <WaitPane/>;
                 this.state.game.papers.some((paper) => 
                 {
-                    if(paper.currentHolder.userName === this.userName && paper.parts.length < this.state.game.writeStage)
+                    if(paper.currentHolder.userName === this.userName && paper.parts.length < this.state.game.activePart)
                     {
                         pane = <WritePane/>;
                         return true;

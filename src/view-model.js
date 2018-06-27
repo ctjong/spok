@@ -17,7 +17,7 @@ ViewModel.phases =
 
 ViewModel.constants =
     {
-        WRITE_STAGE_COUNT: 4,
+        SENTENCE_PART_COUNT: 4,
         ROOM_CODE: "roomCode",
         USER_NAME: "userName",
     };
@@ -102,7 +102,7 @@ ViewModel.initHostUser = () =>
         ViewModel.gameState.players = {};
         ViewModel.gameState.players[userName] = { userName, isOnline: true };
         ViewModel.gameState.papers = [];
-        ViewModel.gameState.writeStage = -1;
+        ViewModel.gameState.activePart = -1;
         ViewModel.gameState.phase = ViewModel.phases.LOBBY;
     }
 
@@ -138,7 +138,7 @@ ViewModel.getRandomCode = () =>
 ViewModel.startRound = () => 
 {
     ViewModel.gameState.phase = ViewModel.phases.WRITE;
-    ViewModel.gameState.writeStage = 1;
+    ViewModel.gameState.activePart = 1;
     Object.keys(ViewModel.gameState.players).forEach(userName => 
     {
         ViewModel.gameState.papers.push(
@@ -147,7 +147,6 @@ ViewModel.startRound = () =>
                 currentHolder: ViewModel.gameState.players[userName]
             });
     });
-    ViewModel.sendToRoom(ViewModel.msg.types.STATE_UPDATE, ViewModel.msg.targets.OTHERS, ViewModel.gameState);
     ViewModel.activeView.syncStates();
 };
 
