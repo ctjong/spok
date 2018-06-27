@@ -18,10 +18,10 @@ class CreateView extends ViewBase
         const userName = this.userNameRef.current.value;
         if(!userName)
             return;
-        ViewModel.sendToServer("createRoom", { roomCode }).then(() => 
+        ViewModel.sendToServer(ViewModel.msg.types.CREATE_ROOM, { roomCode }).then(() => 
         {
-            ViewModel.setUserState("roomCode", roomCode);
-            ViewModel.setUserState("userName", userName);
+            ViewModel.setUserState(ViewModel.constants.ROOM_CODE, roomCode);
+            ViewModel.setUserState(ViewModel.constants.USER_NAME, userName);
             ViewModel.initHostUser();
             ViewModel.goTo(`/room/${roomCode}`);
         });

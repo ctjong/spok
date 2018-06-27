@@ -17,7 +17,7 @@ class RoomView extends ViewBase
         super(props);
         this.state = { game: ViewModel.gameState, isHostUser: ViewModel.isHostUser };
         this.roomCode = props.match.params.roomCode;
-        this.userName = ViewModel.getUserState("userName");
+        this.userName = ViewModel.getUserState(ViewModel.constants.USER_NAME);
         this.isRoomView = true;
     }
 

@@ -20,8 +20,8 @@ class JoinView extends ViewBase
         ViewModel.socketSend(ViewModel.msg.types.JOIN_ROOM, ViewModel.msg.targets.HOST, roomCode, { userName }).then((response) => 
         {
             ViewModel.gameState = response.gameState;
-            ViewModel.setUserState("roomCode", roomCode);
-            ViewModel.setUserState("userName", userName);
+            ViewModel.setUserState(ViewModel.constants.ROOM_CODE, roomCode);
+            ViewModel.setUserState(ViewModel.constants.USER_NAME, userName);
             ViewModel.initClientUser();
             ViewModel.goTo(`/room/${roomCode}`);
         });

@@ -17,7 +17,9 @@ ViewModel.phases =
 
 ViewModel.constants =
     {
-        NUM_PHRASES: 4
+        NUM_PHRASES: 4,
+        ROOM_CODE: "roomCode",
+        USER_NAME: "userName",
     };
 
 let socket = null;
@@ -75,7 +77,7 @@ ViewModel.sendToServer = (type, data) =>
 
 ViewModel.sendToRoom = (type, target, data) => 
 {
-    return ViewModel.socketSend(type, target, ViewModel.getUserState("roomCode"), data);
+    return ViewModel.socketSend(type, target, ViewModel.getUserState(ViewModel.constants.ROOM_CODE), data);
 };
 
 ViewModel.socketSend = (type, target, room, data) => 
@@ -95,7 +97,7 @@ ViewModel.initHostUser = () =>
     ViewModel.isHostUser = true;
     if (ViewModel.gameState === null)
     {
-        const userName = ViewModel.getUserState("userName");
+        const userName = ViewModel.getUserState(ViewModel.constants.USER_NAME);
         ViewModel.gameState = {};
         ViewModel.gameState.players = {};
         ViewModel.gameState.players[userName] = { userName, isOnline: true };
