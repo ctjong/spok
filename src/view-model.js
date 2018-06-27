@@ -17,7 +17,7 @@ ViewModel.phases =
 
 ViewModel.constants =
     {
-        NUM_PHRASES: 4,
+        WRITE_STAGE_COUNT: 4,
         ROOM_CODE: "roomCode",
         USER_NAME: "userName",
     };
