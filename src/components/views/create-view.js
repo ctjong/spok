@@ -14,22 +14,22 @@ class CreateView extends ViewBase
 
     handleSubmitClick()
     {
-        const roomCode = ViewModel.RandomCode().substring(0, 5);
+        const roomCode = ViewModel.getRandomCode().substring(0, 5);
         const userName = this.userNameRef.current.value;
         if(!userName)
             return;
-        ViewModel.SendToServer("createRoom", { roomCode }).then(() => 
+        ViewModel.sendToServer("createRoom", { roomCode }).then(() => 
         {
-            ViewModel.SetUserState("roomCode", roomCode);
-            ViewModel.SetUserState("userName", userName);
-            ViewModel.InitHostUser();
-            ViewModel.GoTo(`/room/${roomCode}`);
+            ViewModel.setUserState("roomCode", roomCode);
+            ViewModel.setUserState("userName", userName);
+            ViewModel.initHostUser();
+            ViewModel.goTo(`/room/${roomCode}`);
         });
     }
 
     handleBackClick()
     {
-        ViewModel.GoTo("");
+        ViewModel.goTo("");
     }
 
     render() 

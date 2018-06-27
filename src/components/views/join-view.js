@@ -17,18 +17,18 @@ class JoinView extends ViewBase
     {
         const roomCode = this.roomCodeRef.current.value;
         const userName = this.userNameRef.current.value;
-        ViewModel.SocketSend("joinRoom", "host", roomCode, { userName }).then((response) => 
+        ViewModel.socketSend(ViewModel.msg.types.JOIN_ROOM, ViewModel.msg.targets.HOST, roomCode, { userName }).then((response) => 
         {
-            ViewModel.GameState = response.gameState;
-            ViewModel.SetUserState("roomCode", roomCode);
-            ViewModel.SetUserState("userName", userName);
-            ViewModel.GoTo(`/room/${roomCode}`);
+            ViewModel.gameState = response.gameState;
+            ViewModel.setUserState("roomCode", roomCode);
+            ViewModel.setUserState("userName", userName);
+            ViewModel.goTo(`/room/${roomCode}`);
         });
     }
 
     handleBackClick()
     {
-        ViewModel.GoTo("");
+        ViewModel.goTo("");
     }
 
     render() 

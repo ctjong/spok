@@ -119,9 +119,9 @@ Spok.Views.WritePage = {
         var currentSentence = Spok.Controller.GetCurrentSentenceFor(Spok.UserName);
         $(".sentenceId").html(currentSentence.id);
 
-        var status = Spok.GameState.status;
-        $(".writePage label").text(Spok.Strings[Spok.GameState.lang]["phrase" + status + "label"]);
-        $(".writePage input").val("").attr("placeholder", Spok.Strings[Spok.GameState.lang]["phrase" + status + "placeholder"]);
+        var status = Spok.gameState.status;
+        $(".writePage label").text(Spok.Strings[Spok.gameState.lang]["phrase" + status + "label"]);
+        $(".writePage input").val("").attr("placeholder", Spok.Strings[Spok.gameState.lang]["phrase" + status + "placeholder"]);
     },
     OnLoad: function () {
         $(".roomCode").html(Spok.RoomCode);
@@ -151,18 +151,18 @@ Spok.Views.RevealPage = {
     Inputs: ".form-inline input",
     Clicks: {
         ".newRoundBtn": function () {
-            Spok.Controller.StartNewRound(Spok.GameState.lang);
+            Spok.Controller.StartNewRound(Spok.gameState.lang);
         },
         ".endRoundBtn": function () {
-            Spok.SignalHub.Broadcast({ type: "endRound", key: Spok.GameState.key });
-            Spok.GameState.status = 0;
-            Spok.GameState.sentences = {};
+            Spok.SignalHub.Broadcast({ type: "endRound", key: Spok.gameState.key });
+            Spok.gameState.status = 0;
+            Spok.gameState.sentences = {};
             Spok.Controller.LoadPage(Spok.Views.LobbyPage);
         },
         ".shareResultLink": function () {
             var sentence = $(".resultSentence").html();
             Spok.Views.ChatBox.Update(sentence, Spok.UserName);
-            Spok.SignalHub.Broadcast({ type: "chat", key: Spok.GameState.key, author: Spok.UserName, content: sentence });
+            Spok.SignalHub.Broadcast({ type: "chat", key: Spok.gameState.key, author: Spok.UserName, content: sentence });
         }
     },
     Refresh: function () {
@@ -177,7 +177,7 @@ Spok.Views.RevealPage = {
             sentence += (sentence === "" ? "" : " ") + currentPhrase.toLowerCase();
             sentenceAuthors += (sentenceAuthors === "" ? "" : ", ") + currentPhrase.toLowerCase() + " (" + currentSentence["phrase" + i + "author"] + ")";
         }
-        $(".revealModeWaitText").text("Pending action from " + Spok.GameState.hostUserName);
+        $(".revealModeWaitText").text("Pending action from " + Spok.gameState.hostUserName);
         $(".resultSentence").text(sentence);
         $(".sentenceAuthors").text(sentenceAuthors);
     },
@@ -198,8 +198,8 @@ Spok.Views.ParticipantsBox = {
     },
     Update: function () {
         var text = "";
-        for (var key in Spok.GameState.players) {
-            if (!Spok.GameState.players.hasOwnProperty(key)) continue;
+        for (var key in Spok.gameState.players) {
+            if (!Spok.gameState.players.hasOwnProperty(key)) continue;
             var str = "<span><span className='playerName'>" + key + "</span>";
             if (Spok.IsHostUser && key !== Spok.UserName) str += " (<a className='playerKick'>kick</a>) ";
             str += "</span>";
@@ -238,7 +238,7 @@ Spok.Views.ChatBox = {
             if (!chat) return;
             $(".chatbox-input").val("").focus();
             Spok.Views.ChatBox.Update(chat, Spok.UserName);
-            Spok.SignalHub.Broadcast({ type: "chat", key: Spok.GameState.key, author: Spok.UserName, content: chat });
+            Spok.SignalHub.Broadcast({ type: "chat", key: Spok.gameState.key, author: Spok.UserName, content: chat });
         }
         $(".chat-send").unbind("click").click(submitChat);
         $(".chat-clear").unbind("click").click(function() { $(".chatbox-innerchats").html(""); });

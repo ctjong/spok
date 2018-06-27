@@ -10,13 +10,13 @@ class RoomView extends ViewBase
     handleWhatsappShareClick()
     {
         //TODO
-        // ViewModel.GoTo("/create");
+        // ViewModel.goTo("/create");
     }
 
     handleStartClick()
     {
         //TODO
-        // ViewModel.GoTo("/create");
+        // ViewModel.goTo("/create");
     }
 
     render() 

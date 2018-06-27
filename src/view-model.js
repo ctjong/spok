@@ -3,87 +3,136 @@ import io from 'socket.io-client';
 import msgHandler from './services/host-message-handler';
 
 const ViewModel = {};
-ViewModel.ActiveView = null;
-ViewModel.History = null;
-ViewModel.IsHostUser = false;
-ViewModel.GameState = null;
+ViewModel.activeView = null;
+ViewModel.history = null;
+ViewModel.isHostUser = false;
+ViewModel.gameState = null;
 
-ViewModel.Phases = 
-{
-    LOBBY: 1,
-    WRITE: 2,
-    REVEAL: 3
-};
+ViewModel.phases =
+    {
+        LOBBY: 1,
+        WRITE: 2,
+        REVEAL: 3
+    };
 
-ViewModel.Constants = 
-{
-    NUM_PHRASES: 4
-};
+ViewModel.constants =
+    {
+        NUM_PHRASES: 4
+    };
 
 let socket = null;
+
+
+//---------------------------------------------------------------------------
+// MESSAGE ENUMS
+// This should be kept in sync with the enums in server-message-handler
+//---------------------------------------------------------------------------
+
+ViewModel.msg =
+{
+    types:
+    {
+        STATE_UPDATE: "stateUpdate",
+        CREATE_ROOM: "createRoom",
+        JOIN_ROOM: "joinRoom",
+    },
+    targets:
+    {
+        SERVER: "server",
+        HOST: "host",
+        OTHERS: "others",
+        ALL: "all",
+    },
+    events:
+    {
+        MSG: "message"
+    },
+    errors:
+    {
+        ROOM_CODE_USED: "roomCodeUsed",
+        USER_NAME_EXISTS: "userNameExists",
+    }
+};
 
 //-------------------------------------------
 // PUBLIC FUNCTIONS
 //-------------------------------------------
 
-ViewModel.GetUserState = (name) => 
+ViewModel.getUserState = (name) => 
 {
     return sessionStorage.getItem(name);
 };
 
-ViewModel.SetUserState = (name, value) => 
+ViewModel.setUserState = (name, value) => 
 {
     sessionStorage.setItem(name, value);
 };
 
-ViewModel.SendToServer = (type, data) => 
+ViewModel.sendToServer = (type, data) => 
 {
-    return ViewModel.SocketSend(type, "server", null, data);
+    return ViewModel.socketSend(type, ViewModel.msg.targets.SERVER, null, data);
 };
 
-ViewModel.SendToRoom = (type, target, data) => 
+ViewModel.sendToRoom = (type, target, data) => 
 {
-    return ViewModel.SocketSend(type, target, ViewModel.GetUserState("roomCode"), data);
+    return ViewModel.socketSend(type, target, ViewModel.getUserState("roomCode"), data);
 };
 
-ViewModel.SocketSend = (type, target, room, data) => 
+ViewModel.socketSend = (type, target, room, data) => 
 {
     ensureSocketInit();
     return new Promise((resolve, reject) => 
     {
-        socket.emit("message", { type, target, room, data }, (response) => 
+        socket.emit(ViewModel.msg.events.MSG, { type, target, room, data }, (response) => 
         {
             response.isSuccess ? resolve(response) : reject(response);
         });
     });
 };
 
-ViewModel.InitHostUser = () => 
+ViewModel.initHostUser = () => 
 {
-    ViewModel.IsHostUser = true;
-    if(ViewModel.GameState === null)
+    ViewModel.isHostUser = true;
+    if (ViewModel.gameState === null)
     {
-        ViewModel.GameState = {};
-        ViewModel.GameState.Players = {};
-        ViewModel.GameState.Players[ViewModel.GetUserState("userName")] = { isOnline: true };
-        ViewModel.GameState.Papers = [];
-        ViewModel.GameState.WriteStage = -1;
-        ViewModel.GameState.Phase = ViewModel.Phases.LOBBY;
+        const userName = ViewModel.getUserState("userName");
+        ViewModel.gameState = {};
+        ViewModel.gameState.players = {};
+        ViewModel.gameState.players[userName] = { userName, isOnline: true };
+        ViewModel.gameState.papers = [];
+        ViewModel.gameState.writeStage = -1;
+        ViewModel.gameState.phase = ViewModel.phases.LOBBY;
     }
 
     ensureSocketInit();
-    socket.on("message", msgHandler);
+    socket.on(ViewModel.msg.events.MSG, msgHandler);
 };
 
-ViewModel.GoTo = (path) => 
+ViewModel.goTo = (path) => 
 {
-    ViewModel.History.push(path);
+    ViewModel.history.push(path);
 };
 
-ViewModel.RandomCode = () =>
+ViewModel.getRandomCode = () =>
 {
-    if (ViewModel.RandomCodeLength > 10) ViewModel.RandomCodeLength = 10;
-    return Math.floor((1 + Math.random()) * 0x1000000000).toString(16).substring(10 - ViewModel.RandomCodeLength);
+    if (ViewModel.randomCodeLength > 10) ViewModel.randomCodeLength = 10;
+    return Math.floor((1 + Math.random()) * 0x1000000000).toString(16).substring(10 - ViewModel.randomCodeLength);
+};
+
+ViewModel.startRound = () => 
+{
+    ViewModel.gameState.phase = ViewModel.phases.WRITE;
+    ViewModel.gameState.writeStage = 0;
+    Object.keys(ViewModel.gameState.players).forEach(userName => 
+    {
+        ViewModel.gameState.papers.push(
+            {
+                parts: [],
+                currentHolder: ViewModel.gameState.players[userName]
+            });
+    });
+    ViewModel.sendToRoom(ViewModel.msg.types.STATE_UPDATE, ViewModel.msg.targets.OTHERS, ViewModel.gameState);
+    ViewModel.activeView.syncStates();
 };
 
 // ViewModel.ApplyAssignments = (assignments) =>
@@ -91,7 +140,7 @@ ViewModel.RandomCode = () =>
 //     for (var key in assignments)
 //     {
 //         if (!assignments.hasOwnProperty(key)) continue;
-//         ViewModel.GameState.papers[key].currentEditor = assignments[key];
+//         ViewModel.gameState.papers[key].currentEditor = assignments[key];
 //     }
 // }
 
@@ -99,10 +148,10 @@ ViewModel.RandomCode = () =>
 // {
 //     // get the user name of the player associated with the disconnected connection
 //     var playerUserName = null;
-//     for (var key in ViewModel.GameState.players)
+//     for (var key in ViewModel.gameState.players)
 //     {
-//         if (!ViewModel.GameState.players.hasOwnProperty(key)) continue;
-//         if (ViewModel.GameState.players[key] === connectionId)
+//         if (!ViewModel.gameState.players.hasOwnProperty(key)) continue;
+//         if (ViewModel.gameState.players[key] === connectionId)
 //         {
 //             playerUserName = key;
 //             break;
@@ -111,15 +160,15 @@ ViewModel.RandomCode = () =>
 //     if (!playerUserName) return;
 
 //     // invalidate connection entry of that user
-//     ViewModel.GameState.players[playerUserName] = null;
+//     ViewModel.gameState.players[playerUserName] = null;
 
 //     // if the disconnected user is the host, choose new host
-//     if (playerUserName === ViewModel.GameState.hostUserName && ViewModel.UserName === chooseNewHostUser())
+//     if (playerUserName === ViewModel.gameState.hostUserName && ViewModel.UserName === chooseNewHostUser())
 //     {
-//         ViewModel.IsHostUser = true;
+//         ViewModel.isHostUser = true;
 //         $("body").removeClass("nonHost").addClass("host");
-//         ViewModel.GameState.hostUserName = ViewModel.UserName;
-//         //TODO:  ViewModel.SignalHub.Broadcast({ type: "hostChanged", key: ViewModel.GameState.key, newHostUserName: ViewModel.GameState.hostUserName });
+//         ViewModel.gameState.hostUserName = ViewModel.UserName;
+//         //TODO:  ViewModel.SignalHub.Broadcast({ type: "hostChanged", key: ViewModel.gameState.key, newHostUserName: ViewModel.gameState.hostUserName });
 //         ViewModel.Views.ParticipantsBox.Update();
 //     }
 
@@ -135,19 +184,19 @@ ViewModel.RandomCode = () =>
 //         window.location.href = "/";
 //         return;
 //     }
-//     ViewModel.GameState.players = deleteKey(ViewModel.GameState.players, playerUserName);
-//     if (ViewModel.GameState.status > 0)
+//     ViewModel.gameState.players = deleteKey(ViewModel.gameState.players, playerUserName);
+//     if (ViewModel.gameState.status > 0)
 //     {
 //         var paper = ViewModel.GetCurrentPaperFor(playerUserName);
-//         ViewModel.GameState.papers = deleteKey(ViewModel.GameState.papers, paper.id);
+//         ViewModel.gameState.papers = deleteKey(ViewModel.gameState.papers, paper.id);
 //     }
-//     if (ViewModel.IsHostUser)
+//     if (ViewModel.isHostUser)
 //     {
-//         //TODO:  ViewModel.SignalHub.Broadcast({ type: "playerKicked", key: ViewModel.GameState.key, userName: playerUserName });
+//         //TODO:  ViewModel.SignalHub.Broadcast({ type: "playerKicked", key: ViewModel.gameState.key, userName: playerUserName });
 //     }
 //     ViewModel.Views.ParticipantsBox.Update();
 //     ViewModel.Views.ChatBox.Update(playerUserName + " has been kicked");
-//     if (ViewModel.GameState.status > 0 && ViewModel.IsHostUser && ViewModel.Controller.GetCurrentUnsubmittedPlayers().length === 0)
+//     if (ViewModel.gameState.status > 0 && ViewModel.isHostUser && ViewModel.Controller.GetCurrentUnsubmittedPlayers().length === 0)
 //     {
 //         ViewModel.Controller.StartNextPhrase();
 //     } else
@@ -161,16 +210,16 @@ ViewModel.RandomCode = () =>
 //     if (!userName) return;
 //     ViewModel.UserName = userName;
 //     ViewModel.RoomCode = roomCode;
-//     ViewModel.GameState = {};
-//     ViewModel.GameState.lang = ViewModel.DefaultLang;
-//     ViewModel.GameState.key = ViewModel.RandomCode() + ViewModel.RandomCode();
-//     ViewModel.GameState.hostUserName = ViewModel.UserName;
-//     ViewModel.GameState.players = {};
-//     //TODO: ViewModel.GameState.players[ViewModel.UserName] = ViewModel.SignalHub.GetConnectionId();
-//     ViewModel.GameState.status = 0;
-//     ViewModel.IsHostUser = true;
+//     ViewModel.gameState = {};
+//     ViewModel.gameState.lang = ViewModel.DefaultLang;
+//     ViewModel.gameState.key = ViewModel.getRandomCode() + ViewModel.getRandomCode();
+//     ViewModel.gameState.hostUserName = ViewModel.UserName;
+//     ViewModel.gameState.players = {};
+//     //TODO: ViewModel.gameState.players[ViewModel.UserName] = ViewModel.SignalHub.GetConnectionId();
+//     ViewModel.gameState.status = 0;
+//     ViewModel.isHostUser = true;
 //     $("body").removeClass("nonHost").addClass("host");
-//     //TODO: ViewModel.SignalHub.JoinRoom(ViewModel.RoomCode, ViewModel.GameState.key, () =>
+//     //TODO: ViewModel.SignalHub.JoinRoom(ViewModel.RoomCode, ViewModel.gameState.key, () =>
 //     // {
 //     //     ViewModel.LoadPage(ViewModel.Views.LobbyPage);
 //     // });
@@ -190,45 +239,45 @@ ViewModel.RandomCode = () =>
 
 // ViewModel.StartNewRound = (language) =>
 // {
-//     if (!ViewModel.IsHostUser) return;
-//     ViewModel.GameState.lang = language ? language : ViewModel.DefaultLang;
-//     ViewModel.GameState.papers =
+//     if (!ViewModel.isHostUser) return;
+//     ViewModel.gameState.lang = language ? language : ViewModel.DefaultLang;
+//     ViewModel.gameState.papers =
 //         {};
-//     for (var key in ViewModel.GameState.players)
+//     for (var key in ViewModel.gameState.players)
 //     {
-//         if (!ViewModel.GameState.players.hasOwnProperty(key)) continue;
-//         var paperId = ViewModel.RandomCode();
-//         ViewModel.GameState.papers[paperId] =
+//         if (!ViewModel.gameState.players.hasOwnProperty(key)) continue;
+//         var paperId = ViewModel.getRandomCode();
+//         ViewModel.gameState.papers[paperId] =
 //             { id: paperId, currentEditor: key };
 //     }
-//     ViewModel.GameState.status = 1;
-//     //TODO:  ViewModel.SignalHub.Broadcast({ type: "startRound", key: ViewModel.GameState.key, lang: ViewModel.GameState.lang, papers: ViewModel.GameState.papers });
+//     ViewModel.gameState.status = 1;
+//     //TODO:  ViewModel.SignalHub.Broadcast({ type: "startRound", key: ViewModel.gameState.key, lang: ViewModel.gameState.lang, papers: ViewModel.gameState.papers });
 //     ViewModel.LoadPage(ViewModel.Views.WritePage);
 // }
 
 // ViewModel.StartNextPhrase = () =>
 // {
-//     if (!ViewModel.IsHostUser) return;
+//     if (!ViewModel.isHostUser) return;
 //     var newAssignments = getNewPaperAssignments();
 //     ViewModel.ApplyAssignments(newAssignments);
-//     ViewModel.GameState.status++;
-//     if (ViewModel.GameState.status > ViewModel.NumPhrases)
+//     ViewModel.gameState.status++;
+//     if (ViewModel.gameState.status > ViewModel.NumPhrases)
 //     {
-//         //TODO:  ViewModel.SignalHub.Broadcast({ type: "reveal", key: ViewModel.GameState.key, assignments: newAssignments });
+//         //TODO:  ViewModel.SignalHub.Broadcast({ type: "reveal", key: ViewModel.gameState.key, assignments: newAssignments });
 //         ViewModel.LoadPage(ViewModel.Views.RevealPage);
 //     } else
 //     {
-//         //TODO:  ViewModel.SignalHub.Broadcast({ type: "nextPhrase", key: ViewModel.GameState.key, assignments: newAssignments });
+//         //TODO:  ViewModel.SignalHub.Broadcast({ type: "nextPhrase", key: ViewModel.gameState.key, assignments: newAssignments });
 //         ViewModel.LoadPage(ViewModel.Views.WritePage);
 //     }
 // }
 
 // ViewModel.GetCurrentPaperFor = (userNameArg) =>
 // {
-//     for (var key in ViewModel.GameState.papers)
+//     for (var key in ViewModel.gameState.papers)
 //     {
-//         if (!ViewModel.GameState.papers.hasOwnProperty(key)) continue;
-//         var paper = ViewModel.GameState.papers[key];
+//         if (!ViewModel.gameState.papers.hasOwnProperty(key)) continue;
+//         var paper = ViewModel.gameState.papers[key];
 //         if (paper.currentEditor === userNameArg) return paper;
 //     }
 //     return null;
@@ -239,10 +288,10 @@ ViewModel.RandomCode = () =>
 //     if (!phrase) return;
 //     console.log("phrase submitted: " + phrase);
 //     var paper = ViewModel.Controller.GetCurrentPaperFor(ViewModel.UserName);
-//     paper["phrase" + ViewModel.GameState.status] = phrase;
-//     paper["phrase" + ViewModel.GameState.status + "author"] = ViewModel.UserName;
-//     //TODO:  ViewModel.SignalHub.Broadcast({ type: "phraseSubmitted", key: ViewModel.GameState.key, value: phrase, paperId: paper.id });
-//     if (ViewModel.IsHostUser && ViewModel.Controller.GetCurrentUnsubmittedPlayers().length === 0)
+//     paper["phrase" + ViewModel.gameState.status] = phrase;
+//     paper["phrase" + ViewModel.gameState.status + "author"] = ViewModel.UserName;
+//     //TODO:  ViewModel.SignalHub.Broadcast({ type: "phraseSubmitted", key: ViewModel.gameState.key, value: phrase, paperId: paper.id });
+//     if (ViewModel.isHostUser && ViewModel.Controller.GetCurrentUnsubmittedPlayers().length === 0)
 //     {
 //         ViewModel.Controller.StartNextPhrase();
 //     } else
@@ -254,17 +303,17 @@ ViewModel.RandomCode = () =>
 // ViewModel.IsCurrentPhraseSubmitted = () =>
 // {
 //     var paper = ViewModel.Controller.GetCurrentPaperFor(ViewModel.UserName);
-//     return !!paper["phrase" + ViewModel.GameState.status];
+//     return !!paper["phrase" + ViewModel.gameState.status];
 // }
 
 // ViewModel.GetCurrentUnsubmittedPlayers = () =>
 // {
 //     var players = [];
-//     for (var key in ViewModel.GameState.papers)
+//     for (var key in ViewModel.gameState.papers)
 //     {
-//         if (!ViewModel.GameState.papers.hasOwnProperty(key)) continue;
-//         var paper = ViewModel.GameState.papers[key];
-//         if (!paper["phrase" + ViewModel.GameState.status])
+//         if (!ViewModel.gameState.papers.hasOwnProperty(key)) continue;
+//         var paper = ViewModel.gameState.papers[key];
+//         if (!paper["phrase" + ViewModel.gameState.status])
 //         {
 //             players.push(paper.currentEditor);
 //         }
@@ -274,7 +323,7 @@ ViewModel.RandomCode = () =>
 
 // ViewModel.ValidateMessage = (message) =>
 // {
-//     var isValid = (!!ViewModel.GameState && ViewModel.GameState.key === message.key);
+//     var isValid = (!!ViewModel.gameState && ViewModel.gameState.key === message.key);
 //     if (!isValid)
 //     {
 //         ViewModel.Controller.LoadPage(ViewModel.Views.ErrorPage);
@@ -301,10 +350,10 @@ ViewModel.RandomCode = () =>
 // const getNewPaperAssignments = () =>
 // {
 //     var ids = [];
-//     for (var key in ViewModel.GameState.papers)
+//     for (var key in ViewModel.gameState.papers)
 //     {
-//         if (!ViewModel.GameState.papers.hasOwnProperty(key)) continue;
-//         ids.push(ViewModel.GameState.papers[key].id);
+//         if (!ViewModel.gameState.papers.hasOwnProperty(key)) continue;
+//         ids.push(ViewModel.gameState.papers[key].id);
 //     }
 //     ids.sort();
 //     var assignments =
@@ -312,7 +361,7 @@ ViewModel.RandomCode = () =>
 //     for (var i = 0; i < ids.length; i++)
 //     {
 //         var index = i === 0 ? ids.length - 1 : i - 1;
-//         assignments[ids[i]] = ViewModel.GameState.papers[ids[index]].currentEditor;
+//         assignments[ids[i]] = ViewModel.gameState.papers[ids[index]].currentEditor;
 //     }
 //     return assignments;
 // }
@@ -332,9 +381,9 @@ ViewModel.RandomCode = () =>
 // const chooseNewHostUser = () =>
 // {
 //     var playerUserNames = [];
-//     for (var key in ViewModel.GameState.players)
+//     for (var key in ViewModel.gameState.players)
 //     {
-//         if (!ViewModel.GameState.players.hasOwnProperty(key) || !ViewModel.GameState.players[key]) continue;
+//         if (!ViewModel.gameState.players.hasOwnProperty(key) || !ViewModel.gameState.players[key]) continue;
 //         playerUserNames.push(key);
 //     }
 //     playerUserNames.sort();
@@ -344,7 +393,7 @@ ViewModel.RandomCode = () =>
 const ensureSocketInit = () =>
 {
     const origin = (window.location.origin.indexOf("localhost") >= 0) ? "http://localhost:1337" : window.location.origin;
-    if(socket === null)
+    if (socket === null)
         socket = io(origin);
 };
 

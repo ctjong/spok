@@ -32,13 +32,13 @@ Spok.UserName = null;
 Spok.RoomCode = null;
 Spok.IsHostUser = false;
 Spok.NumPhrases = 4;
-Spok.RandomCodeLength = 5;
+Spok.randomCodeLength = 5;
 Spok.WaitTimeout = 5000;
 Spok.JoinRequest = null;
 Spok.ActivePage = null;
 Spok.BaseUrl = window.location.href.replace(window.location.search, "");
 
-Spok.GameState = null;
+Spok.gameState = null;
 
 // entry point
 $(function () {

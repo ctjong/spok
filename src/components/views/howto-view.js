@@ -8,7 +8,7 @@ class HowToView extends ViewBase
 {
     handleBackClick()
     {
-        ViewModel.GoTo("/");
+        ViewModel.goTo("/");
     }
 
     render() 

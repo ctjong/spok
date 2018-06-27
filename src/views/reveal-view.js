@@ -9,19 +9,19 @@ class RevealPane extends ViewBase
     handleChatShareClick()
     {
         //TODO
-        // ViewModel.GoTo("/create");
+        // ViewModel.goTo("/create");
     }
 
     handleNewRoundClick()
     {
         //TODO
-        // ViewModel.GoTo("/create");
+        // ViewModel.goTo("/create");
     }
 
     handleEndRoundClick()
     {
         //TODO
-        // ViewModel.GoTo("/create");
+        // ViewModel.goTo("/create");
     }
 
     render() 

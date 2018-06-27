@@ -8,17 +8,17 @@ class HomeView extends ViewBase
 {
     handleCreateClick()
     {
-        ViewModel.GoTo("/create");
+        ViewModel.goTo("/create");
     }
 
     handleJoinClick()
     {
-        ViewModel.GoTo("/join");
+        ViewModel.goTo("/join");
     }
 
     handleHowToClick()
     {
-        ViewModel.GoTo("/howto");
+        ViewModel.goTo("/howto");
     }
 
     render() 

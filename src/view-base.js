@@ -6,8 +6,8 @@ class ViewBase extends Component
     constructor(props)
     {
         super(props);
-        ViewModel.ActiveView = this;
-        ViewModel.History = this.props.history;
+        ViewModel.activeView = this;
+        ViewModel.history = this.props.history;
     }
 }
 

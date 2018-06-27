@@ -57,7 +57,7 @@
         waitTimers[waitId] = timer;
         jsonMsg.connectionId = instance.GetConnectionId();
         jsonMsg.waitId = waitId;
-        if (target.length > Spok.RandomCodeLength) {
+        if (target.length > Spok.randomCodeLength) {
             signalSend(target, jsonMsg);
         } else {
             signalBroadcast(target, jsonMsg);

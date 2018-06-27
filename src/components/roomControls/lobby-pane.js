@@ -15,14 +15,12 @@ class LobbyPane extends Component
     handleWhatsappShareClick()
     {
         //TODO
-        // ViewModel.GoTo("/create");
+        // ViewModel.goTo("/create");
     }
 
     handleStartClick()
     {
-        ViewModel.GameState.Phase = ViewModel.Phases.WRITE;
-        ViewModel.GameState.WriteStage = 0;
-        ViewModel.ActiveView.syncStates();
+        ViewModel.startRound();
     }
 
     getHostContent()

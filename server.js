@@ -10,7 +10,7 @@ const io = require('socket.io')(http);
 const msgHandler = require('./server-message-handler');
 io.on('connection', (socket) =>
 {
-    socket.on("message", (msg, reply) => msgHandler(socket, msg, reply));
+    socket.on(ViewModel.msg.events.MSG, (msg, reply) => msgHandler(socket, msg, reply));
 });
 
 app.use('/static', express.static(path.join(__dirname, 'build/static')));

@@ -8,7 +8,7 @@ class ErrorView extends ViewBase
 {
     handleHomeClick()
     {
-        ViewModel.GoTo("/");
+        ViewModel.goTo("/");
     }
 
     render() 

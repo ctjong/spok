@@ -15,29 +15,29 @@ class RoomView extends ViewBase
     constructor(props)
     {
         super(props);
-        this.state = { game: ViewModel.GameState, isHostUser: ViewModel.IsHostUser };
+        this.state = { game: ViewModel.gameState, isHostUser: ViewModel.isHostUser };
         this.roomCode = props.match.params.roomCode;
-        this.userName = ViewModel.GetUserState("userName");
+        this.userName = ViewModel.getUserState("userName");
         this.isRoomView = true;
     }
 
     syncStates()
     {
-        this.setState({ game: ViewModel.GameState, isHostUser: ViewModel.IsHostUser });
-        ViewModel.SendToRoom("stateUpdate", "others", this.state.game);
+        this.setState({ game: ViewModel.gameState, isHostUser: ViewModel.isHostUser });
+        ViewModel.sendToRoom(ViewModel.msg.types.STATE_UPDATE, ViewModel.msg.targets.OTHERS, this.state.game);
     }
 
     getActivePane()
     {
-        switch(this.state.game.Phase)
+        switch(this.state.game.phase)
         {
-            case ViewModel.Phases.LOBBY:
+            case ViewModel.phases.LOBBY:
                 return <LobbyPane isHostUser={this.state.isHostUser}/>;
-            case ViewModel.Phases.WRITE:
+            case ViewModel.phases.WRITE:
                 let pane = <WaitPane/>;
-                this.state.game.Papers.some((paper) => 
+                this.state.game.papers.some((paper) => 
                 {
-                    if(paper.assignedTo === this.userName && paper.phrases.length < this.state.game.WriteStage)
+                    if(paper.currentHolder.userName === this.userName && paper.parts.length < this.state.game.writeStage)
                     {
                         pane = <WritePane/>;
                         return true;
@@ -45,7 +45,7 @@ class RoomView extends ViewBase
                     return false;
                 });
                 return pane;
-            case ViewModel.Phases.REVEAL:
+            case ViewModel.phases.REVEAL:
                 return <RevealPane/>;
         }
     }
@@ -54,7 +54,7 @@ class RoomView extends ViewBase
     {
         if(!this.state.game)
         {
-            ViewModel.GoTo("/");
+            ViewModel.goTo("/");
             return null;
         }
 
@@ -62,7 +62,7 @@ class RoomView extends ViewBase
             <div className="view room-view">
                 <h1>Room # {this.roomCode}</h1>
                 {this.getActivePane()}
-                <ParticipantBox players={this.state.game.Players}/>
+                <ParticipantBox players={this.state.game.players}/>
                 <ChatBox/>
             </div>
         );

@@ -1,16 +1,17 @@
 ﻿import ViewModel from '../view-model';
 
+
 const handleJoinRequest = (msg, reply) => 
 {
-    if(!ViewModel.ActiveView.isRoomView)
+    if(!ViewModel.activeView.isRoomView)
         return;
-    const player = ViewModel.GameState.Players[msg.data.userName];
+    const player = ViewModel.gameState.players[msg.data.userName];
     if (player && !player.isOnline)
     {
         // the player was disconnected and is reconnecting. accept right away.
         player.isOnline = true;
-        reply({ isSuccess: true, gameState: ViewModel.GameState });
-        ViewModel.ActiveView.syncStates();
+        reply({ isSuccess: true, gameState: ViewModel.gameState });
+        ViewModel.activeView.syncStates();
 
         //TODO
         // ViewModel.Views.ChatBox.Update(msg.data.userName + " has reconnected");
@@ -18,14 +19,14 @@ const handleJoinRequest = (msg, reply) =>
     else if (player && player.isOnline)
     {
         // the chosen name already taken by someone else in the room
-        reply({ isSuccess: false, msg: "nameExists" })
+        reply({ isSuccess: false, msg: ViewModel.msg.errors.USER_NAME_EXISTS })
     }
     else
     {
         // valid name chosen, people are still in the lobby. send acceptance.
-        ViewModel.GameState.Players[msg.data.userName] = { isOnline: true };
-        reply({ isSuccess: true, gameState: ViewModel.GameState });
-        ViewModel.ActiveView.syncStates();
+        ViewModel.gameState.players[msg.data.userName] = { userName: msg.data.userName, isOnline: true };
+        reply({ isSuccess: true, gameState: ViewModel.gameState });
+        ViewModel.activeView.syncStates();
 
         //TODO
         // ViewModel.Views.ChatBox.Update(msg.data.userName + " has joined");
@@ -36,7 +37,7 @@ export default (msg, reply) =>
 {
     switch(msg.type)
     {
-        case "joinRoom":
+        case ViewModel.msg.types.JOIN_ROOM:
             handleJoinRequest(msg, reply);
             break;
 
@@ -55,8 +56,8 @@ export default (msg, reply) =>
 //             $("body").removeClass("host").addClass("nonHost");
 //             ViewModel.RoomCode = ViewModel.JoinRequest.roomCode;
 //             ViewModel.UserName = ViewModel.JoinRequest.userName;
-//             ViewModel.GameState = $.extend({}, message.gameState);
-//             var gameStatus = ViewModel.GameState.status;
+//             ViewModel.gameState = $.extend({}, message.gameState);
+//             var gameStatus = ViewModel.gameState.status;
 //             if (gameStatus === 6)
 //             {
 //                 ViewModel.Controller.LoadPage(ViewModel.Views.RevealPage);
@@ -105,8 +106,8 @@ export default (msg, reply) =>
 // MessageHandlers["playerJoined"] = (message) =>
 // {
 //     if (!ViewModel.Controller.ValidateMessage(message)) return;
-//     if (message.userName in ViewModel.GameState.Players) return;
-//     ViewModel.GameState.Players[message.userName] = message.connectionId;
+//     if (message.userName in ViewModel.gameState.players) return;
+//     ViewModel.gameState.players[message.userName] = message.connectionId;
 //     ViewModel.ActivePage.Refresh();
 //     ViewModel.Views.ChatBox.Update(message.userName + " has joined");
 //     ViewModel.Views.ParticipantsBox.Update();
@@ -116,9 +117,9 @@ export default (msg, reply) =>
 // {
 //     if (!ViewModel.Controller.ValidateMessage(message))
 //         return;
-//     ViewModel.GameState.lang = message.lang;
-//     ViewModel.GameState.papers = $.extend({}, message.papers);
-//     ViewModel.GameState.status = 1;
+//     ViewModel.gameState.lang = message.lang;
+//     ViewModel.gameState.papers = $.extend({}, message.papers);
+//     ViewModel.gameState.status = 1;
 //     ViewModel.Controller.LoadPage(ViewModel.Views.WritePage);
 // };
 
@@ -126,9 +127,9 @@ export default (msg, reply) =>
 // {
 //     if (!ViewModel.Controller.ValidateMessage(message))
 //         return;
-//     var paper = ViewModel.GameState.papers[message.paperId];
-//     paper["phrase" + ViewModel.GameState.status] = message.value;
-//     paper["phrase" + ViewModel.GameState.status + "author"] = paper.currentEditor;
+//     var paper = ViewModel.gameState.papers[message.paperId];
+//     paper["phrase" + ViewModel.gameState.status] = message.value;
+//     paper["phrase" + ViewModel.gameState.status + "author"] = paper.currentEditor;
 //     if (ViewModel.Controller.GetCurrentUnsubmittedPlayers().length === 0)
 //     {
 //         ViewModel.Controller.StartNextPhrase();
@@ -142,7 +143,7 @@ export default (msg, reply) =>
 // {
 //     if (!ViewModel.Controller.ValidateMessage(message))
 //         return;
-//     ViewModel.GameState.status++;
+//     ViewModel.gameState.status++;
 //     ViewModel.Controller.ApplyAssignments(message.assignments);
 //     ViewModel.Controller.LoadPage(ViewModel.Views.WritePage);
 // };
@@ -151,7 +152,7 @@ export default (msg, reply) =>
 // {
 //     if (!ViewModel.Controller.ValidateMessage(message))
 //         return;
-//     ViewModel.GameState.status = 6;
+//     ViewModel.gameState.status = 6;
 //     ViewModel.Controller.ApplyAssignments(message.assignments);
 //     ViewModel.Controller.LoadPage(ViewModel.Views.RevealPage);
 // };
@@ -160,8 +161,8 @@ export default (msg, reply) =>
 // {
 //     if (!ViewModel.Controller.ValidateMessage(message))
 //         return;
-//     ViewModel.GameState.status = 0;
-//     ViewModel.GameState.papers = {};
+//     ViewModel.gameState.status = 0;
+//     ViewModel.gameState.papers = {};
 //     ViewModel.Controller.LoadPage(ViewModel.Views.LobbyPage);
 // };
 
@@ -169,7 +170,7 @@ export default (msg, reply) =>
 // {
 //     if (!ViewModel.Controller.ValidateMessage(message))
 //         return;
-//     ViewModel.GameState.hostUserName = message.newHostUserName;
+//     ViewModel.gameState.hostUserName = message.newHostUserName;
 // };
 
 // MessageHandlers["chat"] = (message) =>

@@ -8,7 +8,7 @@ class WriteView extends Component
     handleSubmitClick()
     {
         //TODO
-        // ViewModel.GoTo("/create");
+        // ViewModel.goTo("/create");
     }
 
     render() 

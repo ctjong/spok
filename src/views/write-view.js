@@ -9,7 +9,7 @@ class WriteView extends ViewBase
     handleSubmitClick()
     {
         //TODO
-        // ViewModel.GoTo("/create");
+        // ViewModel.goTo("/create");
     }
 
     render() 
