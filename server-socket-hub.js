@@ -18,7 +18,6 @@ const msgEnums =
     targets:
     {
         SERVER: "server",
-        HOST: "host",
         OTHERS: "others",
         ALL: "all",
     },
@@ -54,7 +53,7 @@ const handleMessage = (socket, msg, reply) =>
     {
         msg.source = socket.id;
         console.log("sending " + msg.type + " to " + msg.target + " from " + socket.id);
-        if(msg.target === msgEnums.targets.HOST || msg.target === msgEnums.targets.OTHERS)
+        if(msg.target === msgEnums.targets.OTHERS)
             socket.to(msg.room).broadcast.emit(msgEnums.events.MSG, msg);
         else if(msg.target === msgEnums.targets.ALL)
             socket.to(msg.room).emit(msgEnums.events.MSG, msg);

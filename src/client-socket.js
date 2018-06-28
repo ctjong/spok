@@ -20,7 +20,6 @@ ClientSocket.msg =
     targets:
     {
         SERVER: "server",
-        HOST: "host",
         OTHERS: "others",
         ALL: "all",
     },
