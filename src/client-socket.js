@@ -20,8 +20,6 @@ ClientSocket.msg =
     targets:
     {
         SERVER: "server",
-        OTHERS: "others",
-        ALL: "all",
     },
     events:
     {
@@ -54,17 +52,17 @@ let responseHandlers = {};
 
 ClientSocket.sendToServer = (type, data, responseMsgType) => 
 {
-    return socketSend(type, ClientSocket.msg.targets.SERVER, null, data, responseMsgType);
+    return socketSend(type, ClientSocket.msg.targets.SERVER, data, responseMsgType);
 };
 
 ClientSocket.sendToId = (type, targetId, data, responseMsgType) => 
 {
-    return socketSend(type, targetId, null, data, responseMsgType);
+    return socketSend(type, targetId, data, responseMsgType);
 };
 
-ClientSocket.sendToCurrentRoom = (type, target, data, responseMsgType) => 
+ClientSocket.sendToCurrentRoom = (type, data, responseMsgType) => 
 {
-    return socketSend(type, target, ViewModel.getUserState(ViewModel.constants.ROOM_CODE), data, responseMsgType);
+    return socketSend(type, ViewModel.getUserState(ViewModel.constants.ROOM_CODE), data, responseMsgType);
 };
 
 ClientSocket.getSocketId = () => 
@@ -79,20 +77,20 @@ ClientSocket.getSocketId = () =>
 // PRIVATE FUNCTIONS
 //-------------------------------------------
 
-const socketSend = (type, target, room, data, responseMsgType) => 
+const socketSend = (type, target, data, responseMsgType) => 
 {
     return new Promise((resolve) => 
     {
         ensureInitialized().then(() => 
         {
-            console.log("sending " + JSON.stringify({ type, target, room, data, source:socket.id }));
+            console.log("sending " + JSON.stringify({ type, target, data, source:socket.id }));
             if(responseMsgType)
             {
                 if(!responseHandlers[responseMsgType])
                     responseHandlers[responseMsgType] = [];
             }
             const ack = responseMsgType ? null : (response => resolve(response));
-            socket.emit(ClientSocket.msg.events.MSG, { type, target, room, data }, ack);
+            socket.emit(ClientSocket.msg.events.MSG, { type, target, data }, ack);
             if(responseMsgType)
                 responseHandlers[responseMsgType].push(resolve);
         });

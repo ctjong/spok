@@ -26,7 +26,7 @@ class RoomView extends ViewBase
     {
         this.setState(ViewModel.gameState);
         if(ViewModel.isHostUser())
-            ClientSocket.sendToCurrentRoom(ClientSocket.msg.types.STATE_UPDATE, ClientSocket.msg.targets.OTHERS, ViewModel.gameState);
+            ClientSocket.sendToCurrentRoom(ClientSocket.msg.types.STATE_UPDATE, ViewModel.gameState);
     }
 
     handlePartSubmit(part)

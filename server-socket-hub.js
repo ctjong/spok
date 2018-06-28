@@ -18,8 +18,6 @@ const msgEnums =
     targets:
     {
         SERVER: "server",
-        OTHERS: "others",
-        ALL: "all",
     },
     events:
     {
@@ -51,19 +49,17 @@ const handleMessage = (socket, msg, reply) =>
     }
     else
     {
-        msg.source = socket.id;
         console.log("sending " + msg.type + " to " + msg.target + " from " + socket.id);
-        if(msg.target === msgEnums.targets.OTHERS)
-            socket.to(msg.room).broadcast.emit(msgEnums.events.MSG, msg);
-        else if(msg.target === msgEnums.targets.ALL)
-            socket.to(msg.room).emit(msgEnums.events.MSG, msg);
-        else
+        msg.source = socket.id;
+        const targetSocket = io.sockets.connected[msg.target];
+        if(targetSocket)
         {
             if(msg.type === msgEnums.types.JOIN_ROOM_RESPONSE && msg.data.isSuccess)
-            {
-                const targetSocket = io.sockets.connected[msg.target];
                 targetSocket.join(msg.data.room);
-            }
+            targetSocket.emit(msgEnums.events.MSG, msg, response => reply(response));
+        }
+        else
+        {
             socket.to(msg.target).emit(msgEnums.events.MSG, msg);
         }
     }
