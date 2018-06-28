@@ -1,6 +1,7 @@
 import React from 'react';
 import ViewBase from '../../view-base';
 import ViewModel from '../../view-model';
+import ClientSocket from '../../client-socket';
 import './create-view.css';
 
 
@@ -18,7 +19,7 @@ class CreateView extends ViewBase
         const userName = this.userNameRef.current.value;
         if(!userName)
             return;
-        ViewModel.sendToServer(ViewModel.msg.types.CREATE_ROOM, { roomCode }).then(() => 
+        ClientSocket.sendToServer(ClientSocket.msg.types.CREATE_ROOM, { roomCode }).then(() => 
         {
             ViewModel.setUserState(ViewModel.constants.ROOM_CODE, roomCode);
             ViewModel.setUserState(ViewModel.constants.USER_NAME, userName);

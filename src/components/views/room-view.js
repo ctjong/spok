@@ -1,6 +1,7 @@
 import React from 'react';
 import ViewBase from '../../view-base';
 import ViewModel from '../../view-model';
+import ClientSocket from '../../client-socket';
 import ParticipantBox from '../roomControls/participant-box';
 import ChatBox from '../roomControls/chat-box';
 import LobbyPane from '../roomControls/lobby-pane';
@@ -15,7 +16,7 @@ class RoomView extends ViewBase
     constructor(props)
     {
         super(props);
-        this.state = { game: ViewModel.gameState, isHostUser: ViewModel.isHostUser };
+        this.state = ViewModel.gameState;
         this.roomCode = props.match.params.roomCode;
         this.userName = ViewModel.getUserState(ViewModel.constants.USER_NAME);
         this.isRoomView = true;
@@ -23,8 +24,9 @@ class RoomView extends ViewBase
 
     syncStates()
     {
-        this.setState({ game: ViewModel.gameState, isHostUser: ViewModel.isHostUser });
-        ViewModel.sendToRoom(ViewModel.msg.types.STATE_UPDATE, ViewModel.msg.targets.OTHERS, this.state.game);
+        this.setState(ViewModel.gameState);
+        if(ViewModel.isHostUser())
+            ClientSocket.sendToCurrentRoom(ClientSocket.msg.types.STATE_UPDATE, ClientSocket.msg.targets.OTHERS, ViewModel.gameState);
     }
 
     handlePartSubmit(part)
@@ -34,17 +36,17 @@ class RoomView extends ViewBase
 
     getActivePane()
     {
-        switch(this.state.game.phase)
+        switch(this.state.phase)
         {
             case ViewModel.phases.LOBBY:
-                return <LobbyPane isHostUser={this.state.isHostUser}/>;
+                return <LobbyPane/>;
             case ViewModel.phases.WRITE:
                 let pane = <WaitPane/>;
-                this.state.game.papers.some((paper) => 
+                this.state.papers.some((paper) => 
                 {
-                    if(paper.currentHolder.userName === this.userName && paper.parts.length < this.state.game.activePart)
+                    if(paper.currentHolder.userName === this.userName && paper.parts.length < this.state.activePart)
                     {
-                        pane = <WritePane activePart={this.state.game.activePart} lang={this.state.game.lang} handleSubmit={p => this.handlePartSubmit(p)}/>;
+                        pane = <WritePane activePart={this.state.activePart} lang={this.state.lang} handleSubmit={p => this.handlePartSubmit(p)}/>;
                         return true;
                     }
                     return false;
@@ -57,7 +59,7 @@ class RoomView extends ViewBase
 
     render() 
     {
-        if(!this.state.game)
+        if(!this.state)
         {
             ViewModel.goTo("/");
             return null;
@@ -67,7 +69,7 @@ class RoomView extends ViewBase
             <div className="view room-view">
                 <h1>Room # {this.roomCode}</h1>
                 {this.getActivePane()}
-                <ParticipantBox players={this.state.game.players}/>
+                <ParticipantBox players={this.state.players}/>
                 <ChatBox/>
             </div>
         );

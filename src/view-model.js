@@ -1,12 +1,8 @@
-import $ from 'jquery';
-import io from 'socket.io-client';
-import msgHandler from './services/host-message-handler';
-
 const ViewModel = {};
 ViewModel.activeView = null;
 ViewModel.history = null;
-ViewModel.isHostUser = false;
 ViewModel.gameState = null;
+ViewModel.clientSocket = null;
 
 ViewModel.phases =
     {
@@ -23,40 +19,6 @@ ViewModel.constants =
         DEFAULT_LANG: "en",
     };
 
-let socket = null;
-
-
-//---------------------------------------------------------------------------
-// MESSAGE ENUMS
-// This should be kept in sync with the enums in server-message-handler
-//---------------------------------------------------------------------------
-
-ViewModel.msg =
-{
-    types:
-    {
-        STATE_UPDATE: "stateUpdate",
-        CREATE_ROOM: "createRoom",
-        JOIN_ROOM: "joinRoom",
-    },
-    targets:
-    {
-        SERVER: "server",
-        HOST: "host",
-        OTHERS: "others",
-        ALL: "all",
-    },
-    events:
-    {
-        MSG: "message"
-    },
-    errors:
-    {
-        ROOM_CODE_USED: "roomCodeUsed",
-        USER_NAME_EXISTS: "userNameExists",
-    }
-};
-
 //-------------------------------------------
 // PUBLIC FUNCTIONS
 //-------------------------------------------
@@ -69,61 +31,6 @@ ViewModel.getUserState = (name) =>
 ViewModel.setUserState = (name, value) => 
 {
     sessionStorage.setItem(name, value);
-};
-
-ViewModel.sendToServer = (type, data) => 
-{
-    return ViewModel.socketSend(type, ViewModel.msg.targets.SERVER, null, data);
-};
-
-ViewModel.sendToRoom = (type, target, data) => 
-{
-    return ViewModel.socketSend(type, target, ViewModel.getUserState(ViewModel.constants.ROOM_CODE), data);
-};
-
-ViewModel.socketSend = (type, target, room, data) => 
-{
-    ensureSocketInit();
-    return new Promise((resolve, reject) => 
-    {
-        socket.emit(ViewModel.msg.events.MSG, { type, target, room, data }, (response) => 
-        {
-            response.isSuccess ? resolve(response) : reject(response);
-        });
-    });
-};
-
-ViewModel.initHostUser = () => 
-{
-    ViewModel.isHostUser = true;
-    if (ViewModel.gameState === null)
-    {
-        const userName = ViewModel.getUserState(ViewModel.constants.USER_NAME);
-        ViewModel.gameState = {};
-        ViewModel.gameState.lang = null;
-        ViewModel.gameState.players = {};
-        ViewModel.gameState.players[userName] = { userName, isOnline: true };
-        ViewModel.gameState.papers = [];
-        ViewModel.gameState.activePart = -1;
-        ViewModel.gameState.phase = ViewModel.phases.LOBBY;
-    }
-
-    ensureSocketInit();
-    socket.on(ViewModel.msg.events.MSG, msgHandler);
-};
-
-ViewModel.initClientUser = () =>
-{
-    ViewModel.isHostUser = false;
-    ensureSocketInit();
-    socket.on(ViewModel.msg.events.MSG, (msg, reply) => 
-    {
-        if(msg.type === ViewModel.msg.types.STATE_UPDATE)
-        {
-            ViewModel.gameState = msg.data;
-            ViewModel.activeView.syncStates();
-        }
-    });
 };
 
 ViewModel.goTo = (path) => 
@@ -151,6 +58,24 @@ ViewModel.startRound = (lang) =>
             });
     });
     ViewModel.activeView.syncStates();
+};
+
+ViewModel.isHostUser = () => 
+{
+    return ViewModel.clientSocket.getSocketId() === ViewModel.gameState.hostSocketId;
+};
+
+ViewModel.initHostUser = () => 
+{
+    const userName = ViewModel.getUserState(ViewModel.constants.USER_NAME);
+    ViewModel.gameState = {};
+    ViewModel.gameState.hostSocketId = ViewModel.clientSocket.getSocketId();
+    ViewModel.gameState.lang = null;
+    ViewModel.gameState.players = {};
+    ViewModel.gameState.players[userName] = { userName, isOnline: true };
+    ViewModel.gameState.papers = [];
+    ViewModel.gameState.activePart = -1;
+    ViewModel.gameState.phase = ViewModel.phases.LOBBY;
 };
 
 // ViewModel.ApplyAssignments = (assignments) =>
@@ -407,12 +332,5 @@ ViewModel.startRound = (lang) =>
 //     playerUserNames.sort();
 //     return playerUserNames[0];
 // }
-
-const ensureSocketInit = () =>
-{
-    const origin = (window.location.origin.indexOf("localhost") >= 0) ? "http://localhost:1337" : window.location.origin;
-    if (socket === null)
-        socket = io(origin);
-};
 
 export default ViewModel;

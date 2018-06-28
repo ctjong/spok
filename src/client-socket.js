@@ -1,16 +1,117 @@
-﻿import ViewModel from '../view-model';
+﻿import io from 'socket.io-client';
+import ViewModel from './view-model';
+const ClientSocket = {};
 
 
-const handleJoinRequest = (msg, reply) => 
+//---------------------------------------------------------------------------
+// MESSAGE ENUMS
+// This should be kept in sync with the enums in server-socket
+//---------------------------------------------------------------------------
+
+ClientSocket.msg =
+{
+    types:
+    {
+        STATE_UPDATE: "stateUpdate",
+        CREATE_ROOM: "createRoom",
+        JOIN_ROOM_REQUEST: "joinRoomRequest",
+        JOIN_ROOM_RESPONSE: "joinRoomResponse",
+    },
+    targets:
+    {
+        SERVER: "server",
+        HOST: "host",
+        OTHERS: "others",
+        ALL: "all",
+    },
+    events:
+    {
+        CONNECT: "connect",
+        MSG: "message"
+    },
+    errors:
+    {
+        USER_NAME_EXISTS: "userNameExists",
+    }
+};
+
+
+//-------------------------------------------
+// PRIVATE VARIABLES
+//-------------------------------------------
+
+const hostOnlyMessages = 
+[
+    ClientSocket.msg.types.JOIN_ROOM_REQUEST
+];
+
+let socket = null;
+let responseHandlers = {};
+
+
+//-------------------------------------------
+// PUBLIC FUNCTIONS
+//-------------------------------------------
+
+ClientSocket.sendToServer = (type, data, responseMsgType) => 
+{
+    return socketSend(type, ClientSocket.msg.targets.SERVER, null, data, responseMsgType);
+};
+
+ClientSocket.sendToId = (type, targetId, data, responseMsgType) => 
+{
+    return socketSend(type, targetId, null, data, responseMsgType);
+};
+
+ClientSocket.sendToCurrentRoom = (type, target, data, responseMsgType) => 
+{
+    return socketSend(type, target, ViewModel.getUserState(ViewModel.constants.ROOM_CODE), data, responseMsgType);
+};
+
+ClientSocket.getSocketId = () => 
+{
+    if(!socket)
+        return null;
+    return socket.id;
+};
+
+
+//-------------------------------------------
+// PRIVATE FUNCTIONS
+//-------------------------------------------
+
+const socketSend = (type, target, room, data, responseMsgType) => 
+{
+    return new Promise((resolve) => 
+    {
+        ensureInitialized().then(() => 
+        {
+            console.log("sending " + JSON.stringify({ type, target, room, data, source:socket.id }));
+            if(responseMsgType)
+            {
+                if(!responseHandlers[responseMsgType])
+                    responseHandlers[responseMsgType] = [];
+            }
+            const ack = responseMsgType ? null : (response => resolve(response));
+            socket.emit(ClientSocket.msg.events.MSG, { type, target, room, data }, ack);
+            if(responseMsgType)
+                responseHandlers[responseMsgType].push(resolve);
+        });
+    });
+};
+
+const handleJoinRequest = (msg) => 
 {
     if(!ViewModel.activeView.isRoomView)
         return;
     const player = ViewModel.gameState.players[msg.data.userName];
+    const room = ViewModel.getUserState(ViewModel.constants.ROOM_CODE);
     if (player && !player.isOnline)
     {
         // the player was disconnected and is reconnecting. accept right away.
         player.isOnline = true;
-        reply({ isSuccess: true, gameState: ViewModel.gameState });
+        ClientSocket.sendToId(ClientSocket.msg.types.JOIN_ROOM_RESPONSE, msg.source, 
+            { isSuccess: true, room, gameState: ViewModel.gameState });
         ViewModel.activeView.syncStates();
 
         //TODO
@@ -19,13 +120,15 @@ const handleJoinRequest = (msg, reply) =>
     else if (player && player.isOnline)
     {
         // the chosen name already taken by someone else in the room
-        reply({ isSuccess: false, msg: ViewModel.msg.errors.USER_NAME_EXISTS })
+        ClientSocket.sendToId(ClientSocket.msg.types.JOIN_ROOM_RESPONSE, msg.source, 
+            { isSuccess: false, err: ClientSocket.msg.errors.USER_NAME_EXISTS });
     }
     else
     {
         // valid name chosen, people are still in the lobby. send acceptance.
         ViewModel.gameState.players[msg.data.userName] = { userName: msg.data.userName, isOnline: true };
-        reply({ isSuccess: true, gameState: ViewModel.gameState });
+        ClientSocket.sendToId(ClientSocket.msg.types.JOIN_ROOM_RESPONSE, msg.source, 
+            { isSuccess: true, room, gameState: ViewModel.gameState });
         ViewModel.activeView.syncStates();
 
         //TODO
@@ -33,16 +136,52 @@ const handleJoinRequest = (msg, reply) =>
     }
 };
 
-export default (msg, reply) => 
+const handleMessage = (msg) => 
 {
+    console.log("received " + JSON.stringify(msg));
+    if(hostOnlyMessages.indexOf(msg.type) >= 0 && !ViewModel.isHostUser())
+    {
+        console.log("ignoring messages for host");
+        return;
+    }
     switch(msg.type)
     {
-        case ViewModel.msg.types.JOIN_ROOM:
-            handleJoinRequest(msg, reply);
+        case ClientSocket.msg.types.JOIN_ROOM_REQUEST:
+            handleJoinRequest(msg);
             break;
-
+        case ClientSocket.msg.types.STATE_UPDATE:
+            ViewModel.gameState = msg.data;
+            ViewModel.activeView.syncStates();
+            break;
+    }
+    while(responseHandlers[msg.type] && responseHandlers[msg.type].length > 0)
+    {
+        const resolve = responseHandlers[msg.type].pop();
+        resolve(msg);
     }
 };
+
+const ensureInitialized = () =>
+{
+    return new Promise(resolve => 
+    {
+        if(socket)
+        {
+            resolve();
+            return;
+        }
+        const origin = (window.location.origin.indexOf("localhost") >= 0) ? "http://localhost:1337" : window.location.origin;
+        socket = io(origin);
+        socket.on(ClientSocket.msg.events.CONNECT, () => 
+        {
+            socket.on(ClientSocket.msg.events.MSG, handleMessage);
+            ViewModel.clientSocket = ClientSocket;
+            resolve();
+        });
+    });
+};
+
+export default ClientSocket;
 
 // const MessageHandlers = {};
 // MessageHandlers["joinResponse"] = (message) =>

@@ -7,7 +7,7 @@ import CreateView from './components/views/create-view';
 import RoomView from './components/views/room-view';
 import HowToView from './components/views/howto-view';
 import ErrorView from './components/views/error-view';
-import registerServiceWorker from './services/register-service-worker';
+import registerServiceWorker from './register-service-worker';
 import './libs/bootstrap.min.css';
 import './index.css';
 

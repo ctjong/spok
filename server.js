@@ -6,12 +6,8 @@ const express = require('express');
 const path = require('path');
 const app = express();
 const http = require('http').Server(app);
-const io = require('socket.io')(http);
-const msgHandler = require('./server-message-handler');
-io.on('connection', (socket) =>
-{
-    socket.on(ViewModel.msg.events.MSG, (msg, reply) => msgHandler(socket, msg, reply));
-});
+const socketHub = require('./server-socket-hub');
+socketHub.initialize(http);
 
 app.use('/static', express.static(path.join(__dirname, 'build/static')));
 app.use('/asset-manifest.json', express.static(path.join(__dirname, 'build/asset-manifest.json')));

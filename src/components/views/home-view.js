@@ -26,8 +26,8 @@ class HomeView extends ViewBase
         return (
             <div className="view home-view">
                 <h1>SPOK</h1>
-                <button className="btn btn-success create-btn" onClick={e => this.handleCreateClick()}>Create session</button>
-                <button className="btn btn-danger join-btn" onClick={e => this.handleJoinClick()}>Join session</button>
+                <button className="btn btn-success create-btn" onClick={e => this.handleCreateClick()}>Create room</button>
+                <button className="btn btn-danger join-btn" onClick={e => this.handleJoinClick()}>Join room</button>
                 <button className="btn btn-primary howto-btn" onClick={e => this.handleHowToClick()}>How to play</button>
             </div>
         );

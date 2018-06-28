@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import ViewModel from '../../view-model';
+import ClientSocket from '../../client-socket';
 import Strings from '../../strings';
 import './lobby-pane.css';
 
@@ -71,7 +72,7 @@ class LobbyPane extends Component
     {
         return (
             <div className="pane lobby-pane">
-                {this.props.isHostUser ? this.getHostContent() : this.getNonHostContent()}
+                {ViewModel.isHostUser() ? this.getHostContent() : this.getNonHostContent()}
             </div>
         );
     }

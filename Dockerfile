@@ -6,7 +6,7 @@ RUN pwd
 
 ADD public ./public
 ADD src ./src
-ADD server-message-handler.js ./
+ADD server-socket-hub.js ./
 ADD server.js ./
 ADD package.json ./
 RUN npm install

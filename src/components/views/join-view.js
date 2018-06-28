@@ -1,6 +1,7 @@
 import React from 'react';
 import ViewBase from '../../view-base';
 import ViewModel from '../../view-model';
+import ClientSocket from '../../client-socket';
 import './join-view.css';
 
 
@@ -17,13 +18,20 @@ class JoinView extends ViewBase
     {
         const roomCode = this.roomCodeRef.current.value;
         const userName = this.userNameRef.current.value;
-        ViewModel.socketSend(ViewModel.msg.types.JOIN_ROOM, ViewModel.msg.targets.HOST, roomCode, { userName }).then((response) => 
+        ClientSocket.sendToId(ClientSocket.msg.types.JOIN_ROOM_REQUEST, roomCode, { userName }, 
+            ClientSocket.msg.types.JOIN_ROOM_RESPONSE).then((msg) =>
         {
-            ViewModel.gameState = response.gameState;
-            ViewModel.setUserState(ViewModel.constants.ROOM_CODE, roomCode);
-            ViewModel.setUserState(ViewModel.constants.USER_NAME, userName);
-            ViewModel.initClientUser();
-            ViewModel.goTo(`/room/${roomCode}`);
+            if(msg.data.isSuccess)
+            {
+                ViewModel.gameState = msg.data.gameState;
+                ViewModel.setUserState(ViewModel.constants.ROOM_CODE, roomCode);
+                ViewModel.setUserState(ViewModel.constants.USER_NAME, userName);
+                ViewModel.goTo(`/room/${roomCode}`);
+            }
+            else
+            {
+                //TODO
+            }
         });
     }
 
