@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import ViewModel from '../../view-model';
 import Constants from '../../constants';
 import './reveal-pane.css';
+import ClientSocket from '../../client-socket';
 
 
 class RevealPane extends Component
@@ -20,7 +21,9 @@ class RevealPane extends Component
     handleEndRoundClick()
     {
         ViewModel.gameState.phase = Constants.phases.LOBBY;
-        ViewModel.activeView.syncStates();
+        ViewModel.activeView.updateUI();
+        if(ViewModel.isHostUser())
+            ClientSocket.sendToCurrentRoom(Constants.msg.types.GOTO_LOBBY);
     }
 
     render() 

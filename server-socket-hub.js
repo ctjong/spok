@@ -3,17 +3,20 @@ let io = null;
 
 //--------------------------------------------------------------------------
 // ENUMS
-// These enums should be kept in sync with the enum in client-socket
+// These enums should be kept in sync with the enum in constants
 //--------------------------------------------------------------------------
 
 const msgEnums =
 {
     types:
     {
-        STATE_UPDATE: "stateUpdate",
         CREATE_ROOM: "createRoom",
-        JOIN_ROOM_REQUEST: "joinRoomRequest",
-        JOIN_ROOM_RESPONSE: "joinRoomResponse",
+        JOIN_REQUEST: "joinRoomRequest",
+        JOIN_RESPONSE: "joinRoomResponse",
+        SUBMIT_PART: "submitPart",
+        START_ROUND: "startRound",
+        GOTO_LOBBY: "gotoLobby",
+        PLAYER_JOINED: "playerJoined",
     },
     targets:
     {
@@ -54,7 +57,7 @@ const handleMessage = (socket, msg, reply) =>
         const targetSocket = io.sockets.connected[msg.target];
         if(targetSocket)
         {
-            if(msg.type === msgEnums.types.JOIN_ROOM_RESPONSE && msg.data.isSuccess)
+            if(msg.type === msgEnums.types.JOIN_RESPONSE && msg.data.isSuccess)
                 targetSocket.join(msg.data.room);
             targetSocket.emit(msgEnums.events.MSG, msg, response => reply(response));
         }

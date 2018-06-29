@@ -2,7 +2,6 @@ import React from 'react';
 import ViewBase from '../../view-base';
 import ViewModel from '../../view-model';
 import Constants from '../../constants';
-import ClientSocket from '../../client-socket';
 import ParticipantBox from '../roomControls/participant-box';
 import ChatBox from '../roomControls/chat-box';
 import LobbyPane from '../roomControls/lobby-pane';
@@ -23,11 +22,9 @@ class RoomView extends ViewBase
         this.isRoomView = true;
     }
 
-    syncStates()
+    updateUI()
     {
         this.setState(ViewModel.gameState);
-        if(ViewModel.isHostUser())
-            ClientSocket.sendToCurrentRoom(Constants.msg.types.STATE_UPDATE, ViewModel.gameState);
     }
 
     getActivePane()

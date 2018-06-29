@@ -1,23 +1,11 @@
-import { Paper, Player, GameState, JoinApprovedResponse, JoinRejectedResponse } from './models';
+import { Paper, Player, GameState, JoinApprovedResponse, JoinRejectedResponse, StartRoundMessage } from './models';
 import Constants from './constants';
+import ClientSocket from './client-socket';
 
 const ViewModel = {};
 ViewModel.activeView = null;
 ViewModel.history = null;
 ViewModel.gameState = null;
-ViewModel.socket = null;
-
-
-
-//-------------------------------------------
-// PRIVATE VARIABLES
-//-------------------------------------------
-
-const hostOnlyMessages = 
-[
-    Constants.msg.types.JOIN_ROOM_REQUEST,
-    Constants.msg.types.SUBMIT_PART,
-];
 
 
 //-------------------------------------------
@@ -41,6 +29,7 @@ ViewModel.getRoomCode = () =>
 
 ViewModel.setRoomCode = (value) => 
 {
+    ClientSocket.roomCode = value;
     sessionStorage.setItem(Constants.ROOM_CODE, value);
 };
 
@@ -57,14 +46,13 @@ ViewModel.getRandomCode = () =>
 
 ViewModel.isHostUser = () => 
 {
-    return ViewModel.socket && ViewModel.gameState && 
-        ViewModel.socket.getSocketId() === ViewModel.gameState.hostSocketId;
+    return ViewModel.gameState && ViewModel.getUserName() === ViewModel.gameState.hostUserName;
 };
 
 ViewModel.initHostUser = () => 
 {
     const userName = ViewModel.getUserName();
-    const socketId = ViewModel.socket.getSocketId();
+    const socketId = ClientSocket.getSocketId();
     const hostPlayer = new Player(userName, socketId);
     ViewModel.gameState = new GameState(hostPlayer, Constants.phases.LOBBY);
     ViewModel.gameState.players[userName] = hostPlayer;
@@ -79,31 +67,15 @@ ViewModel.startRound = (lang) =>
     {
         ViewModel.gameState.players[userName].paper = new Paper();
     });
-    ViewModel.activeView.syncStates();
+    ViewModel.activeView.updateUI();
+    if(ViewModel.isHostUser())
+        ClientSocket.sendToCurrentRoom(Constants.msg.types.START_ROUND, new StartRoundMessage(lang));
 };
 
-ViewModel.handleMessage = (msg) => 
+ViewModel.submitPart = (part) => 
 {
-    if(hostOnlyMessages.indexOf(msg.type) >= 0 && !ViewModel.isHostUser())
-    {
-        console.log("ignoring messages for host");
-        return;
-    }
-    switch(msg.type)
-    {
-        case Constants.msg.types.JOIN_ROOM_REQUEST:
-            handleJoinRequest(msg);
-            break;
-        case Constants.msg.types.SUBMIT_PART:
-            handleSubmitPart(msg);
-            break;
-        case Constants.msg.types.STATE_UPDATE:
-            ViewModel.gameState = msg.data;
-            ViewModel.activeView.syncStates();
-            break;
-        default:
-            break;
-    }
+    ClientSocket.sendToCurrentRoom(Constants.msg.types.SUBMIT_PART, part);
+    handlePartSubmitted(part);
 };
 
 
@@ -111,46 +83,80 @@ ViewModel.handleMessage = (msg) =>
 // PRIVATE FUNCTIONS
 //-------------------------------------------
 
-const handleJoinRequest = (msg) => 
+const handleMessage = (msg) => 
 {
-    if(!ViewModel.activeView.isRoomView)
-        return;
-    const player = ViewModel.gameState.players[msg.data.userName];
-    const room = ViewModel.getRoomCode();
-    if (player && !player.isOnline)
+    switch(msg.type)
     {
-        // the player was disconnected and is reconnecting. accept right away.
-        player.isOnline = true;
-        ViewModel.socket.sendToId(Constants.msg.types.JOIN_ROOM_RESPONSE, msg.source, 
-            new JoinApprovedResponse(room, ViewModel.gameState));
-        ViewModel.activeView.syncStates();
-
-        //TODO
-        // ViewModel.Views.ChatBox.Update(msg.data.userName + " has reconnected");
-    }
-    else if (player && player.isOnline)
-    {
-        // the chosen name already taken by someone else in the room
-        ViewModel.socket.sendToId(Constants.msg.types.JOIN_ROOM_RESPONSE, msg.source, 
-            new JoinRejectedResponse(Constants.msg.errors.USER_NAME_EXISTS));
-    }
-    else
-    {
-        // valid name chosen, people are still in the lobby. send acceptance.
-        ViewModel.gameState.players[msg.data.userName] = new Player(msg.data.userName, msg.source);
-        ViewModel.socket.sendToId(Constants.msg.types.JOIN_ROOM_RESPONSE, msg.source, 
-            new JoinApprovedResponse(room, ViewModel.gameState));
-        ViewModel.activeView.syncStates();
-
-        //TODO
-        // ViewModel.Views.ChatBox.Update(msg.data.userName + " has joined");
+        case Constants.msg.types.JOIN_REQUEST:
+            handleJoinRequest(msg);
+            break;
+        case Constants.msg.types.PLAYER_JOINED:
+            handlePlayerJoined(msg.data);
+            break;
+        case Constants.msg.types.SUBMIT_PART:
+            handlePartSubmitted(msg.data);
+            break;
+        case Constants.msg.types.START_ROUND:
+            ViewModel.startRound(msg.data.lang);
+            break;
+        case Constants.msg.types.GOTO_LOBBY:
+            ViewModel.gameState.phase = Constants.phases.LOBBY;
+            ViewModel.activeView.updateUI();
+            break;
+        default:
+            break;
     }
 };
 
-const handleSubmitPart = (msg) => 
+const handleJoinRequest = (msg) => 
 {
-    const author = ViewModel.gameState.players[msg.data.authorUserName];
-    author.paper.parts.push(msg.data);
+    // join request should only be handled by host
+    if(!ViewModel.activeView.isRoomView || !ViewModel.isHostUser())
+        return;
+
+    // check if the chosen name already taken by someone else in the room
+    let player = ViewModel.gameState.players[msg.data.userName];
+    if (player && player.isOnline)
+    {
+        ClientSocket.sendToId(Constants.msg.types.JOIN_RESPONSE, msg.source, 
+            new JoinRejectedResponse(Constants.msg.errors.USER_NAME_EXISTS));
+        return;
+    }
+
+    const room = ViewModel.getRoomCode();
+    if (player && !player.isOnline)
+    {
+        // the player was disconnected and is reconnecting
+        player.isOnline = true;
+        player.socketId = msg.source;
+    }
+    else
+    {
+        // valid name chosen, people are still in the lobby
+        player = new Player(msg.data.userName, msg.source);
+    }
+    ViewModel.activeView.updateUI();
+    ClientSocket.sendToCurrentRoom(Constants.msg.types.PLAYER_JOINED, player);
+    ClientSocket.sendToId(Constants.msg.types.JOIN_RESPONSE, msg.source, 
+        new JoinApprovedResponse(room, ViewModel.gameState));
+    handlePlayerJoined(player);
+};
+
+const handlePlayerJoined = (player) =>
+{
+    ViewModel.gameState.players[player.userName] = player;
+    //TODO: ViewModel.Views.ChatBox.Update(msg.data.userName + " has joined");
+};
+
+const handlePartSubmitted = (part) =>
+{
+    const author = ViewModel.gameState.players[part.authorUserName];
+    if(!author)
+    {
+        console.log("[ViewModel.submitPart] player not found with username " + part.authorUserName);
+        return;
+    }
+    author.paper.parts.push(part);
 
     let readyToProceed = true;
     Object.keys(ViewModel.gameState.players).forEach(userName => 
@@ -169,8 +175,8 @@ const handleSubmitPart = (msg) =>
             ViewModel.gameState.activePart++;
     }
 
-    ViewModel.activeView.syncStates();
-};
+    ViewModel.activeView.updateUI();
+}
 
 const movePapers = () =>
 {
@@ -184,8 +190,14 @@ const movePapers = () =>
         players[userName].paper = (index < userNames.length - 1) ? 
             players[userNames[index+1]].paper : firstPaper;
     });
-}
+};
 
+const initialize = () =>
+{
+    ClientSocket.addMessageHandler(handleMessage);
+};
+
+initialize();
 export default ViewModel;
 
 // const getNewPaperAssignments = () =>

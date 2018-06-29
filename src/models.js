@@ -27,7 +27,15 @@ export class GameState
 
         this.players = {};
         this.players[host.userName] = host;
-        this.hostSocketId = host.socketId;
+        this.hostUserName = host.userName;
+    }
+}
+
+export class JoinRequest
+{
+    constructor(userName)
+    {
+        this.userName = userName;
     }
 }
 
@@ -57,5 +65,13 @@ export class Part
         this.text = text;
         this.authorUserName = authorUserName;
         this.vote = 0;
+    }
+}
+
+export class StartRoundMessage
+{
+    constructor(lang)
+    {
+        this.lang = lang;
     }
 }

@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
 import ViewModel from '../../view-model';
-import Constants from '../../constants';
-import ClientSocket from '../../client-socket';
 import Strings from '../../strings';
 import './write-pane.css';
 import { Part } from '../../models';
@@ -23,7 +21,7 @@ class WritePane extends Component
         const userName = ViewModel.getUserName();
         this.inputRef.current.value = "";
         const part = new Part(text, userName);
-        ClientSocket.sendToId(Constants.msg.types.SUBMIT_PART, ViewModel.gameState.hostSocketId, part);
+        ViewModel.submitPart(part);
     }
 
     render() 

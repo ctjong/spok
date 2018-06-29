@@ -1,16 +1,18 @@
 ﻿import io from 'socket.io-client';
-import ViewModel from './view-model';
 import Constants from './constants';
+
 const ClientSocket = {};
+ClientSocket.roomCode = null;
 
 
 //-------------------------------------------
 // PRIVATE VARIABLES
 //-------------------------------------------
 
-let socket = null;
-let responseHandlers = {};
+const responseHandlers = {};
+const messageHandlers = [];
 
+let socket = null;
 
 //-------------------------------------------
 // PUBLIC FUNCTIONS
@@ -28,7 +30,7 @@ ClientSocket.sendToId = (type, targetId, data, responseMsgType) =>
 
 ClientSocket.sendToCurrentRoom = (type, data, responseMsgType) => 
 {
-    return socketSend(type, ViewModel.getRoomCode(), data, responseMsgType);
+    return socketSend(type, ClientSocket.roomCode, data, responseMsgType);
 };
 
 ClientSocket.getSocketId = () => 
@@ -36,6 +38,11 @@ ClientSocket.getSocketId = () =>
     if(!socket)
         return null;
     return socket.id;
+};
+
+ClientSocket.addMessageHandler = (handler) =>
+{
+    messageHandlers.push(handler);
 };
 
 
@@ -49,7 +56,7 @@ const socketSend = (type, target, data, responseMsgType) =>
     {
         ensureInitialized().then(() => 
         {
-            console.log("sending " + JSON.stringify({ type, target, data, source:socket.id }));
+            console.log("[ClientSocket.socketSend] sending " + JSON.stringify({ type, target, data, source:socket.id }));
             if(responseMsgType)
             {
                 if(!responseHandlers[responseMsgType])
@@ -63,6 +70,16 @@ const socketSend = (type, target, data, responseMsgType) =>
     });
 };
 
+const socketReceive = (msg) =>
+{
+    console.log("[ClientSocket.socketReceive] received " + JSON.stringify(msg));
+    messageHandlers.forEach(handler => handler(msg));
+    while(responseHandlers[msg.type] && responseHandlers[msg.type].length > 0)
+    {
+        const resolve = responseHandlers[msg.type].pop();
+        resolve(msg);
+    }
+};
 
 const ensureInitialized = () =>
 {
@@ -77,17 +94,7 @@ const ensureInitialized = () =>
         socket = io(origin);
         socket.on(Constants.msg.events.CONNECT, () => 
         {
-            socket.on(Constants.msg.events.MSG, msg => 
-            {
-                console.log("received " + JSON.stringify(msg));
-                ViewModel.handleMessage(msg);
-                while(responseHandlers[msg.type] && responseHandlers[msg.type].length > 0)
-                {
-                    const resolve = responseHandlers[msg.type].pop();
-                    resolve(msg);
-                }
-            });
-            ViewModel.socket = ClientSocket;
+            socket.on(Constants.msg.events.MSG, socketReceive);
             resolve();
         });
     });

@@ -4,6 +4,7 @@ import ViewModel from '../../view-model';
 import ClientSocket from '../../client-socket';
 import Constants from '../../constants';
 import './join-view.css';
+import { JoinRequest } from '../../models';
 
 
 class JoinView extends ViewBase
@@ -19,8 +20,8 @@ class JoinView extends ViewBase
     {
         const roomCode = this.roomCodeRef.current.value;
         const userName = this.userNameRef.current.value;
-        ClientSocket.sendToId(Constants.msg.types.JOIN_ROOM_REQUEST, roomCode, { userName }, 
-            Constants.msg.types.JOIN_ROOM_RESPONSE).then((msg) =>
+        ClientSocket.sendToId(Constants.msg.types.JOIN_REQUEST, roomCode, new JoinRequest(userName), 
+            Constants.msg.types.JOIN_RESPONSE).then((msg) =>
         {
             if(msg.data.isSuccess)
             {
