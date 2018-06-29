@@ -10,8 +10,8 @@ class WaitPane extends Component
         const playerNames = [];
         Object.keys(ViewModel.gameState.players).forEach(userName => 
             {
-                const player = ViewModel.gameState.players[userName];
-                if(player.paper.parts.length < ViewModel.gameState.activePart)
+                const paper = ViewModel.gameState.players[userName].paper;
+                if(paper && paper.parts.length < ViewModel.gameState.activePart)
                     playerNames.push(userName);
             });
         const playerNamesJoined = playerNames.join(", ");

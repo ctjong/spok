@@ -18,8 +18,10 @@ class WritePane extends Component
         if(!this.inputRef.current)
             return;
         const text = this.inputRef.current.value;
-        const userName = ViewModel.getUserName();
+        if(!text)
+            return;
         this.inputRef.current.value = "";
+        const userName = ViewModel.getUserName();
         const part = new Part(text, userName);
         ViewModel.submitPart(part);
     }

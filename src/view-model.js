@@ -162,7 +162,7 @@ const handlePartSubmitted = (part) =>
     Object.keys(ViewModel.gameState.players).forEach(userName => 
         {
             const paper = ViewModel.gameState.players[userName].paper;
-            if(paper.parts.length < ViewModel.gameState.activePart)
+            if(paper && paper.parts.length < ViewModel.gameState.activePart)
                 readyToProceed = false;
         });
 

@@ -31,7 +31,8 @@ class RevealPane extends Component
         const texts = [];
         const userName = ViewModel.getUserName();
         const paper = ViewModel.gameState.players[userName].paper;
-        paper.parts.forEach(part => texts.push(part.text));
+        if(paper)
+            paper.parts.forEach(part => texts.push(part.text));
         const textsJoined = texts.join(" ");
 
         const bottomText = ViewModel.isHostUser() ? (
