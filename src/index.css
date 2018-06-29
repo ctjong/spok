@@ -40,10 +40,6 @@ button
     width: 100%;
 }
 
-.host-only, .non-host-only { display: none;}
-body.host .host-only { display: block; }
-body.nonHost .non-host-only { display: block; }
-
 .paper-id-heading
 {
     margin-bottom: 50px;

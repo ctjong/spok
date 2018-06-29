@@ -2,6 +2,7 @@ import React from 'react';
 import ViewBase from '../../view-base';
 import ViewModel from '../../view-model';
 import ClientSocket from '../../client-socket';
+import Constants from '../../constants';
 import './join-view.css';
 
 
@@ -18,14 +19,14 @@ class JoinView extends ViewBase
     {
         const roomCode = this.roomCodeRef.current.value;
         const userName = this.userNameRef.current.value;
-        ClientSocket.sendToId(ClientSocket.msg.types.JOIN_ROOM_REQUEST, roomCode, { userName }, 
-            ClientSocket.msg.types.JOIN_ROOM_RESPONSE).then((msg) =>
+        ClientSocket.sendToId(Constants.msg.types.JOIN_ROOM_REQUEST, roomCode, { userName }, 
+            Constants.msg.types.JOIN_ROOM_RESPONSE).then((msg) =>
         {
             if(msg.data.isSuccess)
             {
                 ViewModel.gameState = msg.data.gameState;
-                ViewModel.setUserState(ViewModel.constants.ROOM_CODE, roomCode);
-                ViewModel.setUserState(ViewModel.constants.USER_NAME, userName);
+                ViewModel.setRoomCode(roomCode);
+                ViewModel.setUserName(userName);
                 ViewModel.goTo(`/room/${roomCode}`);
             }
             else

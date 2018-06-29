@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import ViewModel from '../../view-model';
-import ClientSocket from '../../client-socket';
+import Constants from '../../constants';
 import Strings from '../../strings';
 import './lobby-pane.css';
 
@@ -21,7 +21,7 @@ class LobbyPane extends Component
 
     handleStartClick()
     {
-        let lang = ViewModel.constants.DEFAULT_LANG;
+        let lang = Constants.DEFAULT_LANG;
         if(this.langSelectRef.current)
         {
             const dropdown = this.langSelectRef.current;

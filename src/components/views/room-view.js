@@ -1,6 +1,7 @@
 import React from 'react';
 import ViewBase from '../../view-base';
 import ViewModel from '../../view-model';
+import Constants from '../../constants';
 import ClientSocket from '../../client-socket';
 import ParticipantBox from '../roomControls/participant-box';
 import ChatBox from '../roomControls/chat-box';
@@ -18,7 +19,7 @@ class RoomView extends ViewBase
         super(props);
         this.state = ViewModel.gameState;
         this.roomCode = props.match.params.roomCode;
-        this.userName = ViewModel.getUserState(ViewModel.constants.USER_NAME);
+        this.userName = ViewModel.getUserName();
         this.isRoomView = true;
     }
 
@@ -26,34 +27,25 @@ class RoomView extends ViewBase
     {
         this.setState(ViewModel.gameState);
         if(ViewModel.isHostUser())
-            ClientSocket.sendToCurrentRoom(ClientSocket.msg.types.STATE_UPDATE, ViewModel.gameState);
-    }
-
-    handlePartSubmit(part)
-    {
-
+            ClientSocket.sendToCurrentRoom(Constants.msg.types.STATE_UPDATE, ViewModel.gameState);
     }
 
     getActivePane()
     {
         switch(this.state.phase)
         {
-            case ViewModel.phases.LOBBY:
+            case Constants.phases.LOBBY:
                 return <LobbyPane/>;
-            case ViewModel.phases.WRITE:
-                let pane = <WaitPane/>;
-                this.state.papers.some((paper) => 
-                {
-                    if(paper.currentHolder.userName === this.userName && paper.parts.length < this.state.activePart)
-                    {
-                        pane = <WritePane activePart={this.state.activePart} lang={this.state.lang} handleSubmit={p => this.handlePartSubmit(p)}/>;
-                        return true;
-                    }
-                    return false;
-                });
-                return pane;
-            case ViewModel.phases.REVEAL:
+            case Constants.phases.WRITE:
+                const currentPaper = this.state.players[this.userName].paper;
+                if(currentPaper && currentPaper.parts.length < this.state.activePart)
+                    return <WritePane/>;
+                else
+                    return <WaitPane/>;
+            case Constants.phases.REVEAL:
                 return <RevealPane/>;
+            default:
+                return null;
         }
     }
 

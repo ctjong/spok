@@ -1,36 +1,47 @@
+import { Paper, Player, GameState, JoinApprovedResponse, JoinRejectedResponse } from './models';
+import Constants from './constants';
+
 const ViewModel = {};
 ViewModel.activeView = null;
 ViewModel.history = null;
 ViewModel.gameState = null;
-ViewModel.clientSocket = null;
+ViewModel.socket = null;
 
-ViewModel.phases =
-    {
-        LOBBY: 1,
-        WRITE: 2,
-        REVEAL: 3
-    };
 
-ViewModel.constants =
-    {
-        SENTENCE_PART_COUNT: 4,
-        ROOM_CODE: "roomCode",
-        USER_NAME: "userName",
-        DEFAULT_LANG: "en",
-    };
+
+//-------------------------------------------
+// PRIVATE VARIABLES
+//-------------------------------------------
+
+const hostOnlyMessages = 
+[
+    Constants.msg.types.JOIN_ROOM_REQUEST,
+    Constants.msg.types.SUBMIT_PART,
+];
+
 
 //-------------------------------------------
 // PUBLIC FUNCTIONS
 //-------------------------------------------
 
-ViewModel.getUserState = (name) => 
+ViewModel.getUserName = () => 
 {
-    return sessionStorage.getItem(name);
+    return sessionStorage.getItem(Constants.USER_NAME);
 };
 
-ViewModel.setUserState = (name, value) => 
+ViewModel.setUserName = (value) => 
 {
-    sessionStorage.setItem(name, value);
+    sessionStorage.setItem(Constants.USER_NAME, value);
+};
+
+ViewModel.getRoomCode = () => 
+{
+    return sessionStorage.getItem(Constants.ROOM_CODE);
+};
+
+ViewModel.setRoomCode = (value) => 
+{
+    sessionStorage.setItem(Constants.ROOM_CODE, value);
 };
 
 ViewModel.goTo = (path) => 
@@ -44,40 +55,181 @@ ViewModel.getRandomCode = () =>
     return Math.floor((1 + Math.random()) * 0x1000000000).toString(16).substring(10 - ViewModel.randomCodeLength);
 };
 
-ViewModel.startRound = (lang) => 
-{
-    ViewModel.gameState.lang = lang;
-    ViewModel.gameState.phase = ViewModel.phases.WRITE;
-    ViewModel.gameState.activePart = 1;
-    Object.keys(ViewModel.gameState.players).forEach(userName => 
-    {
-        ViewModel.gameState.papers.push(
-            {
-                parts: [],
-                currentHolder: ViewModel.gameState.players[userName]
-            });
-    });
-    ViewModel.activeView.syncStates();
-};
-
 ViewModel.isHostUser = () => 
 {
-    return ViewModel.clientSocket && ViewModel.gameState && 
-        ViewModel.clientSocket.getSocketId() === ViewModel.gameState.hostSocketId;
+    return ViewModel.socket && ViewModel.gameState && 
+        ViewModel.socket.getSocketId() === ViewModel.gameState.hostSocketId;
 };
 
 ViewModel.initHostUser = () => 
 {
-    const userName = ViewModel.getUserState(ViewModel.constants.USER_NAME);
-    ViewModel.gameState = {};
-    ViewModel.gameState.hostSocketId = ViewModel.clientSocket.getSocketId();
-    ViewModel.gameState.lang = null;
-    ViewModel.gameState.players = {};
-    ViewModel.gameState.players[userName] = { userName, isOnline: true };
-    ViewModel.gameState.papers = [];
-    ViewModel.gameState.activePart = -1;
-    ViewModel.gameState.phase = ViewModel.phases.LOBBY;
+    const userName = ViewModel.getUserName();
+    const socketId = ViewModel.socket.getSocketId();
+    const hostPlayer = new Player(userName, socketId);
+    ViewModel.gameState = new GameState(hostPlayer, Constants.phases.LOBBY);
+    ViewModel.gameState.players[userName] = hostPlayer;
 };
+
+ViewModel.startRound = (lang) => 
+{
+    ViewModel.gameState.lang = lang;
+    ViewModel.gameState.phase = Constants.phases.WRITE;
+    ViewModel.gameState.activePart = 1;
+    Object.keys(ViewModel.gameState.players).forEach(userName => 
+    {
+        ViewModel.gameState.players[userName].paper = new Paper();
+    });
+    ViewModel.activeView.syncStates();
+};
+
+ViewModel.handleMessage = (msg) => 
+{
+    if(hostOnlyMessages.indexOf(msg.type) >= 0 && !ViewModel.isHostUser())
+    {
+        console.log("ignoring messages for host");
+        return;
+    }
+    switch(msg.type)
+    {
+        case Constants.msg.types.JOIN_ROOM_REQUEST:
+            handleJoinRequest(msg);
+            break;
+        case Constants.msg.types.SUBMIT_PART:
+            handleSubmitPart(msg);
+            break;
+        case Constants.msg.types.STATE_UPDATE:
+            ViewModel.gameState = msg.data;
+            ViewModel.activeView.syncStates();
+            break;
+        default:
+            break;
+    }
+};
+
+
+//-------------------------------------------
+// PRIVATE FUNCTIONS
+//-------------------------------------------
+
+const handleJoinRequest = (msg) => 
+{
+    if(!ViewModel.activeView.isRoomView)
+        return;
+    const player = ViewModel.gameState.players[msg.data.userName];
+    const room = ViewModel.getRoomCode();
+    if (player && !player.isOnline)
+    {
+        // the player was disconnected and is reconnecting. accept right away.
+        player.isOnline = true;
+        ViewModel.socket.sendToId(Constants.msg.types.JOIN_ROOM_RESPONSE, msg.source, 
+            new JoinApprovedResponse(room, ViewModel.gameState));
+        ViewModel.activeView.syncStates();
+
+        //TODO
+        // ViewModel.Views.ChatBox.Update(msg.data.userName + " has reconnected");
+    }
+    else if (player && player.isOnline)
+    {
+        // the chosen name already taken by someone else in the room
+        ViewModel.socket.sendToId(Constants.msg.types.JOIN_ROOM_RESPONSE, msg.source, 
+            new JoinRejectedResponse(Constants.msg.errors.USER_NAME_EXISTS));
+    }
+    else
+    {
+        // valid name chosen, people are still in the lobby. send acceptance.
+        ViewModel.gameState.players[msg.data.userName] = new Player(msg.data.userName, msg.source);
+        ViewModel.socket.sendToId(Constants.msg.types.JOIN_ROOM_RESPONSE, msg.source, 
+            new JoinApprovedResponse(room, ViewModel.gameState));
+        ViewModel.activeView.syncStates();
+
+        //TODO
+        // ViewModel.Views.ChatBox.Update(msg.data.userName + " has joined");
+    }
+};
+
+const handleSubmitPart = (msg) => 
+{
+    const author = ViewModel.gameState.players[msg.data.authorUserName];
+    author.paper.parts.push(msg.data);
+
+    let readyToProceed = true;
+    Object.keys(ViewModel.gameState.players).forEach(userName => 
+        {
+            const paper = ViewModel.gameState.players[userName].paper;
+            if(paper.parts.length < ViewModel.gameState.activePart)
+                readyToProceed = false;
+        });
+
+    if(readyToProceed)
+    {
+        movePapers();
+        if(ViewModel.gameState.activePart >= Constants.TOTAL_PARTS)
+            ViewModel.gameState.phase = Constants.phases.REVEAL;
+        else
+            ViewModel.gameState.activePart++;
+    }
+
+    ViewModel.activeView.syncStates();
+};
+
+const movePapers = () =>
+{
+    const userNames = Object.keys(ViewModel.gameState.players);
+    userNames.sort();
+
+    const players = ViewModel.gameState.players;
+    const firstPaper = ViewModel.gameState.players[userNames[0]].paper;
+    userNames.forEach((userName, index) => 
+    {
+        players[userName].paper = (index < userNames.length - 1) ? 
+            players[userNames[index+1]].paper : firstPaper;
+    });
+}
+
+export default ViewModel;
+
+// const getNewPaperAssignments = () =>
+// {
+//     var ids = [];
+//     for (var key in ViewModel.gameState.papers)
+//     {
+//         if (!ViewModel.gameState.papers.hasOwnProperty(key)) continue;
+//         ids.push(ViewModel.gameState.papers[key].id);
+//     }
+//     ids.sort();
+//     var assignments =
+//         {};
+//     for (var i = 0; i < ids.length; i++)
+//     {
+//         var index = i === 0 ? ids.length - 1 : i - 1;
+//         assignments[ids[i]] = ViewModel.gameState.papers[ids[index]].currentEditor;
+//     }
+//     return assignments;
+// }
+
+// const deleteKey = (obj, keyToDelete) =>
+// {
+//     var newObj =
+//         {};
+//     for (var key in obj)
+//     {
+//         if (!obj.hasOwnProperty(key) || key === keyToDelete) continue;
+//         newObj[key] = obj[key];
+//     }
+//     return newObj;
+// }
+
+// const chooseNewHostUser = () =>
+// {
+//     var playerUserNames = [];
+//     for (var key in ViewModel.gameState.players)
+//     {
+//         if (!ViewModel.gameState.players.hasOwnProperty(key) || !ViewModel.gameState.players[key]) continue;
+//         playerUserNames.push(key);
+//     }
+//     playerUserNames.sort();
+//     return playerUserNames[0];
+// }
 
 // ViewModel.ApplyAssignments = (assignments) =>
 // {
@@ -286,52 +438,145 @@ ViewModel.initHostUser = () =>
 //     return decodeURIComponent(results[2].replace(/\+/g, " "));
 // }
 
-
-//-------------------------------------------
-// PRIVATE FUNCTIONS
-//-------------------------------------------
-
-// const getNewPaperAssignments = () =>
+// const MessageHandlers = {};
+// MessageHandlers["joinResponse"] = (message) =>
 // {
-//     var ids = [];
-//     for (var key in ViewModel.gameState.papers)
+//     if (!ViewModel.JoinRequest)
+//         return;
+//     if (message.response === "accepted")
 //     {
-//         if (!ViewModel.gameState.papers.hasOwnProperty(key)) continue;
-//         ids.push(ViewModel.gameState.papers[key].id);
+//         ViewModel.SignalHub.JoinRoom(ViewModel.JoinRequest.roomCode, message.gameState.key, function ()
+//         {
+//             $("body").removeClass("host").addClass("nonHost");
+//             ViewModel.RoomCode = ViewModel.JoinRequest.roomCode;
+//             ViewModel.UserName = ViewModel.JoinRequest.userName;
+//             ViewModel.gameState = $.extend({}, message.gameState);
+//             var gameStatus = ViewModel.gameState.status;
+//             if (gameStatus === 6)
+//             {
+//                 ViewModel.Controller.LoadPage(ViewModel.Views.RevealPage);
+//             } else if (gameStatus > 0 && gameStatus < 6)
+//             {
+//                 if (!ViewModel.Controller.IsCurrentPhraseSubmitted())
+//                 {
+//                     ViewModel.Controller.LoadPage(ViewModel.Views.WritePage);
+//                 } else
+//                 {
+//                     ViewModel.Controller.LoadPage(ViewModel.Views.PhraseSubmittedPage);
+//                 }
+//             } else
+//             {
+//                 ViewModel.Controller.LoadPage(ViewModel.Views.LobbyPage);
+//             }
+//         });
+//         return;
 //     }
-//     ids.sort();
-//     var assignments =
-//         {};
-//     for (var i = 0; i < ids.length; i++)
-//     {
-//         var index = i === 0 ? ids.length - 1 : i - 1;
-//         assignments[ids[i]] = ViewModel.gameState.papers[ids[index]].currentEditor;
-//     }
-//     return assignments;
-// }
 
-// const deleteKey = (obj, keyToDelete) =>
+//     if (ViewModel.ActivePage !== ViewModel.Views.JoinPage) ViewModel.Controller.LoadPage(ViewModel.Views.JoinPage);
+//     if (message.response === "nameExists")
+//     {
+//         ViewModel.Views.JoinPage.ShowError("username already taken. please enter a different name");
+//     } else if (message.response === "gameStarted")
+//     {
+//         ViewModel.Views.JoinPage.ShowError("a round has started in that room. please wait until they are back in the lobby or try another room.");
+//     } else
+//     {
+//         ViewModel.Views.JoinPage.ShowError("an error occurred. please try a different room");
+//     }
+//     ViewModel.JoinRequest = null;
+// };
+
+// MessageHandlers["timeout"] = (message) =>
 // {
-//     var newObj =
-//         {};
-//     for (var key in obj)
+//     console.log("timeout signal received");
+//     var requestType = message.request.type;
+//     if (requestType === "joinRequest")
 //     {
-//         if (!obj.hasOwnProperty(key) || key === keyToDelete) continue;
-//         newObj[key] = obj[key];
+//         if (ViewModel.ActivePage !== ViewModel.Views.JoinPage) ViewModel.Controller.LoadPage(ViewModel.Views.JoinPage);
+//         ViewModel.Views.JoinPage.ShowError("request timed out. please try a different room");
 //     }
-//     return newObj;
-// }
+// };
 
-// const chooseNewHostUser = () =>
+// MessageHandlers["playerJoined"] = (message) =>
 // {
-//     var playerUserNames = [];
-//     for (var key in ViewModel.gameState.players)
-//     {
-//         if (!ViewModel.gameState.players.hasOwnProperty(key) || !ViewModel.gameState.players[key]) continue;
-//         playerUserNames.push(key);
-//     }
-//     playerUserNames.sort();
-//     return playerUserNames[0];
-// }
+//     if (!ViewModel.Controller.ValidateMessage(message)) return;
+//     if (message.userName in ViewModel.gameState.players) return;
+//     ViewModel.gameState.players[message.userName] = message.connectionId;
+//     ViewModel.ActivePage.Refresh();
+//     ViewModel.Views.ChatBox.Update(message.userName + " has joined");
+//     ViewModel.Views.ParticipantsBox.Update();
+// };
 
-export default ViewModel;
+// MessageHandlers["startRound"] = (message) =>
+// {
+//     if (!ViewModel.Controller.ValidateMessage(message))
+//         return;
+//     ViewModel.gameState.lang = message.lang;
+//     ViewModel.gameState.papers = $.extend({}, message.papers);
+//     ViewModel.gameState.status = 1;
+//     ViewModel.Controller.LoadPage(ViewModel.Views.WritePage);
+// };
+
+// MessageHandlers["phraseSubmitted"] = (message) =>
+// {
+//     if (!ViewModel.Controller.ValidateMessage(message))
+//         return;
+//     var paper = ViewModel.gameState.papers[message.paperId];
+//     paper["phrase" + ViewModel.gameState.status] = message.value;
+//     paper["phrase" + ViewModel.gameState.status + "author"] = paper.currentEditor;
+//     if (ViewModel.Controller.GetCurrentUnsubmittedPlayers().length === 0)
+//     {
+//         ViewModel.Controller.StartNextPhrase();
+//     } else if (ViewModel.ActivePage === ViewModel.Views.PhraseSubmittedPage)
+//     {
+//         ViewModel.ActivePage.Refresh();
+//     }
+// };
+
+// MessageHandlers["nextPhrase"] = (message) =>
+// {
+//     if (!ViewModel.Controller.ValidateMessage(message))
+//         return;
+//     ViewModel.gameState.status++;
+//     ViewModel.Controller.ApplyAssignments(message.assignments);
+//     ViewModel.Controller.LoadPage(ViewModel.Views.WritePage);
+// };
+
+// MessageHandlers["reveal"] = (message) =>
+// {
+//     if (!ViewModel.Controller.ValidateMessage(message))
+//         return;
+//     ViewModel.gameState.status = 6;
+//     ViewModel.Controller.ApplyAssignments(message.assignments);
+//     ViewModel.Controller.LoadPage(ViewModel.Views.RevealPage);
+// };
+
+// MessageHandlers["endRound"] = (message) =>
+// {
+//     if (!ViewModel.Controller.ValidateMessage(message))
+//         return;
+//     ViewModel.gameState.status = 0;
+//     ViewModel.gameState.papers = {};
+//     ViewModel.Controller.LoadPage(ViewModel.Views.LobbyPage);
+// };
+
+// MessageHandlers["hostChanged"] = (message) =>
+// {
+//     if (!ViewModel.Controller.ValidateMessage(message))
+//         return;
+//     ViewModel.gameState.hostUserName = message.newHostUserName;
+// };
+
+// MessageHandlers["chat"] = (message) =>
+// {
+//     if (!ViewModel.Controller.ValidateMessage(message))
+//         return;
+//     ViewModel.Views.ChatBox.Update(message.content, message.author);
+// };
+
+// MessageHandlers["playerKicked"] = (message) =>
+// {
+//     if (!ViewModel.Controller.ValidateMessage(message))
+//         return;
+//     ViewModel.Controller.KickPlayer(message.userName);
+// };

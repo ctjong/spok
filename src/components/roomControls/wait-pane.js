@@ -7,9 +7,18 @@ class WaitPane extends Component
 {
     render() 
     {
+        const playerNames = [];
+        Object.keys(ViewModel.gameState.players).forEach(userName => 
+            {
+                const player = ViewModel.gameState.players[userName];
+                if(player.paper.parts.length < ViewModel.gameState.activePart)
+                    playerNames.push(userName);
+            });
+        const playerNamesJoined = playerNames.join(", ");
+
         return (
             <div className="pane wait-pane">
-                <div>Waiting for:</div>
+                <div>Waiting for: {playerNamesJoined}</div>
                 <div className="waitList"></div>
             </div>
         );

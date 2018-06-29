@@ -2,6 +2,7 @@ import React from 'react';
 import ViewBase from '../../view-base';
 import ViewModel from '../../view-model';
 import ClientSocket from '../../client-socket';
+import Constants from '../../constants';
 import './create-view.css';
 
 
@@ -19,10 +20,10 @@ class CreateView extends ViewBase
         const userName = this.userNameRef.current.value;
         if(!userName)
             return;
-        ClientSocket.sendToServer(ClientSocket.msg.types.CREATE_ROOM, { roomCode }).then(() => 
+        ClientSocket.sendToServer(Constants.msg.types.CREATE_ROOM, { roomCode }).then(() => 
         {
-            ViewModel.setUserState(ViewModel.constants.ROOM_CODE, roomCode);
-            ViewModel.setUserState(ViewModel.constants.USER_NAME, userName);
+            ViewModel.setRoomCode(roomCode);
+            ViewModel.setUserName(userName);
             ViewModel.initHostUser();
             ViewModel.goTo(`/room/${roomCode}`);
         });
