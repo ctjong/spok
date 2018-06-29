@@ -12,7 +12,6 @@ export class Player
     {
         this.userName = userName;
         this.socketId = socketId;
-        this.isOnline = true;
         this.paper = null;
     }
 }

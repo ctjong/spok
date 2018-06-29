@@ -115,8 +115,7 @@ const handleJoinRequest = (msg) =>
         return;
 
     // check if the chosen name already taken by someone else in the room
-    let player = ViewModel.gameState.players[msg.data.userName];
-    if (player && player.isOnline)
+    if (ViewModel.gameState.players[msg.data.userName])
     {
         ClientSocket.sendToId(Constants.msg.types.JOIN_RESPONSE, msg.source, 
             new JoinRejectedResponse(Constants.msg.errors.USER_NAME_EXISTS));
@@ -124,17 +123,7 @@ const handleJoinRequest = (msg) =>
     }
 
     const room = ViewModel.getRoomCode();
-    if (player && !player.isOnline)
-    {
-        // the player was disconnected and is reconnecting
-        player.isOnline = true;
-        player.socketId = msg.source;
-    }
-    else
-    {
-        // valid name chosen, people are still in the lobby
-        player = new Player(msg.data.userName, msg.source);
-    }
+    const player = new Player(msg.data.userName, msg.source);
     ViewModel.activeView.updateUI();
     ClientSocket.sendToCurrentRoom(Constants.msg.types.PLAYER_JOINED, player);
     ClientSocket.sendToId(Constants.msg.types.JOIN_RESPONSE, msg.source, 
