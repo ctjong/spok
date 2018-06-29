@@ -62,7 +62,8 @@ ViewModel.startRound = (lang) =>
 
 ViewModel.isHostUser = () => 
 {
-    return ViewModel.clientSocket.getSocketId() === ViewModel.gameState.hostSocketId;
+    return ViewModel.clientSocket && ViewModel.gameState && 
+        ViewModel.clientSocket.getSocketId() === ViewModel.gameState.hostSocketId;
 };
 
 ViewModel.initHostUser = () => 
