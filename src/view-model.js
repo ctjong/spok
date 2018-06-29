@@ -133,6 +133,9 @@ const handleJoinRequest = (msg) =>
 
 const handlePlayerJoined = (player) =>
 {
+    // if a round is ongoing, put the player as spectator
+    if(ViewModel.gameState.phase > Constants.phases.LOBBY)
+        player.isSpectating = true;
     ViewModel.gameState.players[player.userName] = player;
     //TODO: ViewModel.Views.ChatBox.Update(msg.data.userName + " has joined");
 };
@@ -150,18 +153,23 @@ const handlePartSubmitted = (part) =>
     let readyToProceed = true;
     Object.keys(ViewModel.gameState.players).forEach(userName => 
         {
-            const paper = ViewModel.gameState.players[userName].paper;
+            const player = ViewModel.gameState.players[userName];
+            if(player.isSpectating)
+                return;
+            const paper = player.paper;
             if(paper && paper.parts.length < ViewModel.gameState.activePart)
                 readyToProceed = false;
         });
 
     if(readyToProceed)
     {
-        movePapers();
         if(ViewModel.gameState.activePart >= Constants.TOTAL_PARTS)
             ViewModel.gameState.phase = Constants.phases.REVEAL;
         else
+        {
+            movePapers();
             ViewModel.gameState.activePart++;
+        }
     }
 
     ViewModel.activeView.updateUI();
@@ -169,7 +177,12 @@ const handlePartSubmitted = (part) =>
 
 const movePapers = () =>
 {
-    const userNames = Object.keys(ViewModel.gameState.players);
+    const userNames = [];
+    Object.keys(ViewModel.gameState.players).forEach(userName => 
+        {
+            if(!ViewModel.gameState.players[userName].isSpectating)
+                userNames.push(userName);
+        });
     userNames.sort();
 
     const players = ViewModel.gameState.players;

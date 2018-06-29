@@ -7,12 +7,6 @@ import ClientSocket from '../../client-socket';
 
 class RevealPane extends Component
 {
-    handleChatShareClick()
-    {
-        //TODO
-        // ViewModel.goTo("/create");
-    }
-
     handleNewRoundClick()
     {
         ViewModel.startRound(ViewModel.gameState.lang);
@@ -28,12 +22,19 @@ class RevealPane extends Component
 
     render() 
     {
-        const texts = [];
-        const userName = ViewModel.getUserName();
-        const paper = ViewModel.gameState.players[userName].paper;
-        if(paper)
-            paper.parts.forEach(part => texts.push(part.text));
-        const textsJoined = texts.join(" ");
+        const rows = [];
+        Object.keys(ViewModel.gameState.players).forEach(userName => 
+            {
+                const player = ViewModel.gameState.players[userName];
+                if(player.isSpectating)
+                    return;
+                const texts = [];
+                const paper = player.paper;
+                if(paper)
+                    paper.parts.forEach(part => texts.push(part.text));
+                const textsJoined = texts.join(" ");
+                rows.push(<div key={userName}>{textsJoined}</div>);
+            });
 
         const bottomText = ViewModel.isHostUser() ? (
                 <div>
@@ -50,10 +51,7 @@ class RevealPane extends Component
 
         return (
             <div className="pane reveal-pane">
-                <h2 className="result-paper">{textsJoined}</h2>
-                <div className="share-result-link-div">
-                    <a className="share-result-link" onClick={this.handleChatShareClick()}>Share via chat</a>
-                </div>
+                <div className="result-paper">{rows}</div>
                 {bottomText}
             </div>
         );
