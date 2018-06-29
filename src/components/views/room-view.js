@@ -20,6 +20,7 @@ class RoomView extends ViewBase
         this.roomCode = props.match.params.roomCode;
         this.userName = ViewModel.getUserName();
         this.isRoomView = true;
+        this.chatBox = null;
     }
 
     updateUI()
@@ -59,7 +60,7 @@ class RoomView extends ViewBase
                 <h1>Room # {this.roomCode}</h1>
                 {this.getActivePane()}
                 <ParticipantBox players={this.state.players}/>
-                <ChatBox/>
+                <ChatBox ref={el => this.chatBox = el}/>
             </div>
         );
     }

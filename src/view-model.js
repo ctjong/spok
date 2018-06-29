@@ -1,4 +1,4 @@
-import { Paper, Player, GameState, JoinApprovedResponse, JoinRejectedResponse, StartRoundMessage } from './models';
+import { Paper, Player, GameState, JoinApprovedResponse, JoinRejectedResponse, StartRoundMessage, ChatMessage } from './models';
 import Constants from './constants';
 import ClientSocket from './client-socket';
 
@@ -103,6 +103,9 @@ const handleMessage = (msg) =>
             ViewModel.gameState.phase = Constants.phases.LOBBY;
             ViewModel.activeView.updateUI();
             break;
+        case Constants.msg.types.CHAT_MESSAGE:
+            ViewModel.activeView.chatBox.pushMessage(msg.data);
+            break;
         default:
             break;
     }
@@ -124,7 +127,6 @@ const handleJoinRequest = (msg) =>
 
     const room = ViewModel.getRoomCode();
     const player = new Player(msg.data.userName, msg.source);
-    ViewModel.activeView.updateUI();
     ClientSocket.sendToCurrentRoom(Constants.msg.types.PLAYER_JOINED, player);
     ClientSocket.sendToId(Constants.msg.types.JOIN_RESPONSE, msg.source, 
         new JoinApprovedResponse(room, ViewModel.gameState));
@@ -137,7 +139,8 @@ const handlePlayerJoined = (player) =>
     if(ViewModel.gameState.phase > Constants.phases.LOBBY)
         player.isSpectating = true;
     ViewModel.gameState.players[player.userName] = player;
-    //TODO: ViewModel.Views.ChatBox.Update(msg.data.userName + " has joined");
+    ViewModel.activeView.chatBox.pushMessage(new ChatMessage(null, `${player.userName} has joined`));
+    ViewModel.activeView.updateUI();
 };
 
 const handlePartSubmitted = (part) =>

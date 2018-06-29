@@ -1,15 +1,10 @@
 .chat-box
 {
-    display: none;
-}
-
-.chat-box, .footerbox
-{
     background-color: rgba(255,255,255,0.8);
     padding: 10px;
 }
 
-.chat-box-chats
+.chat-box .chat-box-chats
 {
     height: 150px;
     border: 1px solid black;
@@ -18,8 +13,20 @@
     text-align: left;
 }
 
-.chat-author
+.chat-box .chat-author
 {
     margin-right: 10px;
     font-weight: bold;
+}
+
+.chat-box .input-row 
+{
+    display: flex;
+    flex-direction: row;
+}
+
+.chat-box .chat-send
+{
+    width:100px;
+    order:1;
 }

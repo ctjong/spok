@@ -75,3 +75,12 @@ export class StartRoundMessage
         this.lang = lang;
     }
 }
+
+export class ChatMessage
+{
+    constructor(authorUserName, text)
+    {
+        this.authorUserName = authorUserName;
+        this.text = text;
+    }
+}
