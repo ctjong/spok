@@ -2,7 +2,7 @@ import React from 'react';
 import ViewBase from '../../view-base';
 import ViewModel from '../../view-model';
 import Constants from '../../constants';
-import ParticipantBox from '../roomControls/participant-box';
+import ParticipantList from '../roomControls/participant-list';
 import ChatBox from '../roomControls/chat-box';
 import LobbyPane from '../roomControls/lobby-pane';
 import RevealPane from '../roomControls/reveal-pane';
@@ -61,7 +61,7 @@ class RoomView extends ViewBase
             <div className="view room-view">
                 <h1>Room # {this.roomCode}</h1>
                 {this.getActivePane()}
-                <ParticipantBox players={this.state.players}/>
+                <ParticipantList/>
                 <ChatBox ref={el => this.chatBox = el}/>
             </div>
         );

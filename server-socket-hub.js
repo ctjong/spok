@@ -1,5 +1,6 @@
 let io = null;
-
+const rooms = {};
+const socketToRoomMap = {};
 
 //--------------------------------------------------------------------------
 // ENUMS
@@ -19,7 +20,7 @@ const msgEnums =
         PLAYER_JOINED: "playerJoined",
         CHAT_MESSAGE: "chatMsg",
         PING: "ping",
-        PLAYER_DISCONNECTED: "playerDisconnected",
+        PLAYER_OFFLINE: "playerOffline",
         HOST_CHANGE: "hostChange",
     },
     targets:
@@ -29,6 +30,7 @@ const msgEnums =
     events:
     {
         CONNECT: "connect",
+        DISCONNECT: "disconnect",
         MSG: "message"
     },
     errors:
@@ -48,10 +50,12 @@ const handleMessage = (socket, msg, reply) =>
     {
         if(msg.type === msgEnums.types.CREATE_ROOM)
         {
-            socket.join(msg.data.roomCode, () => 
-            {
-                reply({ isSuccess: true }); 
-            });
+            const roomCode = msg.data.roomCode;
+            const lang = msg.data.lang;
+            socketToRoomMap[socket.id] = roomCode;
+            rooms[roomCode] = { roomCode, lang, sockets: [socket.id] };
+            console.log("sending success response to " + socket.id);
+            socket.join(roomCode, () => reply({ isSuccess: true })); 
         }
     }
     else
@@ -62,7 +66,13 @@ const handleMessage = (socket, msg, reply) =>
         if(targetSocket)
         {
             if(msg.type === msgEnums.types.JOIN_RESPONSE && msg.data.isSuccess)
-                targetSocket.join(msg.data.room);
+            {
+                const roomCode = msg.data.roomCode;
+                socketToRoomMap[targetSocket.id] = roomCode;
+                if(rooms[roomCode])
+                    rooms[roomCode].sockets.push(targetSocket.id);
+                targetSocket.join(roomCode);
+            }
             targetSocket.emit(msgEnums.events.MSG, msg, response => reply(response));
         }
         else
@@ -70,6 +80,21 @@ const handleMessage = (socket, msg, reply) =>
             socket.to(msg.target).emit(msgEnums.events.MSG, msg);
         }
     }
+};
+
+const handleDisconnect = (socket) =>
+{
+    const roomCode = socketToRoomMap[socket.id];
+    delete socketToRoomMap[socket.id];
+    if(!roomCode)
+        return;
+    if(roomToSocketsMap[roomCode])
+    {
+        roomToSocketsMap[roomCode].sockets.remove(socket.id);
+        if(roomToSocketsMap[roomCode].sockets.length === 0)
+            delete roomToSocketsMap[roomCode];
+    }
+    socket.to(roomCode).emit(msgEnums.types.PLAYER_OFFLINE, { socketId: socket.id });
 };
 
 
@@ -85,6 +110,7 @@ module.exports =
         io.on('connection', (socket) =>
         {
             socket.on(msgEnums.events.MSG, (msg, reply) => handleMessage(socket, msg, reply));
+            socket.on(msgEnums.events.DISCONNECT, () => handleMessage(socket));
         });
     }
 };

@@ -14,14 +14,15 @@ export class Player
         this.socketId = socketId;
         this.paper = null;
         this.isSpectating = false;
+        this.isOnline = true;
     }
 }
 
 export class GameState
 {
-    constructor(host, initialPhase)
+    constructor(host, initialPhase, lang)
     {
-        this.lang = null;
+        this.lang = lang;
         this.activePart = -1;
         this.phase = initialPhase;
 
@@ -41,10 +42,10 @@ export class PlayerMessageData
 
 export class JoinApprovedResponse
 {
-    constructor(room, gameState)
+    constructor(roomCode, gameState)
     {
         this.isSuccess = true;
-        this.room = room;
+        this.roomCode = roomCode;
         this.gameState = gameState;
     }
 }
@@ -65,14 +66,6 @@ export class Part
         this.text = text;
         this.authorUserName = authorUserName;
         this.vote = 0;
-    }
-}
-
-export class StartRoundMessage
-{
-    constructor(lang)
-    {
-        this.lang = lang;
     }
 }
 

@@ -1,4 +1,4 @@
-import { Paper, Player, GameState, JoinApprovedResponse, JoinRejectedResponse, StartRoundMessage, ChatMessage, PlayerMessageData } from './models';
+import { Paper, Player, GameState, JoinApprovedResponse, JoinRejectedResponse, ChatMessage, PlayerMessageData } from './models';
 import Constants from './constants';
 import ClientSocket from './client-socket';
 
@@ -8,9 +8,6 @@ ViewModel.history = null;
 ViewModel.gameState = null;
 ViewModel.userName = null;
 ViewModel.roomCode = null;
-
-let pingListenerTimeout = null;
-let pingSenderInterval = null;
 
 //-------------------------------------------
 // PUBLIC FUNCTIONS
@@ -32,7 +29,7 @@ ViewModel.isHostUser = () =>
     return ViewModel.gameState && ViewModel.userName === ViewModel.gameState.hostUserName;
 };
 
-ViewModel.initHostUser = (roomCode, userName) => 
+ViewModel.initHostUser = (roomCode, userName, lang) => 
 {
     setRoomCode(roomCode);
     setUserName(userName);
@@ -40,10 +37,9 @@ ViewModel.initHostUser = (roomCode, userName) =>
     {
         const socketId = ClientSocket.getSocketId();
         const hostPlayer = new Player(ViewModel.userName, socketId);
-        ViewModel.gameState = new GameState(hostPlayer, Constants.phases.LOBBY);
+        ViewModel.gameState = new GameState(hostPlayer, Constants.phases.LOBBY, lang);
         ViewModel.gameState.players[ViewModel.userName] = hostPlayer;
     }
-    startPingSender();
 };
 
 ViewModel.initNonHostUser = (roomCode, userName, gameState) =>
@@ -51,25 +47,18 @@ ViewModel.initNonHostUser = (roomCode, userName, gameState) =>
     setRoomCode(roomCode);
     setUserName(userName);
     ViewModel.gameState = gameState;
-    restartPingListenerTimeout();
 };
 
-ViewModel.startRound = (lang) => 
+ViewModel.startRound = () => 
 {
-    ClientSocket.sendToCurrentRoom(Constants.msg.types.START_ROUND, new StartRoundMessage(lang));
-    handleStartRound(lang);
+    ClientSocket.sendToCurrentRoom(Constants.msg.types.START_ROUND);
+    handleStartRound();
 };
 
 ViewModel.submitPart = (part) => 
 {
     ClientSocket.sendToCurrentRoom(Constants.msg.types.SUBMIT_PART, part);
     handlePartSubmitted(part);
-};
-
-ViewModel.kickPlayer = (playerUserName) => 
-{
-    ClientSocket.sendToCurrentRoom(Constants.msg.types.PLAYER_DISCONNECTED, new PlayerMessageData(playerUserName));
-    handleDisconnect(playerUserName);
 };
 
 
@@ -101,17 +90,16 @@ const handleMessage = (msg, reply) =>
             handlePlayerJoined(msg.data);
             break;
         case Constants.msg.types.START_ROUND:
-            handleStartRound(msg.data.lang);
+            handleStartRound();
             break;
         case Constants.msg.types.SUBMIT_PART:
             handlePartSubmitted(msg.data);
             break;
-        case Constants.msg.types.PLAYER_DISCONNECTED:
+        case Constants.msg.types.PLAYER_OFFLINE:
             handleDisconnect(msg.data.userName);
             break;
         case Constants.msg.types.HOST_CHANGE:
             ViewModel.gameState.hostUserName = msg.data.userName;
-            restartPingListenerTimeout();
             break;
         case Constants.msg.types.GOTO_LOBBY:
             ViewModel.gameState.phase = Constants.phases.LOBBY;
@@ -121,7 +109,6 @@ const handleMessage = (msg, reply) =>
             ViewModel.activeView.chatBox.pushMessage(msg.data);
             break;
         case Constants.msg.types.PING:
-            restartPingListenerTimeout();
             reply(Constants.ACK);
             break;
         default:
@@ -160,9 +147,8 @@ const handlePlayerJoined = (player) =>
     ViewModel.activeView.updateUI();
 };
 
-const handleStartRound = (lang) =>
+const handleStartRound = () =>
 {
-    ViewModel.gameState.lang = lang;
     ViewModel.gameState.phase = Constants.phases.WRITE;
     ViewModel.gameState.activePart = 1;
     Object.keys(ViewModel.gameState.players).forEach(userName => 
@@ -187,19 +173,25 @@ const handlePartSubmitted = (part) =>
     ViewModel.activeView.updateUI();
 };
 
-const handleDisconnect = (playerUserName) =>
+const handleDisconnect = (socketId) =>
 {
-    const newPlayers = {};
-    Object.keys(ViewModel.gameState.players).forEach(userName =>
+    let player = null;
+    Object.keys(ViewModel.gameState.players).some(userName =>
+    {
+        if(ViewModel.gameState.players[userName].socketId === socketId)
         {
-            if(playerUserName !== userName)
-                newPlayers[userName] = ViewModel.gameState.players[userName];
-        });
-    ViewModel.gameState.players = newPlayers;
-    if(ViewModel.gameState.phase === Constants.phases.WRITE)
-        updateWritePhaseState();
-    ViewModel.activeView.chatBox.pushMessage(new ChatMessage(null, `${playerUserName} has disconnected`));
+            player = ViewModel.gameState.players[userName];
+            return true;
+        }
+        return false;
+    });
+    if(!player)
+        return;
+    player.isOnline = false;
+    ViewModel.activeView.chatBox.pushMessage(new ChatMessage(null, `${player.userName} has disconnected`));
     ViewModel.activeView.updateUI();
+    if(ViewModel.gameState.hostUserName === player.userName)
+        chooseNewHost();
 };
 
 const updateWritePhaseState = () =>
@@ -225,37 +217,6 @@ const updateWritePhaseState = () =>
             ViewModel.gameState.activePart++;
         }
     }
-};
-
-const startPingSender = () =>
-{
-    clearInterval(pingSenderInterval);
-    pingSenderInterval = setInterval(() => 
-    {
-        Object.keys(ViewModel.gameState.players).forEach(userName =>
-        {
-            if(userName === ViewModel.userName)
-                return;
-            const player = ViewModel.gameState.players[userName];
-            const timeout = setTimeout(() => 
-            {
-                ViewModel.kickPlayer(player.userName);
-            }, Constants.PING_TIMEOUT);
-            ClientSocket.sendToId(Constants.msg.types.PING, player.socketId).then(() => clearTimeout(timeout));
-        });
-    }, Constants.PING_INTERVAL);
-};
-
-const restartPingListenerTimeout = () =>
-{
-    clearTimeout(pingListenerTimeout);
-    pingListenerTimeout = setTimeout(() =>
-    {
-        const player = ViewModel.gameState.players[ViewModel.gameState.hostUserName];
-        chooseNewHost();
-        if(ViewModel.gameState.hostUserName === ViewModel.userName)
-            ViewModel.kickPlayer(player.userName);
-    }, Constants.PING_LISTENER_TIMEOUT);
 };
 
 const chooseNewHost = () =>

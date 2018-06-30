@@ -14,7 +14,7 @@ export default
             PLAYER_JOINED: "playerJoined",
             CHAT_MESSAGE: "chatMsg",
             PING: "ping",
-            PLAYER_DISCONNECTED: "playerDisconnected",
+            PLAYER_OFFLINE: "playerOffline",
             HOST_CHANGE: "hostChange",
         },
         targets:
