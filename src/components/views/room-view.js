@@ -35,7 +35,10 @@ class RoomView extends ViewBase
             case Constants.phases.LOBBY:
                 return <LobbyPane/>;
             case Constants.phases.WRITE:
-                const currentPaper = this.state.players[this.userName].paper;
+                const player = this.state.players[this.userName];
+                if(!player)
+                    return;
+                const currentPaper = player.paper;
                 if(currentPaper && currentPaper.parts.length < this.state.activePart)
                     return <WritePane/>;
                 else

@@ -84,3 +84,11 @@ export class ChatMessage
         this.text = text;
     }
 }
+
+export class PlayerDisconnectedMessage
+{
+    constructor(userName)
+    {
+        this.userName = userName;
+    }
+}

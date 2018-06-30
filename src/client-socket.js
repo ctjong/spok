@@ -70,10 +70,10 @@ const socketSend = (type, target, data, responseMsgType) =>
     });
 };
 
-const socketReceive = (msg) =>
+const socketReceive = (msg, reply) =>
 {
     console.log("[ClientSocket.socketReceive] received " + JSON.stringify(msg));
-    messageHandlers.forEach(handler => handler(msg));
+    messageHandlers.forEach(handler => handler(msg, reply));
     while(responseHandlers[msg.type] && responseHandlers[msg.type].length > 0)
     {
         const resolve = responseHandlers[msg.type].pop();

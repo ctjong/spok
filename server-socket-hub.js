@@ -18,6 +18,7 @@ const msgEnums =
         GOTO_LOBBY: "gotoLobby",
         PLAYER_JOINED: "playerJoined",
         CHAT_MESSAGE: "chatMsg",
+        PING: "ping",
     },
     targets:
     {

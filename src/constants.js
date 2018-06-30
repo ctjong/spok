@@ -13,6 +13,8 @@ export default
             GOTO_LOBBY: "gotoLobby",
             PLAYER_JOINED: "playerJoined",
             CHAT_MESSAGE: "chatMsg",
+            PING: "ping",
+            PLAYER_DISCONNECTED: "playerDisconnected",
         },
         targets:
         {
@@ -40,4 +42,7 @@ export default
     ROOM_CODE: "roomCode",
     USER_NAME: "userName",
     DEFAULT_LANG: "en",
+    PING_INTERVAL: 10000,
+    PING_TIMEOUT: 5000,
+    ACK: "ack",
 };
