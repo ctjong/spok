@@ -45,11 +45,10 @@ ViewModel.isHostUser = () =>
 
 ViewModel.initHostUser = () => 
 {
-    const userName = ViewModel.userName;
     const socketId = ClientSocket.getSocketId();
-    const hostPlayer = new Player(userName, socketId);
+    const hostPlayer = new Player(ViewModel.userName, socketId);
     ViewModel.gameState = new GameState(hostPlayer, Constants.phases.LOBBY);
-    ViewModel.gameState.players[userName] = hostPlayer;
+    ViewModel.gameState.players[ViewModel.userName] = hostPlayer;
     startPinger();
 };
 
@@ -204,12 +203,11 @@ const updateWritePhaseState = () =>
 
 const startPinger = () =>
 {
-    const currentUserName = ViewModel.userName;
     setInterval(() => 
     {
         Object.keys(ViewModel.gameState.players).forEach(userName =>
         {
-            if(userName === currentUserName)
+            if(userName === ViewModel.userName)
                 return;
             const player = ViewModel.gameState.players[userName];
             const timeout = setTimeout(() => 

@@ -18,7 +18,6 @@ class RoomView extends ViewBase
         super(props);
         this.state = ViewModel.gameState;
         this.roomCode = props.match.params.roomCode;
-        this.userName = ViewModel.userName;
         this.isRoomView = true;
         this.chatBox = null;
     }
@@ -35,7 +34,7 @@ class RoomView extends ViewBase
             case Constants.phases.LOBBY:
                 return <LobbyPane/>;
             case Constants.phases.WRITE:
-                const player = this.state.players[this.userName];
+                const player = this.state.players[ViewModel.userName];
                 if(!player)
                     return;
                 const currentPaper = player.paper;
