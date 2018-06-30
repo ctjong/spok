@@ -48,9 +48,9 @@ ViewModel.initHostUser = (roomCode, userName) =>
 
 ViewModel.initNonHostUser = (roomCode, userName, gameState) =>
 {
-    ViewModel.gameState = gameState;
     setRoomCode(roomCode);
     setUserName(userName);
+    ViewModel.gameState = gameState;
     restartPingListenerTimeout();
 };
 
