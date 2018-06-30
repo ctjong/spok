@@ -35,7 +35,7 @@ class ChatBox extends Component
         if(!text)
             return;
         this.inputRef.current.value = "";
-        const chatMsg = new ChatMessage(ViewModel.getUserName(), text);
+        const chatMsg = new ChatMessage(ViewModel.userName, text);
         ClientSocket.sendToCurrentRoom(Constants.msg.types.CHAT_MESSAGE, chatMsg);
         this.pushMessage(chatMsg);
     }

@@ -6,29 +6,23 @@ const ViewModel = {};
 ViewModel.activeView = null;
 ViewModel.history = null;
 ViewModel.gameState = null;
+ViewModel.userName = null;
+ViewModel.roomCode = null;
 
 
 //-------------------------------------------
 // PUBLIC FUNCTIONS
 //-------------------------------------------
 
-ViewModel.getUserName = () => 
-{
-    return sessionStorage.getItem(Constants.USER_NAME);
-};
-
 ViewModel.setUserName = (value) => 
 {
+    ViewModel.userName = value;
     sessionStorage.setItem(Constants.USER_NAME, value);
-};
-
-ViewModel.getRoomCode = () => 
-{
-    return sessionStorage.getItem(Constants.ROOM_CODE);
 };
 
 ViewModel.setRoomCode = (value) => 
 {
+    ViewModel.roomCode = value;
     ClientSocket.roomCode = value;
     sessionStorage.setItem(Constants.ROOM_CODE, value);
 };
@@ -46,12 +40,12 @@ ViewModel.getRandomCode = () =>
 
 ViewModel.isHostUser = () => 
 {
-    return ViewModel.gameState && ViewModel.getUserName() === ViewModel.gameState.hostUserName;
+    return ViewModel.gameState && ViewModel.userName === ViewModel.gameState.hostUserName;
 };
 
 ViewModel.initHostUser = () => 
 {
-    const userName = ViewModel.getUserName();
+    const userName = ViewModel.userName;
     const socketId = ClientSocket.getSocketId();
     const hostPlayer = new Player(userName, socketId);
     ViewModel.gameState = new GameState(hostPlayer, Constants.phases.LOBBY);
@@ -124,11 +118,10 @@ const handleJoinRequest = (msg) =>
         return;
     }
 
-    const room = ViewModel.getRoomCode();
     const player = new Player(msg.data.userName, msg.source);
     ClientSocket.sendToCurrentRoom(Constants.msg.types.PLAYER_JOINED, player);
     ClientSocket.sendToId(Constants.msg.types.JOIN_RESPONSE, msg.source, 
-        new JoinApprovedResponse(room, ViewModel.gameState));
+        new JoinApprovedResponse(ViewModel.roomCode, ViewModel.gameState));
     handlePlayerJoined(player);
 };
 
@@ -211,7 +204,7 @@ const updateWritePhaseState = () =>
 
 const startPinger = () =>
 {
-    const currentUserName = ViewModel.getUserName();
+    const currentUserName = ViewModel.userName;
     setInterval(() => 
     {
         Object.keys(ViewModel.gameState.players).forEach(userName =>
@@ -250,6 +243,8 @@ const movePapers = () =>
 
 const initialize = () =>
 {
+    ViewModel.userName = sessionStorage.getItem(Constants.USER_NAME);
+    ViewModel.roomCode = sessionStorage.getItem(Constants.ROOM_CODE);
     ClientSocket.addMessageHandler(handleMessage);
 };
 
