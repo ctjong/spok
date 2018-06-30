@@ -31,7 +31,7 @@ export class GameState
     }
 }
 
-export class JoinRequest
+export class PlayerMessageData
 {
     constructor(userName)
     {
@@ -82,13 +82,5 @@ export class ChatMessage
     {
         this.authorUserName = authorUserName;
         this.text = text;
-    }
-}
-
-export class PlayerDisconnectedMessage
-{
-    constructor(userName)
-    {
-        this.userName = userName;
     }
 }

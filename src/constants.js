@@ -15,6 +15,7 @@ export default
             CHAT_MESSAGE: "chatMsg",
             PING: "ping",
             PLAYER_DISCONNECTED: "playerDisconnected",
+            HOST_CHANGE: "hostChange",
         },
         targets:
         {
@@ -42,7 +43,8 @@ export default
     ROOM_CODE: "roomCode",
     USER_NAME: "userName",
     DEFAULT_LANG: "en",
-    PING_INTERVAL: 10000,
-    PING_TIMEOUT: 5000,
+    PING_INTERVAL: 8000,
+    PING_TIMEOUT: 4000,
+    PING_LISTENER_TIMEOUT: 10000,
     ACK: "ack",
 };

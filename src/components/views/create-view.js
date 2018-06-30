@@ -22,9 +22,7 @@ class CreateView extends ViewBase
             return;
         ClientSocket.sendToServer(Constants.msg.types.CREATE_ROOM, { roomCode }).then(() => 
         {
-            ViewModel.setRoomCode(roomCode);
-            ViewModel.setUserName(userName);
-            ViewModel.initHostUser();
+            ViewModel.initHostUser(roomCode, userName);
             ViewModel.goTo(`/room/${roomCode}`);
         });
     }

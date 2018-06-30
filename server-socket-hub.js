@@ -19,6 +19,8 @@ const msgEnums =
         PLAYER_JOINED: "playerJoined",
         CHAT_MESSAGE: "chatMsg",
         PING: "ping",
+        PLAYER_DISCONNECTED: "playerDisconnected",
+        HOST_CHANGE: "hostChange",
     },
     targets:
     {

@@ -1,4 +1,4 @@
-import { Paper, Player, GameState, JoinApprovedResponse, JoinRejectedResponse, StartRoundMessage, ChatMessage, PlayerDisconnectedMessage } from './models';
+import { Paper, Player, GameState, JoinApprovedResponse, JoinRejectedResponse, StartRoundMessage, ChatMessage, PlayerMessageData } from './models';
 import Constants from './constants';
 import ClientSocket from './client-socket';
 
@@ -9,23 +9,12 @@ ViewModel.gameState = null;
 ViewModel.userName = null;
 ViewModel.roomCode = null;
 
+let pingListenerTimeout = null;
+let pingSenderInterval = null;
 
 //-------------------------------------------
 // PUBLIC FUNCTIONS
 //-------------------------------------------
-
-ViewModel.setUserName = (value) => 
-{
-    ViewModel.userName = value;
-    sessionStorage.setItem(Constants.USER_NAME, value);
-};
-
-ViewModel.setRoomCode = (value) => 
-{
-    ViewModel.roomCode = value;
-    ClientSocket.roomCode = value;
-    sessionStorage.setItem(Constants.ROOM_CODE, value);
-};
 
 ViewModel.goTo = (path) => 
 {
@@ -43,13 +32,26 @@ ViewModel.isHostUser = () =>
     return ViewModel.gameState && ViewModel.userName === ViewModel.gameState.hostUserName;
 };
 
-ViewModel.initHostUser = () => 
+ViewModel.initHostUser = (roomCode, userName) => 
 {
-    const socketId = ClientSocket.getSocketId();
-    const hostPlayer = new Player(ViewModel.userName, socketId);
-    ViewModel.gameState = new GameState(hostPlayer, Constants.phases.LOBBY);
-    ViewModel.gameState.players[ViewModel.userName] = hostPlayer;
-    startPinger();
+    setRoomCode(roomCode);
+    setUserName(userName);
+    if(!ViewModel.gameState)
+    {
+        const socketId = ClientSocket.getSocketId();
+        const hostPlayer = new Player(ViewModel.userName, socketId);
+        ViewModel.gameState = new GameState(hostPlayer, Constants.phases.LOBBY);
+        ViewModel.gameState.players[ViewModel.userName] = hostPlayer;
+    }
+    startPingSender();
+};
+
+ViewModel.initNonHostUser = (roomCode, userName, gameState) =>
+{
+    ViewModel.gameState = gameState;
+    setRoomCode(roomCode);
+    setUserName(userName);
+    restartPingListenerTimeout();
 };
 
 ViewModel.startRound = (lang) => 
@@ -64,10 +66,29 @@ ViewModel.submitPart = (part) =>
     handlePartSubmitted(part);
 };
 
+ViewModel.kickPlayer = (playerUserName) => 
+{
+    ClientSocket.sendToCurrentRoom(Constants.msg.types.PLAYER_DISCONNECTED, new PlayerMessageData(playerUserName));
+    handleDisconnect(playerUserName);
+};
+
 
 //-------------------------------------------
 // PRIVATE FUNCTIONS
 //-------------------------------------------
+
+const setUserName = (value) => 
+{
+    ViewModel.userName = value;
+    sessionStorage.setItem(Constants.USER_NAME, value);
+};
+
+const setRoomCode = (value) => 
+{
+    ViewModel.roomCode = value;
+    ClientSocket.roomCode = value;
+    sessionStorage.setItem(Constants.ROOM_CODE, value);
+};
 
 const handleMessage = (msg, reply) => 
 {
@@ -88,6 +109,10 @@ const handleMessage = (msg, reply) =>
         case Constants.msg.types.PLAYER_DISCONNECTED:
             handleDisconnect(msg.data.userName);
             break;
+        case Constants.msg.types.HOST_CHANGE:
+            ViewModel.gameState.hostUserName = msg.data.userName;
+            restartPingListenerTimeout();
+            break;
         case Constants.msg.types.GOTO_LOBBY:
             ViewModel.gameState.phase = Constants.phases.LOBBY;
             ViewModel.activeView.updateUI();
@@ -96,6 +121,7 @@ const handleMessage = (msg, reply) =>
             ViewModel.activeView.chatBox.pushMessage(msg.data);
             break;
         case Constants.msg.types.PING:
+            restartPingListenerTimeout();
             reply(Constants.ACK);
             break;
         default:
@@ -201,9 +227,10 @@ const updateWritePhaseState = () =>
     }
 };
 
-const startPinger = () =>
+const startPingSender = () =>
 {
-    setInterval(() => 
+    clearInterval(pingSenderInterval);
+    pingSenderInterval = setInterval(() => 
     {
         Object.keys(ViewModel.gameState.players).forEach(userName =>
         {
@@ -212,12 +239,41 @@ const startPinger = () =>
             const player = ViewModel.gameState.players[userName];
             const timeout = setTimeout(() => 
             {
-                ClientSocket.sendToCurrentRoom(Constants.msg.types.PLAYER_DISCONNECTED, new PlayerDisconnectedMessage(player.userName));
-                handleDisconnect(player.userName);
+                ViewModel.kickPlayer(player.userName);
             }, Constants.PING_TIMEOUT);
             ClientSocket.sendToId(Constants.msg.types.PING, player.socketId).then(() => clearTimeout(timeout));
         });
     }, Constants.PING_INTERVAL);
+};
+
+const restartPingListenerTimeout = () =>
+{
+    clearTimeout(pingListenerTimeout);
+    pingListenerTimeout = setTimeout(() =>
+    {
+        const player = ViewModel.gameState.players[ViewModel.gameState.hostUserName];
+        chooseNewHost();
+        if(ViewModel.gameState.hostUserName === ViewModel.userName)
+            ViewModel.kickPlayer(player.userName);
+    }, Constants.PING_LISTENER_TIMEOUT);
+};
+
+const chooseNewHost = () =>
+{
+    const userNames = [];
+    Object.keys(ViewModel.gameState.players).forEach(userName => 
+    {
+        if(userName !== ViewModel.gameState.hostUserName)
+            userNames.push(userName);
+    });
+    userNames.sort();
+    ViewModel.gameState.hostUserName = userNames[0];
+    if(ViewModel.gameState.hostUserName === ViewModel.userName)
+    {
+        ViewModel.initHostUser(ViewModel.roomCode, ViewModel.userName);
+        ClientSocket.sendToCurrentRoom(Constants.msg.types.HOST_CHANGE, new PlayerMessageData(ViewModel.userName));
+        ViewModel.activeView.updateUI();
+    }
 };
 
 const movePapers = () =>
