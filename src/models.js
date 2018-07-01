@@ -13,7 +13,6 @@ export class Player
         this.userName = userName;
         this.socketId = socketId;
         this.paper = null;
-        this.isSpectating = false;
         this.isOnline = true;
     }
 }

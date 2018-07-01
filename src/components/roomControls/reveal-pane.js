@@ -26,8 +26,6 @@ class RevealPane extends Component
         Object.keys(ViewModel.gameState.players).forEach(userName => 
             {
                 const player = ViewModel.gameState.players[userName];
-                if(player.isSpectating)
-                    return;
                 const texts = [];
                 const paper = player.paper;
                 if(paper)

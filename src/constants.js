@@ -13,7 +13,6 @@ export default
             GOTO_LOBBY: "gotoLobby",
             PLAYER_JOINED: "playerJoined",
             CHAT_MESSAGE: "chatMsg",
-            PING: "ping",
             PLAYER_OFFLINE: "playerOffline",
             HOST_CHANGE: "hostChange",
         },
@@ -29,6 +28,7 @@ export default
         errors:
         {
             USER_NAME_EXISTS: "userNameExists",
+            ROUND_ONGOING: "roundOngoing",
         }
     },
 
@@ -39,6 +39,12 @@ export default
         REVEAL: 3
     },
 
+    errorStrings:
+    {
+        userNameExists: "User name is already taken.",
+        roundOngoing: "A round is ongoing. Please try again later.",
+    },
+
     TOTAL_PARTS: 4,
     ROOM_CODE: "roomCode",
     USER_NAME: "userName",
@@ -46,5 +52,4 @@ export default
     PING_INTERVAL: 8000,
     PING_TIMEOUT: 4000,
     PING_LISTENER_TIMEOUT: 10000,
-    ACK: "ack",
 };

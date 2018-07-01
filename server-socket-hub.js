@@ -19,7 +19,6 @@ const msgEnums =
         GOTO_LOBBY: "gotoLobby",
         PLAYER_JOINED: "playerJoined",
         CHAT_MESSAGE: "chatMsg",
-        PING: "ping",
         PLAYER_OFFLINE: "playerOffline",
         HOST_CHANGE: "hostChange",
     },
@@ -36,12 +35,29 @@ const msgEnums =
     errors:
     {
         USER_NAME_EXISTS: "userNameExists",
+        ROUND_ONGOING: "roundOngoing",
     }
 };
 
 
 //--------------------------------------------------------------------------
-// Message handler
+// PRIVATE CLASSES
+//--------------------------------------------------------------------------
+
+class Room 
+{
+    constructor(roomCode, lang, firstSocket)
+    {
+        this.roomCode = roomCode;
+        this.lang = lang;
+        this.sockets = {};
+        this.sockets[firstSocket.id] = firstSocket;
+    }
+}
+
+
+//--------------------------------------------------------------------------
+// MESSAGE HANDLERS
 //--------------------------------------------------------------------------
 
 const handleMessage = (socket, msg, reply) => 
@@ -53,7 +69,7 @@ const handleMessage = (socket, msg, reply) =>
             const roomCode = msg.data.roomCode;
             const lang = msg.data.lang;
             socketToRoomMap[socket.id] = roomCode;
-            rooms[roomCode] = { roomCode, lang, sockets: [socket.id] };
+            rooms[roomCode] = new Room(roomCode, lang, socket);
             console.log("sending success response to " + socket.id);
             socket.join(roomCode, () => reply({ isSuccess: true })); 
         }
@@ -70,7 +86,7 @@ const handleMessage = (socket, msg, reply) =>
                 const roomCode = msg.data.roomCode;
                 socketToRoomMap[targetSocket.id] = roomCode;
                 if(rooms[roomCode])
-                    rooms[roomCode].sockets.push(targetSocket.id);
+                    rooms[roomCode].sockets[targetSocket.id] = targetSocket;
                 targetSocket.join(roomCode);
             }
             targetSocket.emit(msgEnums.events.MSG, msg, response => reply(response));
@@ -88,18 +104,19 @@ const handleDisconnect = (socket) =>
     delete socketToRoomMap[socket.id];
     if(!roomCode)
         return;
-    if(roomToSocketsMap[roomCode])
+    if(rooms[roomCode])
     {
-        roomToSocketsMap[roomCode].sockets.remove(socket.id);
-        if(roomToSocketsMap[roomCode].sockets.length === 0)
-            delete roomToSocketsMap[roomCode];
+        delete rooms[roomCode].sockets[socket.id];
+        if(Object.keys(rooms[roomCode].sockets).length === 0)
+            delete rooms[roomCode];
     }
-    socket.to(roomCode).emit(msgEnums.types.PLAYER_OFFLINE, { socketId: socket.id });
+    console.log("sending disconnect signal for " + socket.id + " to " + roomCode);
+    socket.to(roomCode).emit(msgEnums.events.MSG, { type: msgEnums.types.PLAYER_OFFLINE, data: { socketId: socket.id }});
 };
 
 
 //--------------------------------------------------------------------------
-// Initialize
+// ENTRY POINT
 //--------------------------------------------------------------------------
 
 module.exports = 
@@ -110,7 +127,7 @@ module.exports =
         io.on('connection', (socket) =>
         {
             socket.on(msgEnums.events.MSG, (msg, reply) => handleMessage(socket, msg, reply));
-            socket.on(msgEnums.events.DISCONNECT, () => handleMessage(socket));
+            socket.on(msgEnums.events.DISCONNECT, () => handleDisconnect(socket));
         });
     }
 };

@@ -1,10 +1,22 @@
 import React, { Component } from 'react';
 import ViewModel from '../../view-model';
+import { Part } from '../../models';
 import './wait-pane.css';
 
 
 class WaitPane extends Component
 {
+    handleSkipClick()
+    {
+        Object.keys(ViewModel.gameState.players).forEach(userName =>
+        {
+            const player = ViewModel.gameState.players[userName];
+            if(player.paper && player.paper.parts.length < ViewModel.gameState.activePart)
+                ViewModel.submitPart(new Part("null", player.userName));
+        });
+        ViewModel.activeView.updateUI();
+    }
+
     render() 
     {
         const playerNames = [];
@@ -16,10 +28,19 @@ class WaitPane extends Component
             });
         const playerNamesJoined = playerNames.join(", ");
 
+        const skipBtn = ViewModel.isHostUser() ? (
+            <div>
+                <button className="btn btn-danger" onClick={e => this.handleSkipClick()}>Ignore remaining players</button>
+            </div>
+        ) : null;
+
         return (
             <div className="pane wait-pane">
-                <div>Waiting for: {playerNamesJoined}</div>
-                <div className="waitList"></div>
+                <div>
+                    <div>Waiting for: {playerNamesJoined}</div>
+                    <div className="waitList"></div>
+                </div>
+                {skipBtn}
             </div>
         );
     }

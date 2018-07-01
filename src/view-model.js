@@ -96,7 +96,7 @@ const handleMessage = (msg, reply) =>
             handlePartSubmitted(msg.data);
             break;
         case Constants.msg.types.PLAYER_OFFLINE:
-            handleDisconnect(msg.data.userName);
+            handleDisconnect(msg.data.socketId);
             break;
         case Constants.msg.types.HOST_CHANGE:
             ViewModel.gameState.hostUserName = msg.data.userName;
@@ -107,9 +107,6 @@ const handleMessage = (msg, reply) =>
             break;
         case Constants.msg.types.CHAT_MESSAGE:
             ViewModel.activeView.chatBox.pushMessage(msg.data);
-            break;
-        case Constants.msg.types.PING:
-            reply(Constants.ACK);
             break;
         default:
             break;
@@ -122,28 +119,45 @@ const handleJoinRequest = (msg) =>
     if(!ViewModel.activeView.isRoomView || !ViewModel.isHostUser())
         return;
 
-    // check if the chosen name already taken by someone else in the room
-    if (ViewModel.gameState.players[msg.data.userName])
+    // if the chosen name already taken by someone else in the room, reject it.
+    let player = ViewModel.gameState.players[msg.data.userName]
+    if (player && player.isOnline)
     {
         ClientSocket.sendToId(Constants.msg.types.JOIN_RESPONSE, msg.source, 
             new JoinRejectedResponse(Constants.msg.errors.USER_NAME_EXISTS));
         return;
     }
 
-    const player = new Player(msg.data.userName, msg.source);
+    // if round is currently ongoing and the request is not for reconnection, reject it.
+    if (ViewModel.gameState.phase > Constants.phases.LOBBY && !player)
+    {
+        ClientSocket.sendToId(Constants.msg.types.JOIN_RESPONSE, msg.source, 
+            new JoinRejectedResponse(Constants.msg.errors.ROUND_ONGOING));
+        return;
+    }
+
+    // if round hasn't started and no one else has taken the username, OR
+    // if round has started and player with the username is offline, accept it.
+    player = new Player(msg.data.userName, msg.source);
     ClientSocket.sendToCurrentRoom(Constants.msg.types.PLAYER_JOINED, player);
     ClientSocket.sendToId(Constants.msg.types.JOIN_RESPONSE, msg.source, 
         new JoinApprovedResponse(ViewModel.roomCode, ViewModel.gameState));
     handlePlayerJoined(player);
 };
 
-const handlePlayerJoined = (player) =>
+const handlePlayerJoined = (newPlayer) =>
 {
-    // if a round is ongoing, put the player as spectator
-    if(ViewModel.gameState.phase > Constants.phases.LOBBY)
-        player.isSpectating = true;
-    ViewModel.gameState.players[player.userName] = player;
-    ViewModel.activeView.chatBox.pushMessage(new ChatMessage(null, `${player.userName} has joined`));
+    const existingPlayer = ViewModel.gameState.players[newPlayer.userName];
+    if(existingPlayer)
+    {
+        existingPlayer.isOnline = true;
+        ViewModel.activeView.chatBox.pushMessage(new ChatMessage(null, `${existingPlayer.userName} has reconnected`));
+    }
+    else
+    {
+        ViewModel.gameState.players[newPlayer.userName] = newPlayer;
+        ViewModel.activeView.chatBox.pushMessage(new ChatMessage(null, `${newPlayer.userName} has joined`));
+    }
     ViewModel.activeView.updateUI();
 };
 
@@ -154,7 +168,6 @@ const handleStartRound = () =>
     Object.keys(ViewModel.gameState.players).forEach(userName => 
     {
         const player = ViewModel.gameState.players[userName];
-        player.isSpectating = false;
         player.paper = new Paper();
     });
     ViewModel.activeView.updateUI();
@@ -200,8 +213,6 @@ const updateWritePhaseState = () =>
     Object.keys(ViewModel.gameState.players).forEach(userName => 
         {
             const player = ViewModel.gameState.players[userName];
-            if(player.isSpectating)
-                return;
             const paper = player.paper;
             if(paper && paper.parts.length < ViewModel.gameState.activePart)
                 readyToProceed = false;
@@ -239,16 +250,11 @@ const chooseNewHost = () =>
 
 const movePapers = () =>
 {
-    const userNames = [];
-    Object.keys(ViewModel.gameState.players).forEach(userName => 
-        {
-            if(!ViewModel.gameState.players[userName].isSpectating)
-                userNames.push(userName);
-        });
+    const players = ViewModel.gameState.players;
+    const userNames = Object.keys(players);
     userNames.sort();
 
-    const players = ViewModel.gameState.players;
-    const firstPaper = ViewModel.gameState.players[userNames[0]].paper;
+    const firstPaper = players[userNames[0]].paper;
     userNames.forEach((userName, index) => 
     {
         players[userName].paper = (index < userNames.length - 1) ? 
