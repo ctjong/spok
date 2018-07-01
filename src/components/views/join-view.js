@@ -3,8 +3,9 @@ import ViewBase from '../../view-base';
 import ViewModel from '../../view-model';
 import ClientSocket from '../../client-socket';
 import Constants from '../../constants';
-import './join-view.css';
+import TitleImg from '../../images/title.png';
 import { PlayerMessageData } from '../../models';
+import './join-view.css';
 
 
 class JoinView extends ViewBase
@@ -43,18 +44,26 @@ class JoinView extends ViewBase
     {
         return(
             <div className="view join-view">
-                <h1>Join room</h1>
+                <img src={TitleImg} alt="SPOK" className="title-large" />
                 <div className="error">{this.state.errorString}</div>
-                <div className="form-inline">
-                    <label>Room code:</label>
-                    <input type="text" className="input form-control" id="joinPage_roomCode" ref={this.roomCodeRef}/>
+                <div className="control-group">
+                    <div>
+                        <label>Room code:</label>
+                    </div>
+                    <div>
+                        <input type="text" className="control-square input" id="joinPage_roomCode" ref={this.roomCodeRef}/>
+                    </div>
                 </div>
-                <div className="form-inline">
-                    <label>Your user name:</label>
-                    <input type="text" className="input form-control" id="joinPage_userName" ref={this.userNameRef}/>
+                <div className="control-group">
+                    <div>
+                        <label>Your user name:</label>
+                    </div>
+                    <div>
+                        <input type="text" className="control-square input" id="joinPage_userName" ref={this.userNameRef}/>
+                    </div>
                 </div>
-                <button className="btn btn-success submit-btn" onClick={e => this.handleSubmitClick()}>Submit</button>
-                <button className="btn btn-danger back-btn" onClick={e => this.handleBackClick()}>Back</button>
+                <button className="btn-block btn-underline submit-btn" onClick={e => this.handleSubmitClick()}>Submit</button>
+                <button className="btn-block btn-underline back-btn" onClick={e => this.handleBackClick()}>Back</button>
             </div>
         );
     }
