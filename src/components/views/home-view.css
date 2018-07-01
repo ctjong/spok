@@ -1,10 +1,7 @@
-.home-view button
-{
-    margin: 5px 0;
-}
-
 .home-view .title
 {
-    width:300px;
-    margin-bottom:50px;
+    width: 100%;
+    max-width: 500px;
+    margin-bottom: 30px;
+    margin-top: 50px;
 }

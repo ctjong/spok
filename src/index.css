@@ -4,6 +4,7 @@ body
     max-width: 500px;
     margin: 0 auto;
     padding: 10px;
+    font-family: 'Gaegu', cursive;
 }
 
 a,
@@ -17,10 +18,10 @@ a:not([href]):not([tabindex]):hover
 
 .view, .pane
 {
-    background-color: rgba(255,255,255,0.8);
     padding: 10px;
     overflow: hidden;
     position: relative;
+    height:100%;
 }
 
 .input
@@ -46,8 +47,11 @@ button
 
 .footerbox
 {
-    background-color: rgba(255,255,255,0.8);
     padding: 10px;
+    position:fixed;
+    bottom: 0;
+    left: 0;
+    width:100%;
 }
 
 .offline
@@ -69,4 +73,24 @@ label
 {
     font-style: italic;
     font-size: 9pt;
+}
+
+.btn-box
+{
+    background: url('./images/kotak.png');
+    background-size: 100% 100%;
+    min-height: 50px;
+    border: 0;
+    display: block;
+    cursor: pointer;
+    max-width: 300px;
+    width: 80%;
+    margin: 20px auto;
+    font-size: 16pt;
+}
+
+.btn-box:hover
+{
+    background: url('./images/kotak_hover.png');
+    background-size: 100% 100%;
 }
