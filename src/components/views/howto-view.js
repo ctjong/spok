@@ -1,6 +1,7 @@
 import React from 'react';
 import ViewBase from '../../view-base';
 import ViewModel from '../../view-model';
+import TitleImg from '../../images/title.png';
 import './howto-view.css';
 
 
@@ -15,22 +16,22 @@ class HowToView extends ViewBase
     {
         return (
             <div className="view howto-view">
+                <img src={TitleImg} alt="SPOK" className="title-small" />
                 <h1>How to play</h1>
-                <p>
-                    This is an online version of the classic party/gathering game from Indonesia, SPOK. This usually involves 2 or more people.
-                    In the classic version, each participant is given a pencil and a small piece of paper, which they use for writing a part of a sentence in each turn.
-                    There are typically 4 turns in each round of the game, the first turn is for writing the subject of a sentence, the second is for the verb, third is object,
-                    fourth is adjective/adverb. At the end of each turn, each player folds the paper to cover the words they just wrote and hands over the paper to the person 
-                    next to them, so that in the end, the final sentence on that paper is a combination of phrases written by different people. At the end of the round, each 
-                    player unfolds the paper they get and read out loud the sentence on it (which is often times pretty hilarious). After that the players can continue to 
-                    have as many rounds as they want until they get tired of laughing. 
-                </p>
-                <p>
-                    To start, a person needs to be the host and create a room. After a room is created, a 5-character room code is generated,
-                    which other players can use to join. After all expected players have joined, the host can start a round. There is an option for the host to change the 
-                    language of the round, default is Indonesian. At the end of the round, the host can either start a new round or go back to the lobby to allow more people to join.
-                </p>
-                <button className="btn btn-primary back-btn" onClick={e => this.handleBackClick()}>Back to home</button>
+                <div>
+                    <p>This game of wordplay involves at least 2 players. The aim of the game is to create complete sentences by writing one part of that sentence during your turn. There are typically 4 parts of a sentence:</p>
+                    <p className="no-margin">1. SUBJECT</p>
+                    <p className="no-margin">2. VERB</p>
+                    <p className="no-margin">3. OBJECT</p>
+                    <p className="no-margin">4. ADJECTIVE or ADVERB</p>
+
+                    <p>At the end of each round, the new sentences made up of the entered words are generated. At this point, you should understand why this game can be hillarious.</p>
+
+                    <p>Here are two tips that we think can be really beneficial for you:</p>
+                    <p className="no-margin">1. Allow your creative energy to flow</p>
+                    <p className="no-margin">2. JUST GO CRAZY AND HAVE FUN!</p>
+                </div>
+                <button className="btn-block btn-underline back-btn" onClick={e => this.handleBackClick()}>Back</button>
             </div>
         );
     }
