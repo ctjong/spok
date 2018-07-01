@@ -18,6 +18,16 @@ ViewModel.goTo = (path) =>
     ViewModel.history.push(path);
 };
 
+ViewModel.initHistory = (history) => 
+{
+    ViewModel.history = history;
+    ViewModel.history.listen(location => 
+        { 
+            if(location.pathname.indexOf("/room") !== 0)
+                ClientSocket.tryClose() 
+        });
+};
+
 ViewModel.getRandomCode = () =>
 {
     if (ViewModel.randomCodeLength > 10) ViewModel.randomCodeLength = 10;
@@ -61,6 +71,12 @@ ViewModel.submitPart = (part) =>
     handlePartSubmitted(part);
 };
 
+ViewModel.kickPlayer = (player) =>
+{
+    ClientSocket.sendToCurrentRoom(Constants.msg.types.KICK_PLAYER, new PlayerMessageData(player.userName));
+    handlePlayerKicked(player.userName);
+};
+
 
 //-------------------------------------------
 // PRIVATE FUNCTIONS
@@ -79,7 +95,7 @@ const setRoomCode = (value) =>
     sessionStorage.setItem(Constants.ROOM_CODE, value);
 };
 
-const handleMessage = (msg, reply) => 
+const handleMessage = (msg) => 
 {
     switch(msg.type)
     {
@@ -97,6 +113,9 @@ const handleMessage = (msg, reply) =>
             break;
         case Constants.msg.types.PLAYER_OFFLINE:
             handleDisconnect(msg.data.socketId);
+            break;
+        case Constants.msg.types.KICK_PLAYER:
+            handlePlayerKicked(msg.data.userName);
             break;
         case Constants.msg.types.HOST_CHANGE:
             ViewModel.gameState.hostUserName = msg.data.userName;
@@ -151,6 +170,7 @@ const handlePlayerJoined = (newPlayer) =>
     if(existingPlayer)
     {
         existingPlayer.isOnline = true;
+        existingPlayer.socketId = newPlayer.socketId;
         ViewModel.activeView.chatBox.pushMessage(new ChatMessage(null, `${existingPlayer.userName} has reconnected`));
     }
     else
@@ -205,6 +225,23 @@ const handleDisconnect = (socketId) =>
     ViewModel.activeView.updateUI();
     if(ViewModel.gameState.hostUserName === player.userName)
         chooseNewHost();
+};
+
+const handlePlayerKicked = (playerUserName) =>
+{
+    if(playerUserName === ViewModel.userName)
+    {
+        ViewModel.gameState = null;
+        ViewModel.goTo("/");
+    }
+    else
+    {
+        delete ViewModel.gameState.players[playerUserName];
+        if(ViewModel.gameState.phase === Constants.phases.WRITE)
+            updateWritePhaseState();
+        ViewModel.activeView.chatBox.pushMessage(new ChatMessage(null, `${playerUserName} has been kicked`));
+        ViewModel.activeView.updateUI();
+    }
 };
 
 const updateWritePhaseState = () =>

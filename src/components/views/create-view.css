@@ -1,0 +1,9 @@
+.create-view .lang-row
+{
+    margin: 20px 0;
+}
+
+.create-view .lang-row *
+{
+    display: inline-block;
+}

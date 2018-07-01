@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import ViewModel from '../../view-model';
+import Constants from '../../constants';
 import { Part } from '../../models';
 import './wait-pane.css';
 
@@ -12,7 +13,7 @@ class WaitPane extends Component
         {
             const player = ViewModel.gameState.players[userName];
             if(player.paper && player.paper.parts.length < ViewModel.gameState.activePart)
-                ViewModel.submitPart(new Part("null", player.userName));
+                ViewModel.submitPart(new Part(Constants.SKIPPED_PART_STRING, player.userName));
         });
         ViewModel.activeView.updateUI();
     }

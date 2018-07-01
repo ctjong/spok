@@ -15,6 +15,7 @@ export default
             CHAT_MESSAGE: "chatMsg",
             PLAYER_OFFLINE: "playerOffline",
             HOST_CHANGE: "hostChange",
+            KICK_PLAYER: "kickPlayer",
         },
         targets:
         {
@@ -52,4 +53,5 @@ export default
     PING_INTERVAL: 8000,
     PING_TIMEOUT: 4000,
     PING_LISTENER_TIMEOUT: 10000,
+    SKIPPED_PART_STRING: "_",
 };

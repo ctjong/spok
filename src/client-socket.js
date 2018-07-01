@@ -45,6 +45,15 @@ ClientSocket.addMessageHandler = (handler) =>
     messageHandlers.push(handler);
 };
 
+ClientSocket.tryClose = () =>
+{
+    if(!socket)
+        return;
+    console.log("[ClientSocket.tryClose] socket closed");
+    socket.close();
+    socket = null;
+};
+
 
 //-------------------------------------------
 // PRIVATE FUNCTIONS

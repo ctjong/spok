@@ -7,7 +7,7 @@ class ViewBase extends Component
     {
         super(props);
         ViewModel.activeView = this;
-        ViewModel.history = this.props.history;
+        ViewModel.initHistory(this.props.history);
     }
 }
 

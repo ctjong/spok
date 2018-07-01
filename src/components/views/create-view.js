@@ -55,7 +55,7 @@ class CreateView extends ViewBase
                 <div className="form-inline">
                     <label>Your user name:</label>
                     <input type="text" className="input form-control" id="createPage_userName" ref={this.userNameRef}/>
-                    <div>
+                    <div className="lang-row">
                         <label>Language: </label>
                         <select className="lang-options" ref={this.langSelectRef}>{options}</select>
                     </div>

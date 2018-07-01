@@ -21,6 +21,7 @@ const msgEnums =
         CHAT_MESSAGE: "chatMsg",
         PLAYER_OFFLINE: "playerOffline",
         HOST_CHANGE: "hostChange",
+        KICK_PLAYER: "kickPlayer",
     },
     targets:
     {
