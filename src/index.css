@@ -52,6 +52,9 @@ button
     bottom: 0;
     left: 0;
     width:100%;
+    font-family: 'Amatic SC', cursive;
+    font-weight: bold;
+    font-size: 13pt;
 }
 
 .offline
