@@ -8,7 +8,6 @@ import RoomView from './components/views/room-view';
 import HowToView from './components/views/howto-view';
 import ErrorView from './components/views/error-view';
 import registerServiceWorker from './register-service-worker';
-import './libs/bootstrap.min.css';
 import './index.css';
 
 class App extends Component

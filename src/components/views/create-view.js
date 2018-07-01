@@ -4,6 +4,7 @@ import ViewModel from '../../view-model';
 import ClientSocket from '../../client-socket';
 import Constants from '../../constants';
 import Strings from '../../strings';
+import TitleImg from '../../images/title.png';
 import './create-view.css';
 
 
@@ -51,17 +52,27 @@ class CreateView extends ViewBase
 
         return (
             <div className="view create-view">
-                <h1>Create room</h1>
-                <div className="form-inline">
-                    <label>Your user name:</label>
-                    <input type="text" className="input form-control" id="createPage_userName" ref={this.userNameRef}/>
-                    <div className="lang-row">
-                        <label>Language: </label>
-                        <select className="lang-options" ref={this.langSelectRef}>{options}</select>
+                <img src={TitleImg} alt="SPOK" className="title-large" />
+                <div>
+                    <div className="control-group">
+                        <div>
+                            <label>Your user name:</label>
+                        </div>
+                        <div>
+                            <input type="text" className="control-square input" id="createPage_userName" ref={this.userNameRef}/>
+                        </div>
+                    </div>
+                    <div className="control-group">
+                        <div>
+                            <label>Language: </label>
+                        </div>
+                        <div>
+                            <select className="control-square lang-options" ref={this.langSelectRef}>{options}</select>
+                        </div>
                     </div>
                 </div>
-                <button className="btn btn-success submit-btn" onClick={e => this.handleSubmitClick()}>Submit</button>
-                <button className="btn btn-danger back-btn" onClick={e => this.handleBackClick()}>Back</button>
+                <button className="btn-block btn-underline submit-btn" onClick={e => this.handleSubmitClick()}>Submit</button>
+                <button className="btn-block btn-underline btn-danger back-btn" onClick={e => this.handleBackClick()}>Back</button>
             </div>
         );
     }

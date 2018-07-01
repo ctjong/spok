@@ -4,6 +4,13 @@ body
     max-width: 500px;
     margin: 0 auto;
     padding: 10px;
+}
+
+body,
+select,
+.btn-block,
+input[type=text]
+{
     font-family: 'Gaegu', cursive;
 }
 
@@ -30,16 +37,6 @@ a:not([href]):not([tabindex]):hover
     color: black;
 }
 
-.form-inline
-{
-    margin: 10px 0;
-}
-
-button
-{
-    width: 100%;
-}
-
 .paper-id-heading
 {
     margin-bottom: 50px;
@@ -57,11 +54,7 @@ button
     font-size: 13pt;
 }
 
-.offline
-{
-    color: red;
-}
-
+.offline,
 .error
 {
     color: red;
@@ -69,7 +62,7 @@ button
 
 label
 {
-    margin-right: 10px;
+    font-size:16pt;
 }
 
 .note
@@ -78,22 +71,82 @@ label
     font-size: 9pt;
 }
 
+.control-group
+{
+    margin-bottom:20px;
+}
+
+.control-square
+{
+    height: 50px;
+    max-width: 300px;
+    width: 80%;
+}
+
+.btn-block
+{
+    border: 0;
+    display: block;
+    cursor: pointer;
+    margin: 20px auto;
+    font-size: 16pt;
+}
+
 .btn-box
 {
     background: url('./images/kotak.png');
     background-size: 100% 100%;
-    min-height: 50px;
-    border: 0;
-    display: block;
-    cursor: pointer;
-    max-width: 300px;
-    width: 80%;
-    margin: 20px auto;
-    font-size: 16pt;
 }
 
 .btn-box:hover
 {
     background: url('./images/kotak_hover.png');
     background-size: 100% 100%;
+}
+
+.btn-underline
+{
+    text-decoration: underline;
+}
+
+.btn-underline:hover
+{
+    text-decoration: none;
+}
+
+.title-large
+{
+    width: 100%;
+    max-width: 500px;
+    margin-bottom: 30px;
+    margin-top: 50px;
+}
+
+.input[type=text]
+{
+    background: url('./images/kotak.png');
+    background-size: 100% 100%;
+    border: 0;
+    font-size:12pt;
+}
+
+select
+{
+    border: 0;
+    background: url('./images/dropdown.png');
+    background-size: 100% 100%;
+    cursor: pointer;
+    font-size:12pt;
+    padding: 0 10px;
+}
+
+select:hover
+{
+    background: url('./images/dropdown_hover.png');
+    background-size: 100% 100%;
+}
+
+select.control-square
+{
+    width:200px;
 }
