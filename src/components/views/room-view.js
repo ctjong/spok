@@ -8,6 +8,7 @@ import LobbyPane from '../roomControls/lobby-pane';
 import RevealPane from '../roomControls/reveal-pane';
 import WaitPane from '../roomControls/wait-pane';
 import WritePane from '../roomControls/write-pane';
+import TitleImg from '../../images/title.png';
 import './room-view.css';
 
 
@@ -59,7 +60,7 @@ class RoomView extends ViewBase
 
         return (
             <div className="view room-view">
-                <h1>Room # {this.roomCode}</h1>
+                <img src={TitleImg} alt="SPOK" className="title-small" />
                 {this.getActivePane()}
                 <ParticipantList/>
                 <ChatBox ref={el => this.chatBox = el}/>

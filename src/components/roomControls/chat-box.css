@@ -17,6 +17,7 @@
 {
     margin-right: 10px;
     font-weight: bold;
+    color: blue;
 }
 
 .chat-box .input-row 
@@ -25,8 +26,13 @@
     flex-direction: row;
 }
 
-.chat-box .chat-send
+.chat-box .input-row input
 {
-    width:100px;
-    order:1;
+    flex-grow: 1;
+}
+
+.chat-box .input-row .chat-send
+{
+    width: 100px;
+    order: 1;
 }

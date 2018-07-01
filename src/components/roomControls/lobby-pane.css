@@ -1,4 +1,10 @@
-.lobby-pane .start-btn
+.lobby-pane h2
 {
-    margin-top: 30px;
+    margin: 0;
+}
+
+.lobby-pane .roomcode-large
+{
+    font-size: 32pt;
+    font-weight: bold
 }
