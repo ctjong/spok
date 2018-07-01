@@ -65,3 +65,9 @@ label
 {
     margin-right: 10px;
 }
+
+.note
+{
+    font-style: italic;
+    font-size: 9pt;
+}
