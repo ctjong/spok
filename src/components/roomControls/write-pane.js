@@ -22,7 +22,7 @@ class WritePane extends Component
             return;
         this.inputRef.current.value = "";
         const part = new Part(text, ViewModel.userName);
-        ViewModel.submitPart(part);
+        ViewModel.submitPart(ViewModel.gameState.players[ViewModel.userName].paperId, part);
     }
 
     render() 

@@ -1,45 +1,8 @@
+const Constants = require("./src/constants");
+
 let io = null;
 const rooms = {};
 const socketToRoomMap = {};
-
-//--------------------------------------------------------------------------
-// ENUMS
-// These enums should be kept in sync with the enum in constants
-//--------------------------------------------------------------------------
-
-const msgEnums =
-{
-    types:
-    {
-        CREATE_ROOM: "createRoom",
-        JOIN_REQUEST: "joinRoomRequest",
-        JOIN_RESPONSE: "joinRoomResponse",
-        SUBMIT_PART: "submitPart",
-        START_ROUND: "startRound",
-        GOTO_LOBBY: "gotoLobby",
-        PLAYER_JOINED: "playerJoined",
-        CHAT_MESSAGE: "chatMsg",
-        PLAYER_OFFLINE: "playerOffline",
-        HOST_CHANGE: "hostChange",
-        KICK_PLAYER: "kickPlayer",
-        SCORE_UPDATE: "scoreUpdate",
-    },
-    targets:
-    {
-        SERVER: "server",
-    },
-    events:
-    {
-        CONNECT: "connect",
-        DISCONNECT: "disconnect",
-        MSG: "message"
-    },
-    errors:
-    {
-        USER_NAME_EXISTS: "userNameExists",
-        ROUND_ONGOING: "roundOngoing",
-    }
-};
 
 
 //--------------------------------------------------------------------------
@@ -64,9 +27,9 @@ class Room
 
 const handleMessage = (socket, msg, reply) => 
 {
-    if(msg.target === msgEnums.targets.SERVER)
+    if(msg.target === Constants.msg.targets.SERVER)
     {
-        if(msg.type === msgEnums.types.CREATE_ROOM)
+        if(msg.type === Constants.msg.types.CREATE_ROOM)
         {
             const roomCode = msg.data.roomCode;
             const lang = msg.data.lang;
@@ -83,7 +46,7 @@ const handleMessage = (socket, msg, reply) =>
         const targetSocket = io.sockets.connected[msg.target];
         if(targetSocket)
         {
-            if(msg.type === msgEnums.types.JOIN_RESPONSE && msg.data.isSuccess)
+            if(msg.type === Constants.msg.types.JOIN_RESPONSE && msg.data.isSuccess)
             {
                 const roomCode = msg.data.roomCode;
                 socketToRoomMap[targetSocket.id] = roomCode;
@@ -91,11 +54,11 @@ const handleMessage = (socket, msg, reply) =>
                     rooms[roomCode].sockets[targetSocket.id] = targetSocket;
                 targetSocket.join(roomCode);
             }
-            targetSocket.emit(msgEnums.events.MSG, msg, response => reply(response));
+            targetSocket.emit(Constants.msg.events.MSG, msg, response => reply(response));
         }
         else
         {
-            socket.to(msg.target).emit(msgEnums.events.MSG, msg);
+            socket.to(msg.target).emit(Constants.msg.events.MSG, msg);
         }
     }
 };
@@ -113,7 +76,7 @@ const handleDisconnect = (socket) =>
             delete rooms[roomCode];
     }
     console.log("sending disconnect signal for " + socket.id + " to " + roomCode);
-    socket.to(roomCode).emit(msgEnums.events.MSG, { type: msgEnums.types.PLAYER_OFFLINE, data: { socketId: socket.id }});
+    socket.to(roomCode).emit(Constants.msg.events.MSG, { type: Constants.msg.types.PLAYER_OFFLINE, data: { socketId: socket.id }});
 };
 
 
@@ -128,8 +91,8 @@ module.exports =
         io = require('socket.io')(http);
         io.on('connection', (socket) =>
         {
-            socket.on(msgEnums.events.MSG, (msg, reply) => handleMessage(socket, msg, reply));
-            socket.on(msgEnums.events.DISCONNECT, () => handleDisconnect(socket));
+            socket.on(Constants.msg.events.MSG, (msg, reply) => handleMessage(socket, msg, reply));
+            socket.on(Constants.msg.events.DISCONNECT, () => handleDisconnect(socket));
         });
     }
 };

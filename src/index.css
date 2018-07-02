@@ -51,11 +51,6 @@ a:not([href]):not([tabindex]):hover
     color: black;
 }
 
-.paper-id-heading
-{
-    margin-bottom: 50px;
-}
-
 .footerbox
 {
     margin-top:50px;

@@ -55,7 +55,8 @@ class RoomView extends ViewBase
                 const player = this.state.players[ViewModel.userName];
                 if(!player)
                     return;
-                const currentPaper = player.paper;
+                const currentPaperId = player.paperId;
+                const currentPaper = ViewModel.gameState.papers[currentPaperId];
                 if(currentPaper && currentPaper.parts.length < this.state.activePart)
                     return <WritePane/>;
                 else

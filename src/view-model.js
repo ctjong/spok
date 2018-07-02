@@ -65,10 +65,10 @@ ViewModel.startRound = () =>
     handleStartRound();
 };
 
-ViewModel.submitPart = (part) => 
+ViewModel.submitPart = (paperId, part) => 
 {
     ClientSocket.sendToCurrentRoom(Constants.msg.types.SUBMIT_PART, part);
-    handlePartSubmitted(part);
+    handlePartSubmitted(paperId, part);
 };
 
 ViewModel.kickPlayer = (player) =>
@@ -115,7 +115,7 @@ const handleMessage = (msg) =>
             handleStartRound();
             break;
         case Constants.msg.types.SUBMIT_PART:
-            handlePartSubmitted(msg.data);
+            handlePartSubmitted(msg.data.paperId, msg.data.part);
             break;
         case Constants.msg.types.PLAYER_OFFLINE:
             handleDisconnect(msg.data.socketId);
@@ -194,23 +194,23 @@ const handleStartRound = () =>
 {
     ViewModel.gameState.phase = Constants.phases.WRITE;
     ViewModel.gameState.activePart = 1;
+    ViewModel.gameState.papers = {};
     Object.keys(ViewModel.gameState.players).forEach(userName => 
     {
+        const paper = new Paper(`paper-${userName}`);
         const player = ViewModel.gameState.players[userName];
-        player.paper = new Paper(`paper-${userName}`);
+        player.paperId = paper.id;
+        ViewModel.gameState.papers[paper.id] = paper;
     });
     ViewModel.activeView.updateUI();
 };
 
-const handlePartSubmitted = (part) =>
+const handlePartSubmitted = (paperId, part) =>
 {
-    const author = ViewModel.gameState.players[part.authorUserName];
-    if(!author)
-    {
-        console.log("[ViewModel.submitPart] player not found with username " + part.authorUserName);
+    const paper = ViewModel.gameState.papers[paperId];
+    if(!paper)
         return;
-    }
-    author.paper.parts.push(part);
+    paper.parts.push(part);
     updateWritePhaseState();
     ViewModel.activeView.updateUI();
 };
@@ -255,21 +255,13 @@ const handlePlayerKicked = (playerUserName) =>
 
 const handleScoreUpdate = (paperId, delta) =>
 {
-    let paper = null;
-    Object.keys(ViewModel.gameState.players).some(userName => 
-    {
-        const userPaper = ViewModel.gameState.players[userName].paper;
-        if(userPaper && userPaper.id === paperId)
-        {
-            paper = userPaper;
-            return true;
-        }
-        return false;
-    });
+    const paper = ViewModel.gameState.papers[paperId];
     if(!paper)
         return;
     paper.parts.forEach(part => 
         {
+            if(part.authorUserName === null)
+                return;
             const player = ViewModel.gameState.players[part.authorUserName];
             player.score += delta;
         });
@@ -281,8 +273,8 @@ const updateWritePhaseState = () =>
     let readyToProceed = true;
     Object.keys(ViewModel.gameState.players).forEach(userName => 
         {
-            const player = ViewModel.gameState.players[userName];
-            const paper = player.paper;
+            const paperId = ViewModel.gameState.players[userName].paperId;
+            const paper = ViewModel.gameState.papers[paperId];
             if(paper && paper.parts.length < ViewModel.gameState.activePart)
                 readyToProceed = false;
         });
@@ -323,11 +315,11 @@ const movePapers = () =>
     const userNames = Object.keys(players);
     userNames.sort();
 
-    const firstPaper = players[userNames[0]].paper;
+    const firstPaperId = players[userNames[0]].paperId;
     userNames.forEach((userName, index) => 
     {
-        players[userName].paper = (index < userNames.length - 1) ? 
-            players[userNames[index+1]].paper : firstPaper;
+        players[userName].paperId = (index < userNames.length - 1) ? 
+            players[userNames[index+1]].paperId : firstPaperId;
     });
 };
 

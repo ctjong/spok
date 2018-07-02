@@ -13,7 +13,7 @@ export class Player
     {
         this.userName = userName;
         this.socketId = socketId;
-        this.paper = null;
+        this.paperId = null;
         this.isOnline = true;
         this.score = 0;
     }
@@ -28,6 +28,7 @@ export class GameState
         this.phase = initialPhase;
 
         this.players = {};
+        this.papers = {};
         this.players[host.userName] = host;
         this.hostUserName = host.userName;
     }
@@ -66,6 +67,15 @@ export class Part
     {
         this.text = text;
         this.authorUserName = authorUserName;
+    }
+}
+
+export class SubmitPartMessage
+{
+    constructor(paperId, part)
+    {
+        this.paperId = paperId;
+        this.part = part;
     }
 }
 

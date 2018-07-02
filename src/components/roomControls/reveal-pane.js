@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import ViewModel from '../../view-model';
 import Constants from '../../constants';
+import Strings from '../../strings';
 import './reveal-pane.css';
 import ClientSocket from '../../client-socket';
 import LikeImg from '../../images/like.png';
@@ -47,17 +48,30 @@ class RevealPane extends Component
             {
                 const player = ViewModel.gameState.players[userName];
                 const texts = [];
-                const paper = player.paper;
-                if(paper)
-                    paper.parts.forEach(part => texts.push(part.text));
+                if(player.paperId)
+                {
+                    const paper = ViewModel.gameState.papers[player.paperId];
+                    paper.parts.forEach((part, index) => 
+                        {
+                            if(part.text)
+                                texts.push(part.text)
+                            else
+                            {
+                                const randomArr = Strings[ViewModel.gameState.lang][`part${index+1}random`];
+                                const randomIdx = Math.floor(Math.random() * Math.floor(randomArr.length));
+                                texts.push(randomArr[randomIdx]);
+                            }
+                        });
+
+                }
                 const textsJoined = texts.join(" ");
-                const vote = this.state.votes[paper.id] || 0;
+                const vote = this.state.votes[player.paperId] || 0;
                 const likeBtn = vote > 0 ? 
-                    <img className="like-active" src={LikeActiveImg} onClick={() => this.handleVoteClick(paper.id, 0)} alt="like active"/> :
-                    <img className="like" src={LikeImg} onClick={() => this.handleVoteClick(paper.id, 1)} alt="like"/>;
+                    <img className="like-active" src={LikeActiveImg} onClick={() => this.handleVoteClick(player.paperId, 0)} alt="like active"/> :
+                    <img className="like" src={LikeImg} onClick={() => this.handleVoteClick(player.paperId, 1)} alt="like"/>;
                 const dislikeBtn = vote < 0 ? 
-                    <img className="dislike-active" src={DislikeActiveImg} onClick={() => this.handleVoteClick(paper.id, 0)} alt="dislike active"/> :
-                    <img className="dislike" src={DislikeImg} onClick={() => this.handleVoteClick(paper.id, -1)} alt="dislike"/>;
+                    <img className="dislike-active" src={DislikeActiveImg} onClick={() => this.handleVoteClick(player.paperId, 0)} alt="dislike active"/> :
+                    <img className="dislike" src={DislikeImg} onClick={() => this.handleVoteClick(player.paperId, -1)} alt="dislike"/>;
                 rows.push(
                     <div className="sentence" key={userName}>
                         <div>{textsJoined}</div>

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import ViewModel from '../../view-model';
-import Constants from '../../constants';
+import Strings from '../../strings';
 import { Part } from '../../models';
 import './wait-pane.css';
 
@@ -9,11 +9,15 @@ class WaitPane extends Component
 {
     handleSkipClick()
     {
-        Object.keys(ViewModel.gameState.players).forEach(userName =>
+        Object.keys(ViewModel.gameState.papers).forEach(paperId =>
         {
-            const player = ViewModel.gameState.players[userName];
-            if(player.paper && player.paper.parts.length < ViewModel.gameState.activePart)
-                ViewModel.submitPart(new Part(Constants.SKIPPED_PART_STRING, player.userName));
+            const paper = ViewModel.gameState.papers[paperId];
+            if(paper.parts.length < ViewModel.gameState.activePart)
+            {
+                const randomArr = Strings[ViewModel.gameState.lang][`part${ViewModel.gameState.activePart}random`];
+                const randomIdx = Math.floor(Math.random() * Math.floor(randomArr.length));
+                ViewModel.submitPart(paperId, new Part(randomArr[randomIdx], null));
+            }
         });
         ViewModel.activeView.updateUI();
     }
@@ -23,7 +27,8 @@ class WaitPane extends Component
         const playerNames = [];
         Object.keys(ViewModel.gameState.players).forEach(userName => 
             {
-                const paper = ViewModel.gameState.players[userName].paper;
+                const paperId = ViewModel.gameState.players[userName].paperId;
+                const paper = ViewModel.gameState.papers[paperId];
                 if(paper && paper.parts.length < ViewModel.gameState.activePart)
                     playerNames.push(userName);
             });

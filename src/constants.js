@@ -1,6 +1,5 @@
-export default 
+module.exports =
 {
-    // Message enums. This should be kept in sync with the enums in server-socket-hub.
     msg:
     {
         types:
@@ -17,6 +16,7 @@ export default
             HOST_CHANGE: "hostChange",
             KICK_PLAYER: "kickPlayer",
             SCORE_UPDATE: "scoreUpdate",
+            STATE_UPDATE: "stateUpdate",
         },
         targets:
         {
@@ -25,6 +25,7 @@ export default
         events:
         {
             CONNECT: "connect",
+            DISCONNECT: "disconnect",
             MSG: "message"
         },
         errors:
@@ -52,6 +53,5 @@ export default
     ROOM_CODE: "roomCode",
     USER_NAME: "userName",
     DEFAULT_LANG: "en",
-    RESPONSE_TIMEOUT: 4000,
-    SKIPPED_PART_STRING: "____",
+    RESPONSE_TIMEOUT: 2000,
 };
