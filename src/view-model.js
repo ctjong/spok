@@ -1,4 +1,4 @@
-import { Paper, Player, GameState, JoinApprovedResponse, JoinRejectedResponse, ChatMessage, PlayerMessageData } from './models';
+import { Paper, Player, GameState, JoinApprovedResponse, JoinRejectedResponse, ChatMessage, PlayerMessageData, Vote } from './models';
 import Constants from './constants';
 import ClientSocket from './client-socket';
 
@@ -77,6 +77,12 @@ ViewModel.kickPlayer = (player) =>
     handlePlayerKicked(player.userName);
 };
 
+ViewModel.vote = (paperId, vote) =>
+{
+    ClientSocket.sendToCurrentRoom(Constants.msg.types.VOTE, new Vote(paperId, vote));
+    handleVote(paperId, vote);
+};
+
 
 //-------------------------------------------
 // PRIVATE FUNCTIONS
@@ -116,6 +122,9 @@ const handleMessage = (msg) =>
             break;
         case Constants.msg.types.KICK_PLAYER:
             handlePlayerKicked(msg.data.userName);
+            break;
+        case Constants.msg.types.VOTE:
+            handleVote(msg.data.paperId, msg.data.vote);
             break;
         case Constants.msg.types.HOST_CHANGE:
             ViewModel.gameState.hostUserName = msg.data.userName;
@@ -183,12 +192,13 @@ const handlePlayerJoined = (newPlayer) =>
 
 const handleStartRound = () =>
 {
+    resetCurrentScore();
     ViewModel.gameState.phase = Constants.phases.WRITE;
     ViewModel.gameState.activePart = 1;
     Object.keys(ViewModel.gameState.players).forEach(userName => 
     {
         const player = ViewModel.gameState.players[userName];
-        player.paper = new Paper();
+        player.paper = new Paper(`paper-${userName}`);
     });
     ViewModel.activeView.updateUI();
 };
@@ -244,6 +254,25 @@ const handlePlayerKicked = (playerUserName) =>
     }
 };
 
+const handleVote = (paperId, vote) =>
+{
+    let paper = null;
+    Object.keys(ViewModel.gameState.players).some(userName => 
+    {
+        const userPaper = ViewModel.gameState.players[userName].paper;
+        if(userPaper && userPaper.id === paperId)
+        {
+            paper = userPaper;
+            return true;
+        }
+        return false;
+    });
+    if(!paper)
+        return;
+    paper.vote = vote;
+    ViewModel.activeView.updateUI();
+};
+
 const updateWritePhaseState = () =>
 {
     let readyToProceed = true;
@@ -296,6 +325,16 @@ const movePapers = () =>
     {
         players[userName].paper = (index < userNames.length - 1) ? 
             players[userNames[index+1]].paper : firstPaper;
+    });
+};
+
+const resetCurrentScore = () =>
+{
+    Object.keys(ViewModel.gameState.players).forEach(userName =>
+    {
+        const player = ViewModel.gameState.players[userName];
+        player.previousScore += player.currentScore;
+        player.currentScore = 0;
     });
 };
 

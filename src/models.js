@@ -1,8 +1,10 @@
 export class Paper 
 {
-    constructor()
+    constructor(id)
     {
+        this.id = id;
         this.parts = [];
+        this.vote = 0;
     }
 }
 
@@ -14,6 +16,8 @@ export class Player
         this.socketId = socketId;
         this.paper = null;
         this.isOnline = true;
+        this.previousScore = 0;
+        this.currentScore = 0;
     }
 }
 
@@ -64,7 +68,6 @@ export class Part
     {
         this.text = text;
         this.authorUserName = authorUserName;
-        this.vote = 0;
     }
 }
 
@@ -74,5 +77,14 @@ export class ChatMessage
     {
         this.authorUserName = authorUserName;
         this.text = text;
+    }
+}
+
+export class Vote
+{
+    constructor(paperId, vote)
+    {
+        this.paperId = paperId;
+        this.vote = vote;
     }
 }

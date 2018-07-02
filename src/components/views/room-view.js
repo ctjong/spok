@@ -1,6 +1,7 @@
 import React from 'react';
 import ViewBase from '../../view-base';
 import ViewModel from '../../view-model';
+import ClientSocket from '../../client-socket';
 import Constants from '../../constants';
 import ParticipantList from '../roomControls/participant-list';
 import ChatBox from '../roomControls/chat-box';
@@ -9,6 +10,7 @@ import RevealPane from '../roomControls/reveal-pane';
 import WaitPane from '../roomControls/wait-pane';
 import WritePane from '../roomControls/write-pane';
 import TitleImg from '../../images/title.png';
+import { PlayerMessageData } from '../../models';
 import './room-view.css';
 
 
@@ -21,6 +23,21 @@ class RoomView extends ViewBase
         this.roomCode = props.match.params.roomCode;
         this.isRoomView = true;
         this.chatBox = null;
+
+        if(!this.state)
+        {
+            ClientSocket.sendToId(Constants.msg.types.JOIN_REQUEST, ViewModel.roomCode, new PlayerMessageData(ViewModel.userName), 
+                Constants.msg.types.JOIN_RESPONSE).then((msg) =>
+            {
+                if(!msg.data.isSuccess)
+                    ViewModel.goTo("/");
+                else
+                {
+                    ViewModel.gameState = msg.data.gameState;
+                    this.setState(msg.data.gameState);
+                }
+            });
+        }
     }
 
     updateUI()
@@ -53,10 +70,7 @@ class RoomView extends ViewBase
     render() 
     {
         if(!this.state)
-        {
-            ViewModel.goTo("/");
             return null;
-        }
 
         return (
             <div className="view room-view">

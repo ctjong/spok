@@ -1,3 +1,8 @@
+.reveal-pane .reveal-section 
+{
+    margin-bottom: 20px;
+}
+
 .reveal-pane h2 
 {
     margin-top: 0;
@@ -8,4 +13,22 @@
 .reveal-pane .reveal-mode-wait-text
 {
     margin-top: 20px;
+}
+
+.reveal-pane .score-user
+{
+    margin-right:10px;
+    font-weight: bold;
+}
+
+.reveal-pane .vote-buttons img
+{
+    width: 20px;
+    margin: 2px;
+    cursor:pointer;
+}
+
+.reveal-pane .sentence
+{
+    margin: 10px 0;
 }

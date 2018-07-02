@@ -74,7 +74,17 @@ const socketSend = (type, target, data, responseMsgType) =>
             const ack = responseMsgType ? null : (response => resolve(response));
             socket.emit(Constants.msg.events.MSG, { type, target, data }, ack);
             if(responseMsgType)
-                responseHandlers[responseMsgType].push(resolve);
+            {
+                const timeout = setTimeout(() => 
+                {
+                    resolve({data: {isSuccess: false, err: Constants.msg.errors.TIMEOUT }})
+                }, Constants.RESPONSE_TIMEOUT);
+                responseHandlers[responseMsgType].push((response) => 
+                {
+                    clearTimeout(timeout);
+                    resolve(response); 
+                });
+            }
         });
     });
 };

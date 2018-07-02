@@ -16,6 +16,7 @@ export default
             PLAYER_OFFLINE: "playerOffline",
             HOST_CHANGE: "hostChange",
             KICK_PLAYER: "kickPlayer",
+            VOTE: "vote",
         },
         targets:
         {
@@ -30,6 +31,7 @@ export default
         {
             USER_NAME_EXISTS: "userNameExists",
             ROUND_ONGOING: "roundOngoing",
+            TIMEOUT: "timeout",
         }
     },
 
@@ -50,8 +52,6 @@ export default
     ROOM_CODE: "roomCode",
     USER_NAME: "userName",
     DEFAULT_LANG: "en",
-    PING_INTERVAL: 8000,
-    PING_TIMEOUT: 4000,
-    PING_LISTENER_TIMEOUT: 10000,
-    SKIPPED_PART_STRING: "_",
+    RESPONSE_TIMEOUT: 4000,
+    SKIPPED_PART_STRING: "____",
 };
