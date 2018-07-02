@@ -37,7 +37,7 @@ class WaitPane extends Component
         const skipBtn = ViewModel.isHostUser() ? (
             <div>
                 <button className="btn-box skip-btn" onClick={e => this.handleSkipClick()}>Ignore remaining players</button>
-                <div className="note">(This will fill the papers that those people are holding with blank texts)</div>
+                <div className="note">(This will fill the papers that those people are holding with random texts)</div>
             </div>
         ) : null;
 
