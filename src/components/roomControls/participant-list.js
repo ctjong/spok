@@ -11,7 +11,7 @@ class ParticipantList extends Component
         Object.keys(ViewModel.gameState.players).forEach((userName) => 
         {
             const player = ViewModel.gameState.players[userName];
-            const className = player.isOnline ? "" : "offline";
+            const className = "player " + (player.isOnline ? "" : "offline");
             const kickButton = ViewModel.isHostUser() && ViewModel.userName !== userName ? (
                 <span>(<a onClick={e => ViewModel.kickPlayer(player)}>kick</a>)</span>
             ) : null;

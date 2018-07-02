@@ -36,10 +36,10 @@ class RevealPane extends Component
 
         const bottomText = ViewModel.isHostUser() ? (
                 <div>
-                    <button className="btn btn-success new-round-btn" onClick={e => this.handleNewRoundClick(e)}>
+                    <button className="btn-block btn-box new-round-btn" onClick={e => this.handleNewRoundClick(e)}>
                         New round
                     </button>
-                    <button className="btn btn-danger end-round-btn" onClick={e => this.handleEndRoundClick(e)}>
+                    <button className="btn-block btn-box end-round-btn" onClick={e => this.handleEndRoundClick(e)}>
                         Back to lobby
                     </button>
                 </div>
@@ -49,6 +49,7 @@ class RevealPane extends Component
 
         return (
             <div className="pane reveal-pane">
+                <h2>Results</h2>
                 <div className="result-paper">{rows}</div>
                 {bottomText}
             </div>

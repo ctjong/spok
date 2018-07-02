@@ -14,7 +14,7 @@ class LobbyPane extends Component
     {
         const content = ViewModel.isHostUser() ? (
             <div>
-                <button className="btn-block btn-underline start-btn" onClick={e => this.handleStartClick()}>Start</button>
+                <button className="btn-block btn-box start-btn" onClick={e => this.handleStartClick()}>Start</button>
             </div>
         ) : (
             <div className="wait-for-host-text">

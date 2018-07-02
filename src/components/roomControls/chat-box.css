@@ -26,8 +26,15 @@
     flex-direction: row;
 }
 
+.chat-box .input-row input,
+.chat-box .input-row button
+{
+    font-size: 14pt;
+}
+
 .chat-box .input-row input
 {
+    height: 30px;
     flex-grow: 1;
 }
 
@@ -35,4 +42,12 @@
 {
     width: 100px;
     order: 1;
+    background: white;
+    border: 1px solid black;
+    height: 36px;
+}
+
+.chat-box .input-row .chat-send:hover
+{
+    background: #afd0e5;
 }

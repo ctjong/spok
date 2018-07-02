@@ -1,4 +1,10 @@
 .howto-view h1
 {
+    margin-top:0;
     text-decoration: underline;
+}
+
+.howto-view .back-btn
+{
+    margin-top:50px;
 }

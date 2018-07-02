@@ -31,7 +31,7 @@ class WaitPane extends Component
 
         const skipBtn = ViewModel.isHostUser() ? (
             <div>
-                <button className="btn btn-danger" onClick={e => this.handleSkipClick()}>Ignore remaining players</button>
+                <button className="btn-block btn-box skip-btn" onClick={e => this.handleSkipClick()}>Ignore remaining players</button>
                 <div className="note">(This will fill the papers that those people are holding with blank texts)</div>
             </div>
         ) : null;
@@ -39,7 +39,10 @@ class WaitPane extends Component
         return (
             <div className="pane wait-pane">
                 <div>
-                    <div>Waiting for: {playerNamesJoined}</div>
+                    <div>
+                        <div>Now let’s wait for these losers:</div>
+                        <div>{playerNamesJoined}</div>
+                    </div>
                     <div className="waitList"></div>
                 </div>
                 {skipBtn}

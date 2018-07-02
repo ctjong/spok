@@ -32,11 +32,15 @@ class WritePane extends Component
 
         return (
             <div className="pane write-pane">
-                <div className="form-inline phrase1">
-                    <label>{label}</label>
-                    <input type="text" className="input form-control" placeholder={placeholder} ref={this.inputRef}/>
-                    <button className="btn btn-primary submit-btn" onClick={e => this.handleSubmitClick()}>Submit</button>
+                <div className="control-group">
+                    <div>
+                        <label>{label}</label>
+                    </div>
+                    <div>
+                        <input type="text" className="input" placeholder={placeholder} ref={this.inputRef}/>
+                    </div>
                 </div>
+                <button className="btn-block btn-box submit-btn" onClick={e => this.handleSubmitClick()}>Submit</button>
             </div>
         );
     }

@@ -59,7 +59,7 @@ class CreateView extends ViewBase
                             <label>Your user name:</label>
                         </div>
                         <div>
-                            <input type="text" className="control-square input" id="createPage_userName" ref={this.userNameRef}/>
+                            <input type="text" className="input" id="createPage_userName" ref={this.userNameRef}/>
                         </div>
                     </div>
                     <div className="control-group">
@@ -67,12 +67,12 @@ class CreateView extends ViewBase
                             <label>Language: </label>
                         </div>
                         <div>
-                            <select className="control-square lang-options" ref={this.langSelectRef}>{options}</select>
+                            <select className="lang-options" ref={this.langSelectRef}>{options}</select>
                         </div>
                     </div>
                 </div>
-                <button className="btn-block btn-underline submit-btn" onClick={e => this.handleSubmitClick()}>Submit</button>
-                <button className="btn-block btn-underline btn-danger back-btn" onClick={e => this.handleBackClick()}>Back</button>
+                <button className="btn-block btn-box submit-btn" onClick={e => this.handleSubmitClick()}>Submit</button>
+                <button className="btn-block btn-box btn-danger back-btn" onClick={e => this.handleBackClick()}>Back</button>
             </div>
         );
     }

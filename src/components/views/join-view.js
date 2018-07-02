@@ -51,7 +51,7 @@ class JoinView extends ViewBase
                         <label>Room code:</label>
                     </div>
                     <div>
-                        <input type="text" className="control-square input" id="joinPage_roomCode" ref={this.roomCodeRef}/>
+                        <input type="text" className="input" id="joinPage_roomCode" ref={this.roomCodeRef}/>
                     </div>
                 </div>
                 <div className="control-group">
@@ -59,11 +59,11 @@ class JoinView extends ViewBase
                         <label>Your user name:</label>
                     </div>
                     <div>
-                        <input type="text" className="control-square input" id="joinPage_userName" ref={this.userNameRef}/>
+                        <input type="text" className="input" id="joinPage_userName" ref={this.userNameRef}/>
                     </div>
                 </div>
-                <button className="btn-block btn-underline submit-btn" onClick={e => this.handleSubmitClick()}>Submit</button>
-                <button className="btn-block btn-underline back-btn" onClick={e => this.handleBackClick()}>Back</button>
+                <button className="btn-block btn-box submit-btn" onClick={e => this.handleSubmitClick()}>Submit</button>
+                <button className="btn-block btn-box back-btn" onClick={e => this.handleBackClick()}>Back</button>
             </div>
         );
     }
