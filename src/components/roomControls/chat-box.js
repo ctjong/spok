@@ -79,7 +79,6 @@ class ChatBox extends Component
                 <div className="input-row">
                     <input type="text" placeholder="type a message" className="form-control chat-box-input" 
                         onKeyDown={e => this.handleKeyDown(e)} ref={this.inputRef}/>
-                    <button className="btn btn-primary chat-send" onClick={e => this.handleSendClick()}>Send</button>
                 </div>
             </div>
         );

@@ -1,4 +1,4 @@
-import { Paper, Player, GameState, JoinApprovedResponse, JoinRejectedResponse, ChatMessage, PlayerMessageData, Vote } from './models';
+import { Paper, Player, GameState, JoinApprovedResponse, JoinRejectedResponse, ChatMessage, PlayerMessageData, ScoreUpdate } from './models';
 import Constants from './constants';
 import ClientSocket from './client-socket';
 
@@ -77,10 +77,10 @@ ViewModel.kickPlayer = (player) =>
     handlePlayerKicked(player.userName);
 };
 
-ViewModel.vote = (paperId, vote) =>
+ViewModel.updateScore = (paperId, delta) =>
 {
-    ClientSocket.sendToCurrentRoom(Constants.msg.types.VOTE, new Vote(paperId, vote));
-    handleVote(paperId, vote);
+    ClientSocket.sendToCurrentRoom(Constants.msg.types.SCORE_UPDATE, new ScoreUpdate(paperId, delta));
+    handleScoreUpdate(paperId, delta);
 };
 
 
@@ -123,8 +123,8 @@ const handleMessage = (msg) =>
         case Constants.msg.types.KICK_PLAYER:
             handlePlayerKicked(msg.data.userName);
             break;
-        case Constants.msg.types.VOTE:
-            handleVote(msg.data.paperId, msg.data.vote);
+        case Constants.msg.types.SCORE_UPDATE:
+            handleScoreUpdate(msg.data.paperId, msg.data.delta);
             break;
         case Constants.msg.types.HOST_CHANGE:
             ViewModel.gameState.hostUserName = msg.data.userName;
@@ -192,7 +192,6 @@ const handlePlayerJoined = (newPlayer) =>
 
 const handleStartRound = () =>
 {
-    resetCurrentScore();
     ViewModel.gameState.phase = Constants.phases.WRITE;
     ViewModel.gameState.activePart = 1;
     Object.keys(ViewModel.gameState.players).forEach(userName => 
@@ -254,7 +253,7 @@ const handlePlayerKicked = (playerUserName) =>
     }
 };
 
-const handleVote = (paperId, vote) =>
+const handleScoreUpdate = (paperId, delta) =>
 {
     let paper = null;
     Object.keys(ViewModel.gameState.players).some(userName => 
@@ -269,7 +268,11 @@ const handleVote = (paperId, vote) =>
     });
     if(!paper)
         return;
-    paper.vote = vote;
+    paper.parts.forEach(part => 
+        {
+            const player = ViewModel.gameState.players[part.authorUserName];
+            player.score += delta;
+        });
     ViewModel.activeView.updateUI();
 };
 
@@ -325,16 +328,6 @@ const movePapers = () =>
     {
         players[userName].paper = (index < userNames.length - 1) ? 
             players[userNames[index+1]].paper : firstPaper;
-    });
-};
-
-const resetCurrentScore = () =>
-{
-    Object.keys(ViewModel.gameState.players).forEach(userName =>
-    {
-        const player = ViewModel.gameState.players[userName];
-        player.previousScore += player.currentScore;
-        player.currentScore = 0;
     });
 };
 

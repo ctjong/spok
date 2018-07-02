@@ -11,6 +11,12 @@ import DislikeActiveImg from '../../images/dislike_active.png';
 
 class RevealPane extends Component
 {
+    constructor(props)
+    {
+        super(props);
+        this.state = { votes: {} };
+    }
+
     handleNewRoundClick()
     {
         ViewModel.startRound(ViewModel.gameState.lang);
@@ -24,6 +30,16 @@ class RevealPane extends Component
             ClientSocket.sendToCurrentRoom(Constants.msg.types.GOTO_LOBBY);
     }
 
+    handleVoteClick(paperId, newVote)
+    {
+        const cloneVotes = Object.assign({}, this.state.votes);
+        cloneVotes[paperId] = cloneVotes[paperId] || 0;
+        const oldVote = cloneVotes[paperId];
+        cloneVotes[paperId] = newVote;
+        ViewModel.updateScore(paperId, newVote - oldVote);
+        this.setState({ votes: cloneVotes });
+    }
+
     getSentenceRows()
     {
         const rows = [];
@@ -35,12 +51,13 @@ class RevealPane extends Component
                 if(paper)
                     paper.parts.forEach(part => texts.push(part.text));
                 const textsJoined = texts.join(" ");
-                const likeBtn = paper.vote > 0 ? 
-                    <img className="like-active" src={LikeActiveImg} onClick={() => ViewModel.vote(paper.id, 0)} alt="like active"/> :
-                    <img className="like" src={LikeImg} onClick={() => ViewModel.vote(paper.id, 1)} alt="like"/>;
-                const dislikeBtn = paper.vote < 0 ? 
-                    <img className="dislike-active" src={DislikeActiveImg} onClick={() => ViewModel.vote(paper.id, 0)} alt="dislike active"/> :
-                    <img className="dislike" src={DislikeImg} onClick={() => ViewModel.vote(paper.id, -1)} alt="dislike"/>;
+                const vote = this.state.votes[paper.id] || 0;
+                const likeBtn = vote > 0 ? 
+                    <img className="like-active" src={LikeActiveImg} onClick={() => this.handleVoteClick(paper.id, 0)} alt="like active"/> :
+                    <img className="like" src={LikeImg} onClick={() => this.handleVoteClick(paper.id, 1)} alt="like"/>;
+                const dislikeBtn = vote < 0 ? 
+                    <img className="dislike-active" src={DislikeActiveImg} onClick={() => this.handleVoteClick(paper.id, 0)} alt="dislike active"/> :
+                    <img className="dislike" src={DislikeImg} onClick={() => this.handleVoteClick(paper.id, -1)} alt="dislike"/>;
                 rows.push(
                     <div className="sentence" key={userName}>
                         <div>{textsJoined}</div>
@@ -56,28 +73,12 @@ class RevealPane extends Component
 
     getScoresList()
     {
-
         const playerList = [];
         Object.keys(ViewModel.gameState.players).forEach(userName => 
         {
-            const player = ViewModel.gameState.players[userName];
-            player.currentScore = 0;
-            playerList.push(player);
+            playerList.push(ViewModel.gameState.players[userName]);
         });
-        Object.keys(ViewModel.gameState.players).forEach(userName =>
-        {
-            const paper = ViewModel.gameState.players[userName].paper;
-            if(!paper)
-                return;
-            paper.parts.forEach(part =>
-            {
-                ViewModel.gameState.players[part.authorUserName].currentScore += paper.vote;
-            });
-        });
-        playerList.sort((a,b) => 
-        { 
-            return (a.previousScore + a.currentScore) < (b.previousScore  + b.currentScore);
-        });
+        playerList.sort((a,b) => { return a.score < b.score; });
 
         const rows = [];
         playerList.forEach(player =>
@@ -85,7 +86,7 @@ class RevealPane extends Component
             rows.push(
                 <div key={player.userName}>
                     <span className="score-user">{player.userName}:</span>
-                    <span>{player.previousScore + player.currentScore}</span>
+                    <span>{player.score}</span>
                 </div>
             );
         });

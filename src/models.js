@@ -4,7 +4,6 @@ export class Paper
     {
         this.id = id;
         this.parts = [];
-        this.vote = 0;
     }
 }
 
@@ -16,8 +15,7 @@ export class Player
         this.socketId = socketId;
         this.paper = null;
         this.isOnline = true;
-        this.previousScore = 0;
-        this.currentScore = 0;
+        this.score = 0;
     }
 }
 
@@ -80,11 +78,11 @@ export class ChatMessage
     }
 }
 
-export class Vote
+export class ScoreUpdate
 {
-    constructor(paperId, vote)
+    constructor(paperId, delta)
     {
         this.paperId = paperId;
-        this.vote = vote;
+        this.delta = delta;
     }
 }

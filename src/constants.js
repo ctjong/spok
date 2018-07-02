@@ -16,7 +16,7 @@ export default
             PLAYER_OFFLINE: "playerOffline",
             HOST_CHANGE: "hostChange",
             KICK_PLAYER: "kickPlayer",
-            VOTE: "vote",
+            SCORE_UPDATE: "scoreUpdate",
         },
         targets:
         {
