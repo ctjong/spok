@@ -31,7 +31,7 @@ class HowToView extends ViewBase
                     <p className="no-margin">1. Allow your creative energy to flow</p>
                     <p className="no-margin">2. JUST GO CRAZY AND HAVE FUN!</p>
                 </div>
-                <button className="btn-block btn-box back-btn" onClick={e => this.handleBackClick()}>Back</button>
+                <button className="btn-box back-btn" onClick={e => this.handleBackClick()}>Back</button>
             </div>
         );
     }

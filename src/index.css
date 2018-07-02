@@ -86,14 +86,14 @@ label
     margin-bottom:20px;
 }
 
-.btn-block,
+.btn-box,
 select,
 input[type=text]
 {
     height: 50px;
 }
 
-.btn-block
+.btn-box
 {
     border: 0;
     display: block;
@@ -102,10 +102,6 @@ input[type=text]
     font-size: 16pt;
     max-width: 300px;
     width: 80%;
-}
-
-.btn-box
-{
     background: url('./images/kotak.png');
     background-size: 100% 100%;
     margin: 20px auto;
@@ -115,16 +111,6 @@ input[type=text]
 {
     background: url('./images/kotak_hover.png');
     background-size: 100% 100%;
-}
-
-.btn-underline
-{
-    text-decoration: underline;
-}
-
-.btn-underline:hover
-{
-    text-decoration: none;
 }
 
 .title-large

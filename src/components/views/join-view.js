@@ -62,8 +62,8 @@ class JoinView extends ViewBase
                         <input type="text" className="input" id="joinPage_userName" ref={this.userNameRef}/>
                     </div>
                 </div>
-                <button className="btn-block btn-box submit-btn" onClick={e => this.handleSubmitClick()}>Submit</button>
-                <button className="btn-block btn-box back-btn" onClick={e => this.handleBackClick()}>Back</button>
+                <button className="btn-box submit-btn" onClick={e => this.handleSubmitClick()}>Submit</button>
+                <button className="btn-box back-btn" onClick={e => this.handleBackClick()}>Back</button>
             </div>
         );
     }

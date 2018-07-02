@@ -36,10 +36,10 @@ class RevealPane extends Component
 
         const bottomText = ViewModel.isHostUser() ? (
                 <div>
-                    <button className="btn-block btn-box new-round-btn" onClick={e => this.handleNewRoundClick(e)}>
+                    <button className="btn-box new-round-btn" onClick={e => this.handleNewRoundClick(e)}>
                         New round
                     </button>
-                    <button className="btn-block btn-box end-round-btn" onClick={e => this.handleEndRoundClick(e)}>
+                    <button className="btn-box end-round-btn" onClick={e => this.handleEndRoundClick(e)}>
                         Back to lobby
                     </button>
                 </div>

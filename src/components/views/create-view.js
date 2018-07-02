@@ -71,8 +71,8 @@ class CreateView extends ViewBase
                         </div>
                     </div>
                 </div>
-                <button className="btn-block btn-box submit-btn" onClick={e => this.handleSubmitClick()}>Submit</button>
-                <button className="btn-block btn-box btn-danger back-btn" onClick={e => this.handleBackClick()}>Back</button>
+                <button className="btn-box submit-btn" onClick={e => this.handleSubmitClick()}>Submit</button>
+                <button className="btn-box btn-danger back-btn" onClick={e => this.handleBackClick()}>Back</button>
             </div>
         );
     }

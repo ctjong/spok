@@ -40,7 +40,7 @@ class WritePane extends Component
                         <input type="text" className="input" placeholder={placeholder} ref={this.inputRef}/>
                     </div>
                 </div>
-                <button className="btn-block btn-box submit-btn" onClick={e => this.handleSubmitClick()}>Submit</button>
+                <button className="btn-box submit-btn" onClick={e => this.handleSubmitClick()}>Submit</button>
             </div>
         );
     }
