@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import TitleImg from '../../images/title.png';
-import ViewModel from '../../view-model';
+import Game from '../../game';
 import './title.css';
 
 class Title extends Component
 {
     handleClick()
     {
-        ViewModel.goTo("/");
+        Game.goTo("/");
     }
 
     render() 

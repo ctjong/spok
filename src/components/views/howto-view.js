@@ -1,6 +1,6 @@
 import React from 'react';
 import ViewBase from '../../view-base';
-import ViewModel from '../../view-model';
+import Game from '../../game';
 import Title from '../shared/title';
 import './howto-view.css';
 
@@ -9,7 +9,7 @@ class HowToView extends ViewBase
 {
     handleBackClick()
     {
-        ViewModel.goTo("/");
+        Game.goTo("/");
     }
 
     render() 

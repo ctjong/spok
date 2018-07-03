@@ -1,0 +1,12 @@
+.refresh-btn
+{
+    text-align: center;
+    cursor: pointer;
+}
+
+.refresh-btn,
+.refresh-loading,
+.refresh-loading img,
+{
+    height: 50px;
+}

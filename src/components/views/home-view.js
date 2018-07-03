@@ -1,6 +1,6 @@
 import React from 'react';
 import ViewBase from '../../view-base';
-import ViewModel from '../../view-model';
+import Game from '../../game';
 import Title from '../shared/title';
 import './home-view.css';
 
@@ -9,17 +9,17 @@ class HomeView extends ViewBase
 {
     handleCreateClick()
     {
-        ViewModel.goTo("/create");
+        Game.goTo("/create");
     }
 
     handleJoinClick()
     {
-        ViewModel.goTo("/join");
+        Game.goTo("/join");
     }
 
     handleHowToClick()
     {
-        ViewModel.goTo("/howto");
+        Game.goTo("/howto");
     }
 
     render() 

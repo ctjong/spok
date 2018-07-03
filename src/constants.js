@@ -49,4 +49,5 @@ module.exports =
     USER_NAME: "userName",
     DEFAULT_LANG: "en",
     REQUEST_TIMEOUT: 2000,
+    JOIN_TIMEOUT: 5000,
 };

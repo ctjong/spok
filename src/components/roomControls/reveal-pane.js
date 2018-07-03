@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import ViewModel from '../../view-model';
+import Game from '../../game';
 import Constants from '../../constants';
 import Strings from '../../strings';
 import ClientSocket from '../../client-socket';
@@ -21,12 +21,12 @@ class RevealPane extends Component
 
     handleNewRoundClick()
     {
-        ViewModel.startRound(ViewModel.gameState.lang);
+        Game.startRound(Game.state.lang);
     }
 
     handleEndRoundClick()
     {
-        ViewModel.goToLobby();
+        Game.goToLobby();
     }
 
     handleVoteClick(paperId, newVote)
@@ -36,7 +36,7 @@ class RevealPane extends Component
         const oldVote = cloneVotes[paperId];
         cloneVotes[paperId] = newVote;
         const delta = newVote - oldVote;
-        ClientSocket.sendToId(Constants.msg.types.SCORE_UPDATE, ViewModel.gameState.hostSocketId, 
+        ClientSocket.sendToId(Constants.msg.types.SCORE_UPDATE, Game.state.hostSocketId, 
             new ScoreUpdate(paperId, delta));
         this.setState({ votes: cloneVotes });
     }
@@ -44,20 +44,20 @@ class RevealPane extends Component
     getSentenceRows()
     {
         const rows = [];
-        Object.keys(ViewModel.gameState.players).forEach(userName => 
+        Object.keys(Game.state.players).forEach(userName => 
             {
-                const player = ViewModel.gameState.players[userName];
+                const player = Game.state.players[userName];
                 const texts = [];
                 if(player.paperId)
                 {
-                    const paper = ViewModel.gameState.papers[player.paperId];
+                    const paper = Game.state.papers[player.paperId];
                     paper.parts.forEach((part, index) => 
                         {
                             if(part.text)
                                 texts.push(part.text)
                             else
                             {
-                                const randomArr = Strings[ViewModel.gameState.lang][`part${index+1}random`];
+                                const randomArr = Strings[Game.state.lang][`part${index+1}random`];
                                 const randomIdx = Math.floor(Math.random() * Math.floor(randomArr.length));
                                 texts.push(randomArr[randomIdx]);
                             }
@@ -88,9 +88,9 @@ class RevealPane extends Component
     getScoresList()
     {
         const playerList = [];
-        Object.keys(ViewModel.gameState.players).forEach(userName => 
+        Object.keys(Game.state.players).forEach(userName => 
         {
-            playerList.push(ViewModel.gameState.players[userName]);
+            playerList.push(Game.state.players[userName]);
         });
         playerList.sort((a,b) => { return a.score < b.score; });
 
@@ -109,7 +109,7 @@ class RevealPane extends Component
 
     render() 
     {
-        const bottomControls = ViewModel.isHostUser() ? (
+        const bottomControls = Game.isHostUser() ? (
                 <div>
                     <button className="btn-box new-round-btn" onClick={e => this.handleNewRoundClick(e)}>
                         New round

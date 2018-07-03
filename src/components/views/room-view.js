@@ -1,6 +1,6 @@
 import React from 'react';
 import ViewBase from '../../view-base';
-import ViewModel from '../../view-model';
+import Game from '../../game';
 import ClientSocket from '../../client-socket';
 import Constants from '../../constants';
 import ParticipantList from '../roomControls/participant-list';
@@ -11,6 +11,7 @@ import WaitPane from '../roomControls/wait-pane';
 import WritePane from '../roomControls/write-pane';
 import Title from '../shared/title';
 import { PlayerMessageData } from '../../models';
+import RefreshButton from '../roomControls/refresh-button';
 import './room-view.css';
 
 
@@ -19,7 +20,7 @@ class RoomView extends ViewBase
     constructor(props)
     {
         super(props);
-        this.state = ViewModel.gameState;
+        this.state = Game.state;
         this.chatBox = null;
 
         if(!this.state)
@@ -28,7 +29,7 @@ class RoomView extends ViewBase
 
     updateUI()
     {
-        this.setState(ViewModel.gameState);
+        this.setState(Game.state);
     }
 
     getActivePane()
@@ -38,11 +39,11 @@ class RoomView extends ViewBase
             case Constants.phases.LOBBY:
                 return <LobbyPane/>;
             case Constants.phases.WRITE:
-                const player = this.state.players[ViewModel.userName];
+                const player = this.state.players[Game.userName];
                 if(!player)
                     return;
                 const currentPaperId = player.paperId;
-                const currentPaper = ViewModel.gameState.papers[currentPaperId];
+                const currentPaper = Game.state.papers[currentPaperId];
                 if(currentPaper && !currentPaper.parts[this.state.activePart])
                     return <WritePane/>;
                 else
@@ -54,29 +55,24 @@ class RoomView extends ViewBase
         }
     }
 
-    handleRefreshClick()
-    {
-        ClientSocket.sendToId(Constants.msg.types.STATE_REQUEST, ViewModel.gameState.hostSocketId);
-        ClientSocket.addOneTimeHandler(Constants.msg.types.STATE_UPDATE, null, () =>
-        {
-            ClientSocket.reset();
-            this.tryToRejoin();
-        });
-    }
-
     tryToRejoin()
     {
-        ClientSocket.sendToId(Constants.msg.types.JOIN_REQUEST, ViewModel.roomCode, new PlayerMessageData(ViewModel.userName));
-        ClientSocket.addOneTimeHandler(Constants.msg.types.JOIN_RESPONSE, (msg) =>
-        {
-            if(!msg.data.isSuccess)
-                ViewModel.goTo("/");
-            else
+        ClientSocket.sendToId(Constants.msg.types.JOIN_REQUEST, Game.roomCode, new PlayerMessageData(Game.userName));
+        ClientSocket.addOneTimeHandler(
+            Constants.msg.types.JOIN_RESPONSE,
+            (msg) =>
             {
-                ViewModel.gameState = msg.data.gameState;
-                this.setState(msg.data.gameState);
-            }
-        }, () => ViewModel.goTo("/"));
+                if(!msg.data.isSuccess)
+                    Game.goTo("/");
+                else
+                {
+                    Game.state = msg.data.gameState;
+                    this.setState(msg.data.gameState);
+                }
+            }, 
+            Constants.JOIN_TIMEOUT,
+            () => Game.goTo("/")
+        );
     }
 
     render() 
@@ -84,15 +80,13 @@ class RoomView extends ViewBase
         if(!this.state)
             return null;
 
-        const refreshBtn = ViewModel.isHostUser() ? null : (
-            <button className="btn-box refresh-btn" onClick={e => this.handleRefreshClick()}>Refresh</button>
-        );
+        const refreshBtn = Game.isHostUser() ? null : <RefreshButton />;
 
         return (
             <div className="view room-view">
                 <Title isLarge={false} />
-                {this.getActivePane()}
                 {refreshBtn}
+                {this.getActivePane()}
                 <ParticipantList/>
                 <ChatBox ref={el => this.chatBox = el}/>
             </div>

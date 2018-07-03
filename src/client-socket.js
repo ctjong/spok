@@ -46,9 +46,9 @@ ClientSocket.addMessageHandler = (handler) =>
     messageHandlers.push(handler);
 };
 
-ClientSocket.addOneTimeHandler = (msgType, successHandler, timeoutHandler) =>
+ClientSocket.addOneTimeHandler = (msgType, successHandler, timeout, timeoutHandler) =>
 {
-    const timer = !timeoutHandler ? null : setTimeout(timeoutHandler, Constants.REQUEST_TIMEOUT);
+    const timer = !timeoutHandler ? null : setTimeout(timeoutHandler, timeout);
     oneTimeHandlers[msgType] = (msg) => 
     {
         clearTimeout(timer);

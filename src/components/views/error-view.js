@@ -1,6 +1,6 @@
 import React from 'react';
 import ViewBase from '../../view-base';
-import ViewModel from '../../view-model';
+import Game from '../../game';
 import './error-view.css';
 
 
@@ -8,7 +8,7 @@ class ErrorView extends ViewBase
 {
     handleHomeClick()
     {
-        ViewModel.goTo("/");
+        Game.goTo("/");
     }
 
     render() 

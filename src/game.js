@@ -2,81 +2,81 @@ import { Paper, Player, GameState, JoinApprovedResponse, JoinRejectedResponse, C
 import Constants from './constants';
 import ClientSocket from './client-socket';
 
-const ViewModel = {};
-ViewModel.activeView = null;
-ViewModel.history = null;
-ViewModel.gameState = null;
-ViewModel.userName = null;
-ViewModel.roomCode = null;
+const Game = {};
+Game.activeView = null;
+Game.history = null;
+Game.state = null;
+Game.userName = null;
+Game.roomCode = null;
 
 
 //-------------------------------------------
 // PUBLIC FUNCTIONS - HOST
 //-------------------------------------------
 
-ViewModel.initHostUser = (roomCode, userName, lang) => 
+Game.initHostUser = (roomCode, userName, lang) => 
 {
-    ViewModel.setRoomCode(roomCode);
-    ViewModel.setUserName(userName);
-    if(!ViewModel.gameState)
+    Game.setRoomCode(roomCode);
+    Game.setUserName(userName);
+    if(!Game.state)
     {
         const socketId = ClientSocket.getSocketId();
-        const hostPlayer = new Player(ViewModel.userName, socketId);
-        ViewModel.gameState = new GameState(hostPlayer, Constants.phases.LOBBY, lang);
-        ViewModel.gameState.players[ViewModel.userName] = hostPlayer;
+        const hostPlayer = new Player(Game.userName, socketId);
+        Game.state = new GameState(hostPlayer, Constants.phases.LOBBY, lang);
+        Game.state.players[Game.userName] = hostPlayer;
     }
 };
 
-ViewModel.startRound = () => 
+Game.startRound = () => 
 {
-    ViewModel.gameState.phase = Constants.phases.WRITE;
-    ViewModel.gameState.activePart = 0;
-    ViewModel.gameState.papers = {};
-    Object.keys(ViewModel.gameState.players).forEach(userName => 
+    Game.state.phase = Constants.phases.WRITE;
+    Game.state.activePart = 0;
+    Game.state.papers = {};
+    Object.keys(Game.state.players).forEach(userName => 
     {
-        const paper = new Paper(ViewModel.getRandomCode());
-        const player = ViewModel.gameState.players[userName];
+        const paper = new Paper(Game.getRandomCode());
+        const player = Game.state.players[userName];
         player.paperId = paper.id;
-        ViewModel.gameState.papers[paper.id] = paper;
+        Game.state.papers[paper.id] = paper;
     });
     broadcastStateAndUpdateUI();
 };
 
-ViewModel.goToLobby = () => 
+Game.goToLobby = () => 
 {
-    ViewModel.gameState.phase = Constants.phases.LOBBY;
+    Game.state.phase = Constants.phases.LOBBY;
     broadcastStateAndUpdateUI();
 };
 
-ViewModel.kickPlayer = (player) =>
+Game.kickPlayer = (player) =>
 {
-    delete ViewModel.gameState.players[player.userName];
-    if(ViewModel.gameState.phase === Constants.phases.WRITE)
+    delete Game.state.players[player.userName];
+    if(Game.state.phase === Constants.phases.WRITE)
         updateWritePhaseState();
     broadcastSystemChat(`${player.userName} has been kicked`);
     broadcastStateAndUpdateUI();
 };
 
-ViewModel.handlePartSubmitted = (part) =>
+Game.handlePartSubmitted = (part) =>
 {
-    const paper = ViewModel.gameState.papers[part.paperId];
+    const paper = Game.state.papers[part.paperId];
     if(!paper)
         return;
-    paper.parts[ViewModel.gameState.activePart] = part;
+    paper.parts[Game.state.activePart] = part;
     updateWritePhaseState();
     broadcastStateAndUpdateUI();
 };
 
-ViewModel.handleScoreUpdate = (paperId, delta) =>
+Game.handleScoreUpdate = (paperId, delta) =>
 {
-    const paper = ViewModel.gameState.papers[paperId];
+    const paper = Game.state.papers[paperId];
     if(!paper)
         return;
     paper.parts.forEach(part => 
         {
             if(part.authorUserName === null)
                 return;
-            const player = ViewModel.gameState.players[part.authorUserName];
+            const player = Game.state.players[part.authorUserName];
             player.score += delta;
         });
     broadcastStateAndUpdateUI();
@@ -87,41 +87,41 @@ ViewModel.handleScoreUpdate = (paperId, delta) =>
 // PUBLIC FUNCTIONS - ALL
 //-------------------------------------------
 
-ViewModel.goTo = (path) => 
+Game.goTo = (path) => 
 {
-    ViewModel.history.push(path);
+    Game.history.push(path);
 };
 
-ViewModel.initHistory = (history) => 
+Game.initHistory = (history) => 
 {
-    ViewModel.history = history;
-    ViewModel.history.listen(location => 
+    Game.history = history;
+    Game.history.listen(location => 
         { 
             if(location.pathname.indexOf("/room") !== 0)
                 ClientSocket.tryClose() 
         });
 };
 
-ViewModel.getRandomCode = () =>
+Game.getRandomCode = () =>
 {
-    if (ViewModel.randomCodeLength > 10) ViewModel.randomCodeLength = 10;
-    return Math.floor((1 + Math.random()) * 0x1000000000).toString(16).substring(10 - ViewModel.randomCodeLength);
+    if (Game.randomCodeLength > 10) Game.randomCodeLength = 10;
+    return Math.floor((1 + Math.random()) * 0x1000000000).toString(16).substring(10 - Game.randomCodeLength);
 };
 
-ViewModel.isHostUser = () => 
+Game.isHostUser = () => 
 {
-    return ViewModel.gameState && ClientSocket.getSocketId() === ViewModel.gameState.hostSocketId;
+    return Game.state && ClientSocket.getSocketId() === Game.state.hostSocketId;
 };
 
-ViewModel.setUserName = (value) => 
+Game.setUserName = (value) => 
 {
-    ViewModel.userName = value;
+    Game.userName = value;
     sessionStorage.setItem(Constants.USER_NAME, value);
 };
 
-ViewModel.setRoomCode = (value) => 
+Game.setRoomCode = (value) => 
 {
-    ViewModel.roomCode = value;
+    Game.roomCode = value;
     ClientSocket.roomCode = value;
     sessionStorage.setItem(Constants.ROOM_CODE, value);
 };
@@ -134,11 +134,11 @@ ViewModel.setRoomCode = (value) =>
 const handleJoinRequest = (msg) => 
 {
     // join request should only be handled by host
-    if(!ViewModel.isHostUser())
+    if(!Game.isHostUser())
         return;
 
     // if round is currently ongoing and the request is not for reconnection, reject it.
-    if (ViewModel.gameState.phase > Constants.phases.LOBBY && !ViewModel.gameState.players[msg.data.userName])
+    if (Game.state.phase > Constants.phases.LOBBY && !Game.state.players[msg.data.userName])
     {
         ClientSocket.sendToId(Constants.msg.types.JOIN_RESPONSE, msg.source, 
             new JoinRejectedResponse(Constants.msg.errors.ROUND_ONGOING));
@@ -149,7 +149,7 @@ const handleJoinRequest = (msg) =>
     // - the chosen name is already present in the room (reconnect attempt), OR
     // - people are in the lobby
     const newPlayer = new Player(msg.data.userName, msg.source);
-    const existingPlayer = ViewModel.gameState.players[newPlayer.userName];
+    const existingPlayer = Game.state.players[newPlayer.userName];
     if(existingPlayer)
     {
         existingPlayer.isOnline = true;
@@ -157,41 +157,41 @@ const handleJoinRequest = (msg) =>
     }
     else
     {
-        ViewModel.gameState.players[newPlayer.userName] = newPlayer;
-        ViewModel.activeView.chatBox.pushMessage(new ChatMessage(null, `${newPlayer.userName} has joined`));
+        Game.state.players[newPlayer.userName] = newPlayer;
+        Game.activeView.chatBox.pushMessage(new ChatMessage(null, `${newPlayer.userName} has joined`));
     }
 
     broadcastStateAndUpdateUI();
     ClientSocket.sendToId(Constants.msg.types.JOIN_RESPONSE, msg.source, 
-        new JoinApprovedResponse(ViewModel.roomCode, ViewModel.gameState));
+        new JoinApprovedResponse(Game.roomCode, Game.state));
 };
 
 const updateWritePhaseState = () =>
 {
     let readyToProceed = true;
-    Object.keys(ViewModel.gameState.players).forEach(userName => 
+    Object.keys(Game.state.players).forEach(userName => 
         {
-            const paperId = ViewModel.gameState.players[userName].paperId;
-            const paper = ViewModel.gameState.papers[paperId];
-            if(paper && !paper.parts[ViewModel.gameState.activePart])
+            const paperId = Game.state.players[userName].paperId;
+            const paper = Game.state.papers[paperId];
+            if(paper && !paper.parts[Game.state.activePart])
                 readyToProceed = false;
         });
 
     if(readyToProceed)
     {
-        if(ViewModel.gameState.activePart >= Constants.TOTAL_PARTS - 1)
-            ViewModel.gameState.phase = Constants.phases.REVEAL;
+        if(Game.state.activePart >= Constants.TOTAL_PARTS - 1)
+            Game.state.phase = Constants.phases.REVEAL;
         else
         {
             movePapers();
-            ViewModel.gameState.activePart++;
+            Game.state.activePart++;
         }
     }
 };
 
 const movePapers = () =>
 {
-    const players = ViewModel.gameState.players;
+    const players = Game.state.players;
     const userNames = Object.keys(players);
     userNames.sort();
 
@@ -207,13 +207,13 @@ const broadcastSystemChat = (text) =>
 {
     const chatMsg = new ChatMessage(null, text);
     ClientSocket.sendToCurrentRoom(Constants.msg.types.CHAT_MESSAGE, chatMsg);
-    ViewModel.activeView.chatBox.pushMessage(chatMsg);
+    Game.activeView.chatBox.pushMessage(chatMsg);
 };
 
 const broadcastStateAndUpdateUI = () =>
 {
-    ClientSocket.sendToCurrentRoom(Constants.msg.types.STATE_UPDATE, ViewModel.gameState);
-    ViewModel.activeView.updateUI();
+    ClientSocket.sendToCurrentRoom(Constants.msg.types.STATE_UPDATE, Game.state);
+    Game.activeView.updateUI();
 };
 
 
@@ -223,23 +223,23 @@ const broadcastStateAndUpdateUI = () =>
 
 const handleStateUpdate = (msg) =>
 {
-    ViewModel.gameState = msg.data;
-    if(!ViewModel.gameState.players[ViewModel.userName])
+    Game.state = msg.data;
+    if(!Game.state.players[Game.userName])
     {
-        ViewModel.goTo("/");
+        Game.goTo("/");
         return;
     }
-    ViewModel.activeView.updateUI();
+    Game.activeView.updateUI();
 };
 
 const handleDisconnect = (socketId) =>
 {
     let player = null;
-    Object.keys(ViewModel.gameState.players).some(userName =>
+    Object.keys(Game.state.players).some(userName =>
     {
-        if(ViewModel.gameState.players[userName].socketId === socketId)
+        if(Game.state.players[userName].socketId === socketId)
         {
-            player = ViewModel.gameState.players[userName];
+            player = Game.state.players[userName];
             return true;
         }
         return false;
@@ -250,13 +250,13 @@ const handleDisconnect = (socketId) =>
     if(socketId === ClientSocket.getSocketId())
     {
         ClientSocket.reset();
-        ViewModel.activeView.tryToRejoin();
+        Game.activeView.tryToRejoin();
     }
-    if(ViewModel.gameState.hostSocketId === player.socketId)
+    if(Game.state.hostSocketId === player.socketId)
         chooseNewHost();
-    if(ViewModel.isHostUser())
+    if(Game.isHostUser())
     {
-        ViewModel.initHostUser(ViewModel.roomCode, ViewModel.userName);
+        Game.initHostUser(Game.roomCode, Game.userName);
         broadcastStateAndUpdateUI();
     }
 };
@@ -264,13 +264,13 @@ const handleDisconnect = (socketId) =>
 const chooseNewHost = () =>
 {
     const userNames = [];
-    Object.keys(ViewModel.gameState.players).forEach(userName => 
+    Object.keys(Game.state.players).forEach(userName => 
     {
-        if(ViewModel.gameState.players[userName].socketId !== ViewModel.gameState.hostSocketId)
+        if(Game.state.players[userName].socketId !== Game.state.hostSocketId)
             userNames.push(userName);
     });
     userNames.sort();
-    ViewModel.gameState.hostSocketId = ViewModel.gameState.players[userNames[0]].socketId;
+    Game.state.hostSocketId = Game.state.players[userNames[0]].socketId;
 };
 
 const handleMessage = (msg) => 
@@ -285,13 +285,13 @@ const handleMessage = (msg) =>
             handleDisconnect(msg.data.socketId);
             break;
         case Constants.msg.types.SUBMIT_PART:
-            ViewModel.handlePartSubmitted(msg.data);
+            Game.handlePartSubmitted(msg.data);
             break;
         case Constants.msg.types.SCORE_UPDATE:
-            ViewModel.handleScoreUpdate(msg.data.paperId, msg.data.delta);
+            Game.handleScoreUpdate(msg.data.paperId, msg.data.delta);
             break;
         case Constants.msg.types.STATE_REQUEST:
-            ClientSocket.sendToId(Constants.msg.types.STATE_UPDATE, msg.source, ViewModel.gameState);
+            ClientSocket.sendToId(Constants.msg.types.STATE_UPDATE, msg.source, Game.state);
             break;
 
         // MESSAGES FOR ALL
@@ -299,7 +299,7 @@ const handleMessage = (msg) =>
             handleStateUpdate(msg);
             break;
         case Constants.msg.types.CHAT_MESSAGE:
-            ViewModel.activeView.chatBox.pushMessage(msg.data);
+            Game.activeView.chatBox.pushMessage(msg.data);
             break;
         default:
             break;
@@ -308,10 +308,10 @@ const handleMessage = (msg) =>
 
 const initialize = () =>
 {
-    ViewModel.userName = sessionStorage.getItem(Constants.USER_NAME);
-    ViewModel.roomCode = sessionStorage.getItem(Constants.ROOM_CODE);
+    Game.userName = sessionStorage.getItem(Constants.USER_NAME);
+    Game.roomCode = sessionStorage.getItem(Constants.ROOM_CODE);
     ClientSocket.addMessageHandler(handleMessage);
 };
 
 initialize();
-export default ViewModel;
+export default Game;

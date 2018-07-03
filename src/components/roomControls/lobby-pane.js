@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import ViewModel from '../../view-model';
+import Game from '../../game';
 import './lobby-pane.css';
 
 
@@ -7,12 +7,12 @@ class LobbyPane extends Component
 {
     handleStartClick()
     {
-        ViewModel.startRound();
+        Game.startRound();
     }
 
     render() 
     {
-        const content = ViewModel.isHostUser() ? (
+        const content = Game.isHostUser() ? (
             <div>
                 <button className="btn-box start-btn" onClick={e => this.handleStartClick()}>Start</button>
             </div>
@@ -26,7 +26,7 @@ class LobbyPane extends Component
             <div className="pane lobby-pane">
                 <div>
                     <h2>Room Code:</h2>
-                    <div className="roomcode-large">{ViewModel.roomCode}</div>
+                    <div className="roomcode-large">{Game.roomCode}</div>
                 </div>
                 {content}
             </div>

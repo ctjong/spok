@@ -1,13 +1,13 @@
 import { Component } from 'react';
-import ViewModel from './view-model';
+import Game from './game';
 
 class ViewBase extends Component
 {
     constructor(props)
     {
         super(props);
-        ViewModel.activeView = this;
-        ViewModel.initHistory(this.props.history);
+        Game.activeView = this;
+        Game.initHistory(this.props.history);
     }
 }
 

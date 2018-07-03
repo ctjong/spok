@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import ViewModel from '../../view-model';
+import Game from '../../game';
 import './participant-list.css';
 
 
@@ -8,12 +8,12 @@ class ParticipantList extends Component
     render() 
     {
         const items = [];
-        Object.keys(ViewModel.gameState.players).forEach((userName) => 
+        Object.keys(Game.state.players).forEach((userName) => 
         {
-            const player = ViewModel.gameState.players[userName];
+            const player = Game.state.players[userName];
             const className = "player " + (player.isOnline ? "" : "offline");
-            const kickButton = ViewModel.isHostUser() && ViewModel.userName !== userName ? (
-                <span>(<a onClick={e => ViewModel.kickPlayer(player)}>kick</a>)</span>
+            const kickButton = Game.isHostUser() && Game.userName !== userName ? (
+                <span>(<a onClick={e => Game.kickPlayer(player)}>kick</a>)</span>
             ) : null;
 
             items.push(<div key={userName} className={className}>{userName} {kickButton}</div>);

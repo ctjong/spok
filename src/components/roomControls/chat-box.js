@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import ViewModel from '../../view-model';
+import Game from '../../game';
 import ClientSocket from '../../client-socket';
 import Constants from '../../constants';
 import { ChatMessage } from '../../models';
@@ -35,7 +35,7 @@ class ChatBox extends Component
         if(!text)
             return;
         this.inputRef.current.value = "";
-        const chatMsg = new ChatMessage(ViewModel.userName, text);
+        const chatMsg = new ChatMessage(Game.userName, text);
         ClientSocket.sendToCurrentRoom(Constants.msg.types.CHAT_MESSAGE, chatMsg);
         this.pushMessage(chatMsg);
     }

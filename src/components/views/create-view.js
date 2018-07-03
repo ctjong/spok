@@ -1,6 +1,6 @@
 import React from 'react';
 import ViewBase from '../../view-base';
-import ViewModel from '../../view-model';
+import Game from '../../game';
 import ClientSocket from '../../client-socket';
 import Constants from '../../constants';
 import Strings from '../../strings';
@@ -15,11 +15,12 @@ class CreateView extends ViewBase
         super(props);
         this.userNameRef = React.createRef();
         this.langSelectRef = React.createRef();
+        this.state = { isLoading: false };
     }
 
     handleSubmitClick()
     {
-        const roomCode = ViewModel.getRandomCode().substring(0, 5);
+        const roomCode = Game.getRandomCode().substring(0, 5);
         const userName = this.userNameRef.current.value;
         if(!userName)
             return;
@@ -32,18 +33,22 @@ class CreateView extends ViewBase
         }
         ClientSocket.sendToServer(Constants.msg.types.CREATE_ROOM, { roomCode, lang }).then(() => 
         {
-            ViewModel.initHostUser(roomCode, userName, lang);
-            ViewModel.goTo(`/room/${roomCode}`);
+            Game.initHostUser(roomCode, userName, lang);
+            Game.goTo(`/room/${roomCode}`);
         });
+        this.setState({ isLoading: true });
     }
 
     handleBackClick()
     {
-        ViewModel.goTo("");
+        Game.goTo("");
     }
 
     render() 
     {
+        if(this.state.isLoading)
+            return <div>Please wait</div>;
+
         const options = [];
         Object.keys(Strings).forEach(lang => 
             {
