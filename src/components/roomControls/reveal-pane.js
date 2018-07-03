@@ -2,12 +2,13 @@ import React, { Component } from 'react';
 import ViewModel from '../../view-model';
 import Constants from '../../constants';
 import Strings from '../../strings';
-import './reveal-pane.css';
 import ClientSocket from '../../client-socket';
+import { ScoreUpdate } from '../../models';
 import LikeImg from '../../images/like.png';
 import LikeActiveImg from '../../images/like_active.png';
 import DislikeImg from '../../images/dislike.png';
 import DislikeActiveImg from '../../images/dislike_active.png';
+import './reveal-pane.css';
 
 
 class RevealPane extends Component
@@ -25,10 +26,7 @@ class RevealPane extends Component
 
     handleEndRoundClick()
     {
-        ViewModel.gameState.phase = Constants.phases.LOBBY;
-        ViewModel.activeView.updateUI();
-        if(ViewModel.isHostUser())
-            ClientSocket.sendToCurrentRoom(Constants.msg.types.GOTO_LOBBY);
+        ViewModel.goToLobby();
     }
 
     handleVoteClick(paperId, newVote)
@@ -37,7 +35,9 @@ class RevealPane extends Component
         cloneVotes[paperId] = cloneVotes[paperId] || 0;
         const oldVote = cloneVotes[paperId];
         cloneVotes[paperId] = newVote;
-        ViewModel.updateScore(paperId, newVote - oldVote);
+        const delta = newVote - oldVote;
+        ClientSocket.sendToId(Constants.msg.types.SCORE_UPDATE, ViewModel.gameState.hostSocketId, 
+            new ScoreUpdate(paperId, delta));
         this.setState({ votes: cloneVotes });
     }
 

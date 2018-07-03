@@ -1,7 +1,7 @@
 import React from 'react';
 import ViewBase from '../../view-base';
 import ViewModel from '../../view-model';
-import TitleImg from '../../images/title.png';
+import Title from '../shared/title';
 import './howto-view.css';
 
 
@@ -16,7 +16,7 @@ class HowToView extends ViewBase
     {
         return (
             <div className="view howto-view">
-                <img src={TitleImg} alt="SPOK" className="title-small" />
+                <Title isLarge={false} />
                 <h1>How to play</h1>
                 <div>
                     <p>This game of wordplay involves at least 2 players. The aim of the game is to create complete sentences by writing one part of that sentence during your turn. There are typically 4 parts of a sentence:</p>

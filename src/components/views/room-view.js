@@ -9,7 +9,7 @@ import LobbyPane from '../roomControls/lobby-pane';
 import RevealPane from '../roomControls/reveal-pane';
 import WaitPane from '../roomControls/wait-pane';
 import WritePane from '../roomControls/write-pane';
-import TitleImg from '../../images/title.png';
+import Title from '../shared/title';
 import { PlayerMessageData } from '../../models';
 import './room-view.css';
 
@@ -20,24 +20,10 @@ class RoomView extends ViewBase
     {
         super(props);
         this.state = ViewModel.gameState;
-        this.roomCode = props.match.params.roomCode;
-        this.isRoomView = true;
         this.chatBox = null;
 
         if(!this.state)
-        {
-            ClientSocket.sendToId(Constants.msg.types.JOIN_REQUEST, ViewModel.roomCode, new PlayerMessageData(ViewModel.userName), 
-                Constants.msg.types.JOIN_RESPONSE).then((msg) =>
-            {
-                if(!msg.data.isSuccess)
-                    ViewModel.goTo("/");
-                else
-                {
-                    ViewModel.gameState = msg.data.gameState;
-                    this.setState(msg.data.gameState);
-                }
-            });
-        }
+            this.tryToRejoin();
     }
 
     updateUI()
@@ -57,7 +43,7 @@ class RoomView extends ViewBase
                     return;
                 const currentPaperId = player.paperId;
                 const currentPaper = ViewModel.gameState.papers[currentPaperId];
-                if(currentPaper && currentPaper.parts.length < this.state.activePart)
+                if(currentPaper && !currentPaper.parts[this.state.activePart])
                     return <WritePane/>;
                 else
                     return <WaitPane/>;
@@ -68,15 +54,45 @@ class RoomView extends ViewBase
         }
     }
 
+    handleRefreshClick()
+    {
+        ClientSocket.sendToId(Constants.msg.types.STATE_REQUEST, ViewModel.gameState.hostSocketId);
+        ClientSocket.addOneTimeHandler(Constants.msg.types.STATE_UPDATE, null, () =>
+        {
+            ClientSocket.reset();
+            this.tryToRejoin();
+        });
+    }
+
+    tryToRejoin()
+    {
+        ClientSocket.sendToId(Constants.msg.types.JOIN_REQUEST, ViewModel.roomCode, new PlayerMessageData(ViewModel.userName));
+        ClientSocket.addOneTimeHandler(Constants.msg.types.JOIN_RESPONSE, (msg) =>
+        {
+            if(!msg.data.isSuccess)
+                ViewModel.goTo("/");
+            else
+            {
+                ViewModel.gameState = msg.data.gameState;
+                this.setState(msg.data.gameState);
+            }
+        }, () => ViewModel.goTo("/"));
+    }
+
     render() 
     {
         if(!this.state)
             return null;
 
+        const refreshBtn = ViewModel.isHostUser() ? null : (
+            <button className="btn-box refresh-btn" onClick={e => this.handleRefreshClick()}>Refresh</button>
+        );
+
         return (
             <div className="view room-view">
-                <img src={TitleImg} alt="SPOK" className="title-small" />
+                <Title isLarge={false} />
                 {this.getActivePane()}
+                {refreshBtn}
                 <ParticipantList/>
                 <ChatBox ref={el => this.chatBox = el}/>
             </div>

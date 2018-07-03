@@ -4,7 +4,7 @@ import ViewModel from '../../view-model';
 import ClientSocket from '../../client-socket';
 import Constants from '../../constants';
 import Strings from '../../strings';
-import TitleImg from '../../images/title.png';
+import Title from '../shared/title';
 import './create-view.css';
 
 
@@ -52,7 +52,7 @@ class CreateView extends ViewBase
 
         return (
             <div className="view create-view">
-                <img src={TitleImg} alt="SPOK" className="title-large" />
+                <Title isLarge={true} />
                 <div>
                     <div className="control-group">
                         <div>

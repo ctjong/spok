@@ -30,7 +30,7 @@ export class GameState
         this.players = {};
         this.papers = {};
         this.players[host.userName] = host;
-        this.hostUserName = host.userName;
+        this.hostSocketId = host.socketId;
     }
 }
 
@@ -63,8 +63,9 @@ export class JoinRejectedResponse
 
 export class Part
 {
-    constructor(text, authorUserName)
+    constructor(paperId, text, authorUserName)
     {
+        this.paperId = paperId;
         this.text = text;
         this.authorUserName = authorUserName;
     }

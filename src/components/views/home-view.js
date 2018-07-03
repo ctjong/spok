@@ -1,7 +1,7 @@
 import React from 'react';
 import ViewBase from '../../view-base';
 import ViewModel from '../../view-model';
-import TitleImg from '../../images/title.png';
+import Title from '../shared/title';
 import './home-view.css';
 
 
@@ -27,7 +27,7 @@ class HomeView extends ViewBase
 
         return (
             <div className="view home-view">
-                <img src={TitleImg} alt="SPOK" className="title-large" />
+                <Title isLarge={true} />
                 <button className="btn-box create-btn" onClick={e => this.handleCreateClick()}>Create room</button>
                 <button className="btn-box join-btn" onClick={e => this.handleJoinClick()}>Join room</button>
                 <button className="btn-box howto-btn" onClick={e => this.handleHowToClick()}>How to play</button>

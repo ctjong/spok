@@ -9,28 +9,29 @@ ClientSocket.roomCode = null;
 // PRIVATE VARIABLES
 //-------------------------------------------
 
-const responseHandlers = {};
+const oneTimeHandlers = [];
 const messageHandlers = [];
 
+let initPromise = null;
 let socket = null;
 
 //-------------------------------------------
 // PUBLIC FUNCTIONS
 //-------------------------------------------
 
-ClientSocket.sendToServer = (type, data, responseMsgType) => 
+ClientSocket.sendToServer = (type, data) => 
 {
-    return socketSend(type, Constants.msg.targets.SERVER, data, responseMsgType);
+    return socketSend(type, Constants.msg.targets.SERVER, data);
 };
 
-ClientSocket.sendToId = (type, targetId, data, responseMsgType) => 
+ClientSocket.sendToId = (type, targetId, data) => 
 {
-    return socketSend(type, targetId, data, responseMsgType);
+    return socketSend(type, targetId, data);
 };
 
-ClientSocket.sendToCurrentRoom = (type, data, responseMsgType) => 
+ClientSocket.sendToCurrentRoom = (type, data) => 
 {
-    return socketSend(type, ClientSocket.roomCode, data, responseMsgType);
+    return socketSend(type, ClientSocket.roomCode, data);
 };
 
 ClientSocket.getSocketId = () => 
@@ -45,6 +46,17 @@ ClientSocket.addMessageHandler = (handler) =>
     messageHandlers.push(handler);
 };
 
+ClientSocket.addOneTimeHandler = (msgType, successHandler, timeoutHandler) =>
+{
+    const timer = !timeoutHandler ? null : setTimeout(timeoutHandler, Constants.REQUEST_TIMEOUT);
+    oneTimeHandlers[msgType] = (msg) => 
+    {
+        clearTimeout(timer);
+        if(successHandler)
+            successHandler(msg);
+    };
+};
+
 ClientSocket.tryClose = () =>
 {
     if(!socket)
@@ -52,6 +64,13 @@ ClientSocket.tryClose = () =>
     console.log("[ClientSocket.tryClose] socket closed");
     socket.close();
     socket = null;
+    initPromise = null;
+};
+
+ClientSocket.reset = () =>
+{
+    ClientSocket.tryClose();
+    return initSocket();
 };
 
 
@@ -59,32 +78,14 @@ ClientSocket.tryClose = () =>
 // PRIVATE FUNCTIONS
 //-------------------------------------------
 
-const socketSend = (type, target, data, responseMsgType) => 
+const socketSend = (type, target, data) => 
 {
     return new Promise((resolve) => 
     {
-        ensureInitialized().then(() => 
+        initSocket().then(() => 
         {
             console.log("[ClientSocket.socketSend] sending " + JSON.stringify({ type, target, data, source:socket.id }));
-            if(responseMsgType)
-            {
-                if(!responseHandlers[responseMsgType])
-                    responseHandlers[responseMsgType] = [];
-            }
-            const ack = responseMsgType ? null : (response => resolve(response));
-            socket.emit(Constants.msg.events.MSG, { type, target, data }, ack);
-            if(responseMsgType)
-            {
-                const timeout = setTimeout(() => 
-                {
-                    resolve({data: {isSuccess: false, err: Constants.msg.errors.TIMEOUT }})
-                }, Constants.RESPONSE_TIMEOUT);
-                responseHandlers[responseMsgType].push((response) => 
-                {
-                    clearTimeout(timeout);
-                    resolve(response); 
-                });
-            }
+            socket.emit(Constants.msg.events.MSG, { type, target, data }, response => resolve(response));
         });
     });
 };
@@ -93,16 +94,18 @@ const socketReceive = (msg, reply) =>
 {
     console.log("[ClientSocket.socketReceive] received " + JSON.stringify(msg));
     messageHandlers.forEach(handler => handler(msg, reply));
-    while(responseHandlers[msg.type] && responseHandlers[msg.type].length > 0)
+    if(oneTimeHandlers[msg.type])
     {
-        const resolve = responseHandlers[msg.type].pop();
-        resolve(msg);
+        oneTimeHandlers[msg.type](msg);
+        oneTimeHandlers[msg.type] = null;
     }
 };
 
-const ensureInitialized = () =>
+const initSocket = () =>
 {
-    return new Promise(resolve => 
+    if(initPromise)
+        return initPromise;
+    initPromise = new Promise(resolve => 
     {
         if(socket)
         {
@@ -117,6 +120,7 @@ const ensureInitialized = () =>
             resolve();
         });
     });
+    return initPromise;
 };
 
 export default ClientSocket;

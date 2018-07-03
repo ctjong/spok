@@ -8,15 +8,11 @@ module.exports =
             JOIN_REQUEST: "joinRoomRequest",
             JOIN_RESPONSE: "joinRoomResponse",
             SUBMIT_PART: "submitPart",
-            START_ROUND: "startRound",
-            GOTO_LOBBY: "gotoLobby",
-            PLAYER_JOINED: "playerJoined",
             CHAT_MESSAGE: "chatMsg",
             PLAYER_OFFLINE: "playerOffline",
-            HOST_CHANGE: "hostChange",
-            KICK_PLAYER: "kickPlayer",
             SCORE_UPDATE: "scoreUpdate",
             STATE_UPDATE: "stateUpdate",
+            STATE_REQUEST: "stateRequest",
         },
         targets:
         {
@@ -30,7 +26,6 @@ module.exports =
         },
         errors:
         {
-            USER_NAME_EXISTS: "userNameExists",
             ROUND_ONGOING: "roundOngoing",
             TIMEOUT: "timeout",
         }
@@ -45,13 +40,13 @@ module.exports =
 
     errorStrings:
     {
-        userNameExists: "User name is already taken.",
         roundOngoing: "A round is ongoing. Please try again later.",
+        requestTimedOut: "Request timed out. Please try again later.",
     },
 
     TOTAL_PARTS: 4,
     ROOM_CODE: "roomCode",
     USER_NAME: "userName",
     DEFAULT_LANG: "en",
-    RESPONSE_TIMEOUT: 2000,
+    REQUEST_TIMEOUT: 2000,
 };

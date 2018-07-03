@@ -12,11 +12,12 @@ class WaitPane extends Component
         Object.keys(ViewModel.gameState.papers).forEach(paperId =>
         {
             const paper = ViewModel.gameState.papers[paperId];
-            if(paper.parts.length < ViewModel.gameState.activePart)
+            if(!paper.parts[ViewModel.gameState.activePart])
             {
                 const randomArr = Strings[ViewModel.gameState.lang][`part${ViewModel.gameState.activePart}random`];
                 const randomIdx = Math.floor(Math.random() * Math.floor(randomArr.length));
-                ViewModel.submitPart(paperId, new Part(randomArr[randomIdx], null));
+                const part = new Part(paperId, randomArr[randomIdx], null);
+                ViewModel.handlePartSubmitted(part);
             }
         });
         ViewModel.activeView.updateUI();
@@ -29,7 +30,7 @@ class WaitPane extends Component
             {
                 const paperId = ViewModel.gameState.players[userName].paperId;
                 const paper = ViewModel.gameState.papers[paperId];
-                if(paper && paper.parts.length < ViewModel.gameState.activePart)
+                if(paper && !paper.parts[ViewModel.gameState.activePart])
                     playerNames.push(userName);
             });
         const playerNamesJoined = playerNames.join(", ");
