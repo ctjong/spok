@@ -6,7 +6,7 @@
 
 .refresh-btn,
 .refresh-loading,
-.refresh-loading img,
+.refresh-loading img
 {
     height: 50px;
 }
