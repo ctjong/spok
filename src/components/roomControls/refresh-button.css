@@ -1,7 +1,12 @@
 .refresh-btn
 {
-    text-align: center;
     cursor: pointer;
+}
+
+.refresh-btn,
+.refresh-loading
+{
+    text-align: center;
 }
 
 .refresh-btn,
