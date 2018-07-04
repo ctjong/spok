@@ -1,4 +1,4 @@
-import { Paper, Player, GameState, JoinApprovedResponse, JoinRejectedResponse, ChatMessage } from './models';
+import { Paper, Player, GameState, JoinApprovedResponse, JoinRejectedResponse, ChatMessage, PlayerMessageData } from './models';
 import Constants from './constants';
 import ClientSocket from './client-socket';
 
@@ -8,6 +8,8 @@ Game.history = null;
 Game.state = null;
 Game.userName = null;
 Game.roomCode = null;
+
+let pingTimer = null;
 
 
 //-------------------------------------------
@@ -24,6 +26,7 @@ Game.initHostUser = (roomCode, userName, lang) =>
         const hostPlayer = new Player(Game.userName, socketId);
         Game.state = new GameState(hostPlayer, Constants.phases.LOBBY, lang);
         Game.state.players[Game.userName] = hostPlayer;
+        pingTimer = setInterval(() => ClientSocket.sendToCurrentRoom(Constants.msg.types.PING), Constants.PING_INTERVAL);
     }
 };
 
@@ -87,6 +90,13 @@ Game.handleScoreUpdate = (paperId, delta) =>
 // PUBLIC FUNCTIONS - ALL
 //-------------------------------------------
 
+Game.goToHome = (bypassPrompt) =>
+{
+    if(Game.activeView.isRoomView && bypassPrompt)
+        Game.activeView.isPromptDisabled = true;
+    Game.goTo("/");
+};
+
 Game.goTo = (path) => 
 {
     Game.history.push(path);
@@ -126,6 +136,29 @@ Game.setRoomCode = (value) =>
     sessionStorage.setItem(Constants.ROOM_CODE, value);
 };
 
+Game.tryToRejoin = () =>
+{
+    ClientSocket.reset().then(() => 
+    {
+        ClientSocket.sendToId(Constants.msg.types.JOIN_REQUEST, Game.roomCode, new PlayerMessageData(Game.userName));
+        ClientSocket.addOneTimeHandler(
+            Constants.msg.types.JOIN_RESPONSE,
+            (msg) =>
+            {
+                if(!msg.data.isSuccess)
+                    disposeCurrentUser();
+                else
+                {
+                    Game.state = msg.data.gameState;
+                    Game.activeView.updateUI();
+                }
+            }, 
+            Constants.JOIN_TIMEOUT,
+            () => disposeCurrentUser()
+        );
+    });
+};
+
 
 //-------------------------------------------
 // PRIVATE FUNCTIONS - HOST
@@ -154,6 +187,7 @@ const handleJoinRequest = (msg) =>
     {
         existingPlayer.isOnline = true;
         existingPlayer.socketId = newPlayer.socketId;
+        Game.activeView.chatBox.pushMessage(new ChatMessage(null, `${existingPlayer.userName} has reconnected`));
     }
     else
     {
@@ -224,12 +258,13 @@ const broadcastStateAndUpdateUI = () =>
 const handleStateUpdate = (msg) =>
 {
     Game.state = msg.data;
-    if(!Game.state.players[Game.userName])
-    {
-        Game.goTo("/");
-        return;
-    }
-    Game.activeView.updateUI();
+    const currentPlayer = Game.state.players[Game.userName];
+    if(!currentPlayer)
+        disposeCurrentUser();
+    else if(!currentPlayer.isOnline)
+        Game.tryToRejoin();
+    else
+        Game.activeView.updateUI();
 };
 
 const handleDisconnect = (socketId) =>
@@ -247,18 +282,16 @@ const handleDisconnect = (socketId) =>
     if(!player)
         return;
     player.isOnline = false;
-    if(socketId === ClientSocket.getSocketId())
-    {
-        ClientSocket.reset();
-        Game.activeView.tryToRejoin();
-    }
     if(Game.state.hostSocketId === player.socketId)
         chooseNewHost();
     if(Game.isHostUser())
     {
         Game.initHostUser(Game.roomCode, Game.userName);
         broadcastStateAndUpdateUI();
+        Game.activeView.chatBox.pushMessage(new ChatMessage(null, `${player.userName} has disconnected`));
     }
+    if(socketId === ClientSocket.getSocketId())
+        Game.tryToRejoin();
 };
 
 const chooseNewHost = () =>
@@ -271,6 +304,14 @@ const chooseNewHost = () =>
     });
     userNames.sort();
     Game.state.hostSocketId = Game.state.players[userNames[0]].socketId;
+};
+
+const disposeCurrentUser = () =>
+{
+    clearTimeout(pingTimer);
+    if(Game.activeView.isRoomView)
+        Game.activeView.isPromptDisabled = true;
+    Game.goTo("/");
 };
 
 const handleMessage = (msg) => 
@@ -300,6 +341,9 @@ const handleMessage = (msg) =>
             break;
         case Constants.msg.types.CHAT_MESSAGE:
             Game.activeView.chatBox.pushMessage(msg.data);
+            break;
+        case Constants.msg.types.PING:
+            ClientSocket.sendToId(Constants.msg.types.ACK, Game.state.hostSocketId);
             break;
         default:
             break;

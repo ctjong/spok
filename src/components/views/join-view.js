@@ -48,7 +48,7 @@ class JoinView extends ViewBase
 
     handleBackClick()
     {
-        Game.goTo("");
+        Game.goTo("/");
     }
 
     render() 

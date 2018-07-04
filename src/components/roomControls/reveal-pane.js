@@ -85,28 +85,6 @@ class RevealPane extends Component
         return rows;
     }
 
-    getScoresList()
-    {
-        const playerList = [];
-        Object.keys(Game.state.players).forEach(userName => 
-        {
-            playerList.push(Game.state.players[userName]);
-        });
-        playerList.sort((a,b) => { return a.score < b.score; });
-
-        const rows = [];
-        playerList.forEach(player =>
-        {
-            rows.push(
-                <div key={player.userName}>
-                    <span className="score-user">{player.userName}:</span>
-                    <span>{player.score}</span>
-                </div>
-            );
-        });
-        return rows;
-    }
-
     render() 
     {
         const bottomControls = Game.isHostUser() ? (
@@ -124,14 +102,8 @@ class RevealPane extends Component
 
         return (
             <div className="pane reveal-pane">
-                <div className="reveal-section">
-                    <h2>Results</h2>
-                    <div className="results">{this.getSentenceRows()}</div>
-                </div>
-                <div className="reveal-section">
-                    <h2>Scores</h2>
-                    <div className="scores">{this.getScoresList()}</div>
-                </div>
+                <h2>Results</h2>
+                <div className="results">{this.getSentenceRows()}</div>
                 {bottomControls}
             </div>
         );

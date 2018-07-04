@@ -11,6 +11,7 @@
     overflow-y: scroll;
     padding: 5px;
     text-align: left;
+    width: 100%;
 }
 
 .chat-box .chat-author
@@ -20,34 +21,10 @@
     color: blue;
 }
 
-.chat-box .input-row 
-{
-    display: flex;
-    flex-direction: row;
-}
-
-.chat-box .input-row input,
-.chat-box .input-row button
-{
-    font-size: 14pt;
-}
-
 .chat-box .input-row input
 {
+    font-size: 14pt;
     height: 30px;
-    flex-grow: 1;
-}
-
-.chat-box .input-row .chat-send
-{
-    width: 100px;
-    order: 1;
-    background: white;
-    border: 1px solid black;
-    height: 36px;
-}
-
-.chat-box .input-row .chat-send:hover
-{
-    background: #afd0e5;
+    width: 100%;
+    padding: 4px;
 }

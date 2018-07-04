@@ -13,6 +13,8 @@ module.exports =
             SCORE_UPDATE: "scoreUpdate",
             STATE_UPDATE: "stateUpdate",
             STATE_REQUEST: "stateRequest",
+            PING: "ping",
+            ACK: "ack",
         },
         targets:
         {
@@ -50,4 +52,5 @@ module.exports =
     DEFAULT_LANG: "en",
     REQUEST_TIMEOUT: 2000,
     JOIN_TIMEOUT: 5000,
+    PING_INTERVAL: 10000,
 };

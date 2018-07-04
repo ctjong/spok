@@ -1,7 +1,7 @@
 import React from 'react';
+import { Prompt } from 'react-router';
 import ViewBase from '../../view-base';
 import Game from '../../game';
-import ClientSocket from '../../client-socket';
 import Constants from '../../constants';
 import ParticipantList from '../roomControls/participant-list';
 import ChatBox from '../roomControls/chat-box';
@@ -10,7 +10,6 @@ import RevealPane from '../roomControls/reveal-pane';
 import WaitPane from '../roomControls/wait-pane';
 import WritePane from '../roomControls/write-pane';
 import Title from '../shared/title';
-import { PlayerMessageData } from '../../models';
 import RefreshButton from '../roomControls/refresh-button';
 import './room-view.css';
 
@@ -21,10 +20,16 @@ class RoomView extends ViewBase
     {
         super(props);
         this.state = Game.state;
+        this.isRoomView = true;
         this.chatBox = null;
 
         if(!this.state)
-            this.tryToRejoin();
+            Game.tryToRejoin();
+    }
+
+    componentDidMount()
+    {
+        this.isPromptDisabled = false;
     }
 
     updateUI()
@@ -55,26 +60,6 @@ class RoomView extends ViewBase
         }
     }
 
-    tryToRejoin()
-    {
-        ClientSocket.sendToId(Constants.msg.types.JOIN_REQUEST, Game.roomCode, new PlayerMessageData(Game.userName));
-        ClientSocket.addOneTimeHandler(
-            Constants.msg.types.JOIN_RESPONSE,
-            (msg) =>
-            {
-                if(!msg.data.isSuccess)
-                    Game.goTo("/");
-                else
-                {
-                    Game.state = msg.data.gameState;
-                    this.setState(msg.data.gameState);
-                }
-            }, 
-            Constants.JOIN_TIMEOUT,
-            () => Game.goTo("/")
-        );
-    }
-
     render() 
     {
         if(!this.state)
@@ -84,6 +69,7 @@ class RoomView extends ViewBase
 
         return (
             <div className="view room-view">
+                <Prompt when={!this.isPromptDisabled} message="Are you sure you want to leave?"/>
                 <Title isLarge={false} />
                 {refreshBtn}
                 {this.getActivePane()}

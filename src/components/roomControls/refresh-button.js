@@ -25,7 +25,7 @@ class RefreshButton extends Component
             () =>
             {
                 ClientSocket.reset();
-                Game.activeView.tryToRejoin();
+                Game.tryToRejoin();
                 this.setState({ isLoading: false });
             }
         );
