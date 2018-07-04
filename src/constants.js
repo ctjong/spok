@@ -28,6 +28,7 @@ module.exports =
         },
         errors:
         {
+            NAME_TAKEN_BYHOST: "nameTakenByHost",
             ROUND_ONGOING: "roundOngoing",
             TIMEOUT: "timeout",
         }
@@ -42,6 +43,7 @@ module.exports =
 
     errorStrings:
     {
+        nameTakenByHost: "Name has been taken by host. Please choose another name.",
         roundOngoing: "A round is ongoing. Please try again later.",
         requestTimedOut: "Request timed out. Please try again later.",
     },
@@ -50,7 +52,7 @@ module.exports =
     ROOM_CODE: "roomCode",
     USER_NAME: "userName",
     DEFAULT_LANG: "en",
-    REQUEST_TIMEOUT: 2000,
+    REQUEST_TIMEOUT: 5000,
     JOIN_TIMEOUT: 5000,
     PING_INTERVAL: 10000,
 };

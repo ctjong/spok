@@ -44,36 +44,32 @@ class RevealPane extends Component
     getSentenceRows()
     {
         const rows = [];
-        Object.keys(Game.state.players).forEach(userName => 
+        Object.keys(Game.state.papers).forEach(paperId => 
             {
-                const player = Game.state.players[userName];
+                const paper = Game.state.papers[paperId];
                 const texts = [];
-                if(player.paperId)
-                {
-                    const paper = Game.state.papers[player.paperId];
-                    paper.parts.forEach((part, index) => 
+                paper.parts.forEach((part, index) => 
+                    {
+                        if(part.text)
+                            texts.push(part.text)
+                        else
                         {
-                            if(part.text)
-                                texts.push(part.text)
-                            else
-                            {
-                                const randomArr = Strings[Game.state.lang][`part${index+1}random`];
-                                const randomIdx = Math.floor(Math.random() * Math.floor(randomArr.length));
-                                texts.push(randomArr[randomIdx]);
-                            }
-                        });
+                            const randomArr = Strings[Game.state.lang][`part${index+1}random`];
+                            const randomIdx = Math.floor(Math.random() * Math.floor(randomArr.length));
+                            texts.push(randomArr[randomIdx]);
+                        }
+                    });
 
-                }
                 const textsJoined = texts.join(" ");
-                const vote = this.state.votes[player.paperId] || 0;
+                const vote = this.state.votes[paperId] || 0;
                 const likeBtn = vote > 0 ? 
-                    <img className="like-active" src={LikeActiveImg} onClick={() => this.handleVoteClick(player.paperId, 0)} alt="like active"/> :
-                    <img className="like" src={LikeImg} onClick={() => this.handleVoteClick(player.paperId, 1)} alt="like"/>;
+                    <img className="like-active" src={LikeActiveImg} onClick={() => this.handleVoteClick(paperId, 0)} alt="like active"/> :
+                    <img className="like" src={LikeImg} onClick={() => this.handleVoteClick(paperId, 1)} alt="like"/>;
                 const dislikeBtn = vote < 0 ? 
-                    <img className="dislike-active" src={DislikeActiveImg} onClick={() => this.handleVoteClick(player.paperId, 0)} alt="dislike active"/> :
-                    <img className="dislike" src={DislikeImg} onClick={() => this.handleVoteClick(player.paperId, -1)} alt="dislike"/>;
+                    <img className="dislike-active" src={DislikeActiveImg} onClick={() => this.handleVoteClick(paperId, 0)} alt="dislike active"/> :
+                    <img className="dislike" src={DislikeImg} onClick={() => this.handleVoteClick(paperId, -1)} alt="dislike"/>;
                 rows.push(
-                    <div className="sentence" key={userName}>
+                    <div className="sentence" key={paperId}>
                         <div>{textsJoined}</div>
                         <div className="vote-buttons">
                             {likeBtn}

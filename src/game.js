@@ -171,10 +171,19 @@ const handleJoinRequest = (msg) =>
         return;
 
     // if round is currently ongoing and the request is not for reconnection, reject it.
-    if (Game.state.phase > Constants.phases.LOBBY && !Game.state.players[msg.data.userName])
+    const existingPlayer = Game.state.players[msg.data.userName];
+    if (!existingPlayer && Game.state.phase > Constants.phases.LOBBY)
     {
         ClientSocket.sendToId(Constants.msg.types.JOIN_RESPONSE, msg.source, 
             new JoinRejectedResponse(Constants.msg.errors.ROUND_ONGOING));
+        return;
+    }
+
+    // if the requested username is the same as the host user name, reject it.
+    if (existingPlayer && existingPlayer.userName === Game.userName)
+    {
+        ClientSocket.sendToId(Constants.msg.types.JOIN_RESPONSE, msg.source, 
+            new JoinRejectedResponse(Constants.msg.errors.NAME_TAKEN_BYHOST));
         return;
     }
 
@@ -182,17 +191,14 @@ const handleJoinRequest = (msg) =>
     // - the chosen name is already present in the room (reconnect attempt), OR
     // - people are in the lobby
     const newPlayer = new Player(msg.data.userName, msg.source);
-    const existingPlayer = Game.state.players[newPlayer.userName];
     if(existingPlayer)
     {
         existingPlayer.isOnline = true;
         existingPlayer.socketId = newPlayer.socketId;
-        Game.activeView.chatBox.pushMessage(new ChatMessage(null, `${existingPlayer.userName} has reconnected`));
     }
     else
     {
         Game.state.players[newPlayer.userName] = newPlayer;
-        Game.activeView.chatBox.pushMessage(new ChatMessage(null, `${newPlayer.userName} has joined`));
     }
 
     broadcastStateAndUpdateUI();
@@ -263,11 +269,60 @@ const handleStateUpdate = (msg) =>
         disposeCurrentUser();
     else if(!currentPlayer.isOnline)
         Game.tryToRejoin();
+    else if(ClientSocket.getSocketId() !== currentPlayer.socketId)
+        disposeCurrentUser();
     else
         Game.activeView.updateUI();
 };
 
-const handleDisconnect = (socketId) =>
+const handleDisconnect = (dcSocketId) =>
+{
+    if(Game.state.hostSocketId === dcSocketId)
+    {
+        const newHost = chooseNewHost();
+        if(!newHost)
+        {
+            disposeCurrentUser();
+            return;
+        }
+        if(newHost.userName === Game.userName)
+        {
+            const dcPlayer = getPlayerBySocketId(dcSocketId);
+            if(dcPlayer)
+                dcPlayer.isOnline = false;
+            Game.state.hostSocketId = newHost.socketId;
+            Game.initHostUser(Game.roomCode, Game.userName);
+            broadcastStateAndUpdateUI();
+        }
+    }
+    else if(Game.isHostUser())
+    {
+        const dcPlayer = getPlayerBySocketId(dcSocketId);
+        if(dcPlayer)
+        {
+            dcPlayer.isOnline = false;
+            broadcastStateAndUpdateUI();
+        }
+    }
+};
+
+const chooseNewHost = () =>
+{
+    const userNames = [];
+    Object.keys(Game.state.players).forEach(userName => 
+    {
+        const player = Game.state.players[userName];
+        if(player.isOnline && player.socketId !== Game.state.hostSocketId)
+            userNames.push(userName);
+    });
+    if(userNames.length === 0)
+        return null;
+    userNames.sort();
+    const newHost = Game.state.players[userNames[0]];
+    return newHost;
+};
+
+const getPlayerBySocketId = (socketId) =>
 {
     let player = null;
     Object.keys(Game.state.players).some(userName =>
@@ -279,38 +334,14 @@ const handleDisconnect = (socketId) =>
         }
         return false;
     });
-    if(!player)
-        return;
-    player.isOnline = false;
-    if(Game.state.hostSocketId === player.socketId)
-        chooseNewHost();
-    if(Game.isHostUser())
-    {
-        Game.initHostUser(Game.roomCode, Game.userName);
-        broadcastStateAndUpdateUI();
-        Game.activeView.chatBox.pushMessage(new ChatMessage(null, `${player.userName} has disconnected`));
-    }
-    if(socketId === ClientSocket.getSocketId())
-        Game.tryToRejoin();
-};
-
-const chooseNewHost = () =>
-{
-    const userNames = [];
-    Object.keys(Game.state.players).forEach(userName => 
-    {
-        if(Game.state.players[userName].socketId !== Game.state.hostSocketId)
-            userNames.push(userName);
-    });
-    userNames.sort();
-    Game.state.hostSocketId = Game.state.players[userNames[0]].socketId;
+    return player;
 };
 
 const disposeCurrentUser = () =>
 {
     clearTimeout(pingTimer);
     if(Game.activeView.isRoomView)
-        Game.activeView.isPromptDisabled = true;
+        Game.activeView.disablePrompt();
     Game.goTo("/");
 };
 

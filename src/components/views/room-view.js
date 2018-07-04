@@ -19,37 +19,37 @@ class RoomView extends ViewBase
     constructor(props)
     {
         super(props);
-        this.state = Game.state;
+        this.state = { game: Game.state, isPromptDisabled: false };
         this.isRoomView = true;
         this.chatBox = null;
 
-        if(!this.state)
+        if(!this.state.game)
             Game.tryToRejoin();
     }
 
     componentDidMount()
     {
-        this.isPromptDisabled = false;
+        this.setState({ isPromptDisabled: false });
     }
 
     updateUI()
     {
-        this.setState(Game.state);
+        this.setState({ game: Game.state });
     }
 
     getActivePane()
     {
-        switch(this.state.phase)
+        switch(this.state.game.phase)
         {
             case Constants.phases.LOBBY:
                 return <LobbyPane/>;
             case Constants.phases.WRITE:
-                const player = this.state.players[Game.userName];
+                const player = this.state.game.players[Game.userName];
                 if(!player)
                     return;
                 const currentPaperId = player.paperId;
                 const currentPaper = Game.state.papers[currentPaperId];
-                if(currentPaper && !currentPaper.parts[this.state.activePart])
+                if(currentPaper && !currentPaper.parts[this.state.game.activePart])
                     return <WritePane/>;
                 else
                     return <WaitPane/>;
@@ -60,16 +60,22 @@ class RoomView extends ViewBase
         }
     }
 
+    disablePrompt()
+    {
+        this.setState({ isPromptDisabled: true });
+    }
+
     render() 
     {
-        if(!this.state)
+        if(!this.state.game)
             return null;
 
         const refreshBtn = Game.isHostUser() ? null : <RefreshButton />;
+        const prompt = this.state.isPromptDisabled ? null : <Prompt message="Are you sure you want to leave?"/>;
 
         return (
             <div className="view room-view">
-                <Prompt when={!this.isPromptDisabled} message="Are you sure you want to leave?"/>
+                {prompt}
                 <Title isLarge={false} />
                 {refreshBtn}
                 {this.getActivePane()}
