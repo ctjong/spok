@@ -34,12 +34,7 @@ class JoinView extends ViewBase
                 if(!msg.data.isSuccess)
                     this.setState({ isLoading: false, errorString: Constants.errorStrings[msg.data.err] });
                 else
-                {
-                    Game.setRoomCode(roomCode);
-                    Game.setUserName(userName);
-                    Game.state = msg.data.gameState;
-                    Game.goTo(`/room/${roomCode}`);
-                }
+                    Game.initNonHostUser(roomCode, userName, msg.data.gameState);
             },
             Constants.JOIN_TIMEOUT,
             () => this.setState({ isLoading: false, errorString: Constants.errorStrings.requestTimedOut })
@@ -48,7 +43,12 @@ class JoinView extends ViewBase
 
     handleBackClick()
     {
-        Game.goTo("/");
+        Game.goTo(Constants.HOME_PATH);
+    }
+
+    showError(errorCode)
+    {
+        this.setState({ isLoading: false, errorString: Constants.errorStrings[errorCode] });
     }
 
     render() 

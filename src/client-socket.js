@@ -11,6 +11,8 @@ ClientSocket.roomCode = null;
 
 const oneTimeHandlers = [];
 const messageHandlers = [];
+const disconnectHandlers = [];
+const reconnectHandlers = [];
 
 let initPromise = null;
 let socket = null;
@@ -46,6 +48,16 @@ ClientSocket.addMessageHandler = (handler) =>
     messageHandlers.push(handler);
 };
 
+ClientSocket.addDisconnectHandler = (handler) =>
+{
+    disconnectHandlers.push(handler);
+};
+
+ClientSocket.addReconnectHandler = (handler) =>
+{
+    reconnectHandlers.push(handler);
+};
+
 ClientSocket.addOneTimeHandler = (msgType, successHandler, timeout, timeoutHandler) =>
 {
     const timer = !timeoutHandler ? null : setTimeout(timeoutHandler, timeout);
@@ -55,22 +67,6 @@ ClientSocket.addOneTimeHandler = (msgType, successHandler, timeout, timeoutHandl
         if(successHandler)
             successHandler(msg);
     };
-};
-
-ClientSocket.tryClose = () =>
-{
-    if(!socket)
-        return;
-    console.log("[ClientSocket.tryClose] socket closed");
-    socket.close();
-    socket = null;
-    initPromise = null;
-};
-
-ClientSocket.reset = () =>
-{
-    ClientSocket.tryClose();
-    return initSocket();
 };
 
 
@@ -118,6 +114,14 @@ const initSocket = () =>
         {
             socket.on(Constants.msg.events.MSG, socketReceive);
             resolve();
+        });
+        socket.on(Constants.msg.events.DISCONNECT, () =>
+        {
+            disconnectHandlers.forEach(handler => handler());
+        });
+        socket.on(Constants.msg.events.RECONNECT, () =>
+        {
+            reconnectHandlers.forEach(handler => handler());
         });
     });
     return initPromise;

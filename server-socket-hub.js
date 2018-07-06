@@ -46,6 +46,7 @@ const handleMessage = (socket, msg, reply) =>
         const targetSocket = io.sockets.connected[msg.target];
         if(targetSocket)
         {
+            // message is for a specific person
             if(msg.type === Constants.msg.types.JOIN_RESPONSE && msg.data.isSuccess)
             {
                 const roomCode = msg.data.roomCode;
@@ -56,8 +57,15 @@ const handleMessage = (socket, msg, reply) =>
             }
             targetSocket.emit(Constants.msg.events.MSG, msg, response => reply(response));
         }
+        else if(!rooms[msg.target])
+        {
+            // message is for a room but the room doesn't exist
+            console.log("sending ROOM_NOT_EXIST response to " + socket.id);
+            socket.to(msg.target).emit(Constants.msg.events.MSG, { type: Constants.msg.types.ROOM_NOT_EXIST });
+        }
         else
         {
+            // message is for a room and the room exists
             socket.to(msg.target).emit(Constants.msg.events.MSG, msg);
         }
     }
@@ -76,7 +84,17 @@ const handleDisconnect = (socket) =>
             delete rooms[roomCode];
     }
     console.log("sending disconnect signal for " + socket.id + " to " + roomCode);
-    socket.to(roomCode).emit(Constants.msg.events.MSG, { type: Constants.msg.types.PLAYER_OFFLINE, data: { socketId: socket.id }});
+    socket.to(roomCode).emit(Constants.msg.events.MSG, { type: Constants.msg.types.OTHER_PLAYER_DC, data: { socketId: socket.id }});
+};
+
+const handleReconnect = (socket) =>
+{
+    const roomCode = socketToRoomMap[socket.id];
+    delete socketToRoomMap[socket.id];
+    if(!roomCode)
+        return;
+    console.log("sending reconnect signal for " + socket.id + " to " + roomCode);
+    socket.to(roomCode).emit(Constants.msg.events.MSG, { type: Constants.msg.types.OTHER_PLAYER_RC, data: { socketId: socket.id }});
 };
 
 
@@ -93,6 +111,7 @@ module.exports =
         {
             socket.on(Constants.msg.events.MSG, (msg, reply) => handleMessage(socket, msg, reply));
             socket.on(Constants.msg.events.DISCONNECT, () => handleDisconnect(socket));
+            socket.on(Constants.msg.events.RECONNECT, () => handleReconnect(socket));
         });
     }
 };

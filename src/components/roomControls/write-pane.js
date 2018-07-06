@@ -35,7 +35,7 @@ class WritePane extends Component
             ClientSocket.addOneTimeHandler(
                 Constants.msg.types.STATE_UPDATE,
                 () => this.setState({ isLoading: false}),
-                Constants.REQUEST_TIMEOUT,
+                Constants.STATE_REFRESH_TIMEOUT,
                 () => this.setState({ isLoading: false, errorString: Constants.errorStrings.requestTimedOut })
             );
         }

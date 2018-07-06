@@ -41,7 +41,7 @@ class CreateView extends ViewBase
 
     handleBackClick()
     {
-        Game.goTo("/");
+        Game.goTo(Constants.HOME_PATH);
     }
 
     render() 

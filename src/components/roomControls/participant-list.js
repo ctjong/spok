@@ -18,13 +18,13 @@ class ParticipantList extends Component
         playerList.forEach(player =>
         {
             const className = "player " + (player.isOnline ? "" : "offline");
-            const kickButton = Game.isHostUser() && Game.userName !== player.userName ? (
-                <span>(<a onClick={e => Game.kickPlayer(player)}>kick</a>)</span>
+            const hostControls = Game.isHostUser() && Game.userName !== player.userName ? (
+                <span>(<a onClick={e => Game.kickPlayer(player)}>kick</a>)(<a onClick={e => Game.setAsHost(player)}>set as host</a>)</span>
             ) : null;
             const hostLabel = Game.state.hostSocketId === player.socketId ? (
                 <span>(host)</span>
             ) : null;
-            items.push(<div key={player.userName} className={className}>{player.userName} = {player.score} {hostLabel}{kickButton}</div>);
+            items.push(<div key={player.userName} className={className}>{player.userName} = {player.score} {hostLabel}{hostControls}</div>);
         });
         return items;
     }

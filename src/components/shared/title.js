@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import TitleImg from '../../images/title.png';
+import Constants from '../../constants';
 import Game from '../../game';
 import './title.css';
 
@@ -7,7 +8,7 @@ class Title extends Component
 {
     handleClick()
     {
-        Game.goTo("/");
+        Game.goTo(Constants.HOME_PATH);
     }
 
     render() 

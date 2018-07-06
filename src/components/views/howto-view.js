@@ -1,5 +1,6 @@
 import React from 'react';
 import ViewBase from '../../view-base';
+import Constants from '../../constants';
 import Game from '../../game';
 import Title from '../shared/title';
 import './howto-view.css';
@@ -9,7 +10,7 @@ class HowToView extends ViewBase
 {
     handleBackClick()
     {
-        Game.goTo("/");
+        Game.goTo(Constants.HOME_PATH);
     }
 
     render() 
