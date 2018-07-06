@@ -36,7 +36,7 @@ class WritePane extends Component
                 Constants.msg.types.STATE_UPDATE,
                 () => this.setState({ isLoading: false}),
                 Constants.STATE_REFRESH_TIMEOUT,
-                () => this.setState({ isLoading: false, errorString: Constants.errorStrings.requestTimedOut })
+                () => this.setState({ isLoading: false, errorString: Constants.errorStrings.REQUEST_TIMED_OUT })
             );
         }
         else

@@ -36,21 +36,14 @@ module.exports =
         REVEAL: 3
     },
 
-    errorCodes:
-    {
-        NAME_TAKEN_BYHOST: "nameTakenByHost",
-        ROUND_ONGOING: "roundOngoing",
-        ROOM_NOT_EXIST: "roomNotExist",
-    },
-
     errorStrings:
     {
-        nameTakenByHost: "Name has been taken by host. Please choose another name.",
-        roundOngoing: "A round is ongoing. Please try again later.",
-        requestTimedOut: "Request timed out. Please try again later.",
-        hostDisconnected: "Host is disconnected. Please wait for host to reconnect.",
-        clientDisconnected: "You are disconnected. Please wait while we try to reconnect you.",
-        syncingState: "We are syncing with the host. Please wait.",
+        NAME_TAKEN_BY_HOST: "Name has been taken by host. Please choose another name.",
+        ROUND_ONGOING: "A round is ongoing. Please try again later.",
+        REQUEST_TIMED_OUT: "Request timed out. Please try again later.",
+        HOST_DISCONNECTED: "Host is disconnected. Please wait for host to reconnect.",
+        CLIENT_DISCONNECTED: "You were disconnected. Please wait while we try to reconnect you.",
+        SYNCING_STATE: "We are syncing with the host. Please wait.",
     },
 
     TOTAL_PARTS: 4,

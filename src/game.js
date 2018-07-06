@@ -101,7 +101,7 @@ Game.handleJoinRequest = (msg) =>
     if (!existingPlayer && Game.state.phase > Constants.phases.LOBBY)
     {
         ClientSocket.sendToId(Constants.msg.types.JOIN_RESPONSE, msg.source, 
-            new JoinRejectedResponse(Constants.errorCodes.ROUND_ONGOING));
+            new JoinRejectedResponse(Constants.errorStrings.ROUND_ONGOING));
         return;
     }
 
@@ -109,7 +109,7 @@ Game.handleJoinRequest = (msg) =>
     if (existingPlayer && existingPlayer.userName === Game.userName)
     {
         ClientSocket.sendToId(Constants.msg.types.JOIN_RESPONSE, msg.source, 
-            new JoinRejectedResponse(Constants.errorCodes.NAME_TAKEN_BYHOST));
+            new JoinRejectedResponse(Constants.errorStrings.NAME_TAKEN_BY_HOST));
         return;
     }
 
@@ -330,7 +330,7 @@ const handleOtherPlayerDC = (dcSocketId) =>
     if(Game.state.hostSocketId === dcSocketId)
     {
         if(Game.activeView.isRoomView)
-            Game.activeView.showErrorUI(Constants.errorStrings.hostDisconnected);
+            Game.activeView.showErrorUI(Constants.errorStrings.HOST_DISCONNECTED);
     }
     else if(Game.isHostUser())
     {
@@ -366,13 +366,15 @@ const handleOtherPlayerRC = (rcSocketId) =>
 const handleThisPlayerDC = () =>
 {
     if(Game.activeView.isRoomView)
-        Game.activeView.showErrorUI(Constants.errorStrings.clientDisconnected);
+        Game.activeView.showErrorUI(Constants.errorStrings.CLIENT_DISCONNECTED);
 };
 
 const handleThisPlayerRC = () =>
 {
     if(!Game.isHostUser())
         Game.refreshState();
+    else if(Game.activeView.isRoomView)
+        Game.activeView.hideErrorUI();
 };
 
 const handleMessage = (msg) => 

@@ -9,7 +9,7 @@ class RefreshButton extends Component
 {
     handleRefreshClick()
     {
-        Game.activeView.showErrorUI(Constants.errorStrings.syncingState);
+        Game.activeView.showErrorUI(Constants.errorStrings.SYNCING_STATE);
         Game.refreshState();
     }
 

@@ -19,7 +19,7 @@ class RoomView extends ViewBase
     constructor(props)
     {
         super(props);
-        this.state = { game: Game.state, isPromptDisabled: false, errorCode: null };
+        this.state = { game: Game.state, isPromptDisabled: false, errorString: null };
         this.isRoomView = true;
         this.chatBox = null;
 
@@ -60,14 +60,14 @@ class RoomView extends ViewBase
         }
     }
 
-    showErrorUI(errorCode)
+    showErrorUI(errorString)
     {
-        this.setState({ errorCode });
+        this.setState({ errorString });
     }
 
     hideErrorUI()
     {
-        this.setState({ errorCode: null });
+        this.setState({ errorString: null });
     }
 
     disablePrompt()
@@ -77,27 +77,34 @@ class RoomView extends ViewBase
 
     render() 
     {
-        if(!this.state.game)
-            return null;
-
-        if(this.state.isDisconnected)
-            return <div>You are disconnected. Please wait while we try to reconnect you</div>;
-
         const prompt = this.state.isPromptDisabled ? null : <Prompt message="Are you sure you want to leave?"/>;
-        const refreshBtn = Game.isHostUser() ? null : <RefreshButton />;
-        const lobbyBtn = Game.state.phase > Constants.phases.LOBBY ? (
-            <button className="btn-box lobby-btn" onClick={e => Game.goToLobby()}>Back to lobby</button>
-        ) : null;
+        let body = null;
+        if(!this.state.game)
+            body = <div>{Constants.errorStrings.CLIENT_DISCONNECTED}</div>;
+        else if(this.state.errorString)
+            body = <div>{this.state.errorString}</div>;
+        else
+        {
+            const refreshBtn = Game.isHostUser() ? null : <RefreshButton />;
+            const lobbyBtn = Game.isHostUser() && Game.state.phase > Constants.phases.LOBBY ? (
+                <button className="btn-box lobby-btn" onClick={e => Game.goToLobby()}>Back to lobby</button>
+            ) : null;
+            body = (
+                <div>
+                    {refreshBtn}
+                    {this.getActivePane()}
+                    {lobbyBtn}
+                    <ParticipantList/>
+                    <ChatBox ref={el => this.chatBox = el}/>
+                </div>
+            );
+        }
 
         return (
             <div className="view room-view">
                 {prompt}
                 <Title isLarge={false} />
-                {refreshBtn}
-                {this.getActivePane()}
-                {lobbyBtn}
-                <ParticipantList/>
-                <ChatBox ref={el => this.chatBox = el}/>
+                {body}
             </div>
         );
     }

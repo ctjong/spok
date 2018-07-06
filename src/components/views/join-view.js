@@ -32,12 +32,12 @@ class JoinView extends ViewBase
             (msg) =>
             {
                 if(!msg.data.isSuccess)
-                    this.setState({ isLoading: false, errorString: Constants.errorStrings[msg.data.err] });
+                    this.setState({ isLoading: false, errorString: msg.data.errorString });
                 else
                     Game.initNonHostUser(roomCode, userName, msg.data.gameState);
             },
             Constants.JOIN_TIMEOUT,
-            () => this.setState({ isLoading: false, errorString: Constants.errorStrings.requestTimedOut })
+            () => this.setState({ isLoading: false, errorString: Constants.errorStrings.REQUEST_TIMED_OUT })
         );
     }
 
@@ -46,19 +46,14 @@ class JoinView extends ViewBase
         Game.goTo(Constants.HOME_PATH);
     }
 
-    showError(errorCode)
-    {
-        this.setState({ isLoading: false, errorString: Constants.errorStrings[errorCode] });
-    }
-
     render() 
     {
+        let body = null;
         if(this.state.isLoading)
-            return <div>Please wait</div>;
-
-        return(
-            <div className="view join-view">
-                <Title isLarge={true} />
+            body = <div>Please wait</div>;
+        else
+        {
+            body = (
                 <div>
                     <div className="error">{this.state.errorString}</div>
                     <div className="control-group">
@@ -83,6 +78,13 @@ class JoinView extends ViewBase
                     <button className="btn-box submit-btn" onClick={e => this.handleSubmitClick()}>Submit</button>
                     <button className="btn-box back-btn" onClick={e => this.handleBackClick()}>Back</button>
                 </div>
+            );
+        }
+
+        return(
+            <div className="view join-view">
+                <Title isLarge={true} />
+                {body}
             </div>
         );
     }

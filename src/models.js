@@ -54,10 +54,10 @@ export class JoinApprovedResponse
 
 export class JoinRejectedResponse
 {
-    constructor(err)
+    constructor(errorString)
     {
         this.isSuccess = false;
-        this.err = err;
+        this.errorString = errorString;
     }
 }
 

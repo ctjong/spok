@@ -60,8 +60,8 @@ const handleMessage = (socket, msg, reply) =>
         else if(!rooms[msg.target])
         {
             // message is for a room but the room doesn't exist
-            console.log("sending ROOM_NOT_EXIST response to " + socket.id);
-            socket.to(msg.target).emit(Constants.msg.events.MSG, { type: Constants.msg.types.ROOM_NOT_EXIST });
+            console.log("sending ROOM_NOT_EXIST to " + socket.id);
+            socket.emit(Constants.msg.events.MSG, { type: Constants.msg.types.ROOM_NOT_EXIST });
         }
         else
         {
