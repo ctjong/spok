@@ -1,99 +1,158 @@
-export class Paper 
-{
-    constructor(id)
-    {
-        this.id = id;
-        this.parts = [];
-    }
-}
+const Constants = require('./constants');
 
-export class Player
+const Models = 
 {
-    constructor(userName, socketId)
-    {
-        this.userName = userName;
-        this.socketId = socketId;
-        this.paperId = null;
-        this.isOnline = true;
-        this.score = 0;
-    }
-}
+    //-----------------------------------------------------------
+    // GENERAL
+    //-----------------------------------------------------------
 
-export class GameState
-{
-    constructor(host, initialPhase, lang)
+    Paper: class
     {
-        this.lang = lang;
-        this.activePart = -1;
-        this.phase = initialPhase;
+        constructor(id)
+        {
+            this.id = id;
+            this.parts = [];
+        }
+    },
 
-        this.players = {};
-        this.papers = {};
-        this.players[host.userName] = host;
-        this.hostSocketId = host.socketId;
-    }
-}
-
-export class PlayerMessageData
-{
-    constructor(userName)
+    Player: class
     {
-        this.userName = userName;
-    }
-}
+        constructor(userName, socketId)
+        {
+            this.userName = userName;
+            this.socketId = socketId;
+            this.paperId = null;
+            this.isOnline = true;
+            this.score = 0;
+        }
+    },
 
-export class JoinApprovedResponse
-{
-    constructor(roomCode, gameState)
+    GameState: class
     {
-        this.isSuccess = true;
-        this.roomCode = roomCode;
-        this.gameState = gameState;
-    }
-}
+        constructor(host, initialPhase, lang)
+        {
+            this.lang = lang;
+            this.activePart = -1;
+            this.phase = initialPhase;
 
-export class JoinRejectedResponse
-{
-    constructor(errorString)
-    {
-        this.isSuccess = false;
-        this.errorString = errorString;
-    }
-}
+            this.players = {};
+            this.papers = {};
+            this.players[host.userName] = host;
+            this.hostSocketId = host.socketId;
+        }
+    },
 
-export class Part
-{
-    constructor(paperId, text, authorUserName)
+    Part: class
     {
-        this.paperId = paperId;
-        this.text = text;
-        this.authorUserName = authorUserName;
-    }
-}
+        constructor(paperId, text, authorUserName)
+        {
+            this.paperId = paperId;
+            this.text = text;
+            this.authorUserName = authorUserName;
+        }
+    },
 
-export class SubmitPartMessage
-{
-    constructor(paperId, part)
+    Room: class
     {
-        this.paperId = paperId;
-        this.part = part;
-    }
-}
+        constructor(roomCode, lang, firstSocket)
+        {
+            this.roomCode = roomCode;
+            this.lang = lang;
+            this.sockets = {};
+            this.sockets[firstSocket.id] = firstSocket;
+            this.gameState = new Models.GameState();
+        }
+    },
 
-export class ChatMessage
-{
-    constructor(authorUserName, text)
-    {
-        this.authorUserName = authorUserName;
-        this.text = text;
-    }
-}
+    //-----------------------------------------------------------
+    // MESSAGES
+    //-----------------------------------------------------------
 
-export class ScoreUpdate
-{
-    constructor(paperId, delta)
+    StateUpdateMessage: class
     {
-        this.paperId = paperId;
-        this.delta = delta;
-    }
-}
+        constructor(roomCode, source, newState)
+        {
+            this.type = Constants.msg.types.STATE_UPDATE;
+            this.roomCode = roomCode;
+            this.source = source;
+            this.newState = newState;
+        }
+    },
+
+    JoinRequestMessage: class
+    {
+        constructor(roomCode, userName)
+        {
+            this.type = Constants.msg.types.JOIN_REQUEST;
+            this.roomCode = roomCode;
+            this.userName = userName;
+        }
+    },
+
+    SubmitPartMessage: class 
+    {
+        constructor(roomCode, paperId, part)
+        {
+            this.type = Constants.msg.types.SUBMIT_PART;
+            this.roomCode = roomCode;
+            this.paperId = paperId;
+            this.part = part;
+        }
+    },
+
+    ChatMessage: class
+    {
+        constructor(roomCode, authorUserName, text)
+        {
+            this.type = Constants.msg.types.CHAT_MESSAGE;
+            this.roomCode = roomCode;
+            this.authorUserName = authorUserName;
+            this.text = text;
+        }
+    },
+
+    ScoreUpdateMessage: class
+    {
+        constructor(roomCode, paperId, delta)
+        {
+            this.type = Constants.msg.types.SCORE_UPDATE;
+            this.roomCode = roomCode;
+            this.paperId = paperId;
+            this.delta = delta;
+        }
+    },
+
+    PlayerDisconnectedmessage: class
+    {
+        constructor(roomCode, socketId)
+        {
+            this.type = Constants.msg.types.OTHER_PLAYER_DC;
+            this.roomCode = roomCode;
+            this.socketId = socketId;
+        }
+    },
+
+    //-----------------------------------------------------------
+    // RESPONSES
+    //-----------------------------------------------------------
+
+    JoinApprovedResponse: class 
+    {
+        constructor(gameState)
+        {
+            this.isSuccess = true;
+            this.gameState = gameState;
+        }
+    },
+
+    ErrorResponse: class 
+    {
+        constructor(errorString)
+        {
+            this.isSuccess = false;
+            this.errorString = errorString;
+        }
+    },
+};
+
+module.exports = Models;

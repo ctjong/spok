@@ -3,7 +3,7 @@ import Game from '../../game';
 import Constants from '../../constants';
 import Strings from '../../strings';
 import ClientSocket from '../../client-socket';
-import { ScoreUpdate } from '../../models';
+import { ScoreUpdateMessage } from '../../models';
 import LikeImg from '../../images/like.png';
 import LikeActiveImg from '../../images/like_active.png';
 import DislikeImg from '../../images/dislike.png';
@@ -36,8 +36,7 @@ class RevealPane extends Component
         const oldVote = cloneVotes[paperId];
         cloneVotes[paperId] = newVote;
         const delta = newVote - oldVote;
-        ClientSocket.sendToId(Constants.msg.types.SCORE_UPDATE, Game.state.hostSocketId, 
-            new ScoreUpdate(paperId, delta));
+        ClientSocket.sendToServer(new ScoreUpdateMessage(Game.roomCode, paperId, delta));
         this.setState({ votes: cloneVotes });
     }
 

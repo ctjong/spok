@@ -4,7 +4,7 @@ import Game from '../../game';
 import ClientSocket from '../../client-socket';
 import Constants from '../../constants';
 import Title from '../shared/title';
-import { PlayerMessageData } from '../../models';
+import { JoinRequestMessage } from '../../models';
 import './join-view.css';
 
 
@@ -24,21 +24,14 @@ class JoinView extends ViewBase
         const roomCode = this.roomCodeRef.current.value;
         const userName = this.userNameRef.current.value;
 
-        ClientSocket.sendToId(Constants.msg.types.JOIN_REQUEST, roomCode, new PlayerMessageData(userName));
         this.setState({ isLoading: true });
-
-        ClientSocket.addOneTimeHandler(
-            Constants.msg.types.JOIN_RESPONSE, 
-            (msg) =>
-            {
-                if(!msg.data.isSuccess)
-                    this.setState({ isLoading: false, errorString: msg.data.errorString });
-                else
-                    Game.initNonHostUser(roomCode, userName, msg.data.gameState);
-            },
-            Constants.JOIN_TIMEOUT,
-            () => this.setState({ isLoading: false, errorString: Constants.errorStrings.REQUEST_TIMED_OUT })
-        );
+        ClientSocket.sendToServer(Constants.msg.types.JOIN_REQUEST, new JoinRequestMessage(roomCode, userName)).then(response =>
+        {
+            if(!response.isSuccess)
+                this.setState({ isLoading: false, errorString: response.errorString });
+            else
+                Game.initNonHostUser(roomCode, userName, response.gameState);
+        });
     }
 
     handleBackClick()

@@ -44,6 +44,7 @@ module.exports =
         HOST_DISCONNECTED: "Host is disconnected. Please wait for host to reconnect.",
         CLIENT_DISCONNECTED: "You were disconnected. Please wait while we try to reconnect you.",
         SYNCING_STATE: "We are syncing with the host. Please wait.",
+        SUBMIT_PART_FAILED: "An error occurred while trying to submit your input. Please try again later.",
     },
 
     TOTAL_PARTS: 4,

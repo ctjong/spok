@@ -21,7 +21,7 @@ class ParticipantList extends Component
             const hostControls = Game.isHostUser() && Game.userName !== player.userName ? (
                 <span>(<a onClick={e => Game.kickPlayer(player)}>kick</a>)(<a onClick={e => Game.setAsHost(player)}>set as host</a>)</span>
             ) : null;
-            const hostLabel = Game.state.hostSocketId === player.socketId ? (
+            const hostLabel = Game.state.hostUserName === player.userName ? (
                 <span>(host)</span>
             ) : null;
             items.push(<div key={player.userName} className={className}>{player.userName} = {player.score} {hostLabel}{hostControls}</div>);

@@ -1,4 +1,4 @@
-import { Paper, Player, GameState, JoinApprovedResponse, JoinRejectedResponse, ChatMessage } from './models';
+import Models from './models';
 import Constants from './constants';
 import ClientSocket from './client-socket';
 
@@ -21,8 +21,8 @@ Game.initHostUser = (roomCode, userName, lang) =>
     if(!Game.state)
     {
         const socketId = ClientSocket.getSocketId();
-        const hostPlayer = new Player(Game.userName, socketId);
-        Game.state = new GameState(hostPlayer, Constants.phases.LOBBY, lang);
+        const hostPlayer = new Models.Player(Game.userName, socketId);
+        Game.state = new Models.GameState(hostPlayer, Constants.phases.LOBBY, lang);
         Game.state.players[Game.userName] = hostPlayer;
         saveGameState();
     }
@@ -35,7 +35,7 @@ Game.startRound = () =>
     Game.state.papers = {};
     Object.keys(Game.state.players).forEach(userName => 
     {
-        const paper = new Paper(Game.getRandomCode());
+        const paper = new Models.Paper(Game.getRandomCode());
         const player = Game.state.players[userName];
         player.paperId = paper.id;
         Game.state.papers[paper.id] = paper;
@@ -101,7 +101,7 @@ Game.handleJoinRequest = (msg) =>
     if (!existingPlayer && Game.state.phase > Constants.phases.LOBBY)
     {
         ClientSocket.sendToId(Constants.msg.types.JOIN_RESPONSE, msg.source, 
-            new JoinRejectedResponse(Constants.errorStrings.ROUND_ONGOING));
+            new Models.ErrorResponse(Constants.errorStrings.ROUND_ONGOING));
         return;
     }
 
@@ -109,14 +109,14 @@ Game.handleJoinRequest = (msg) =>
     if (existingPlayer && existingPlayer.userName === Game.userName)
     {
         ClientSocket.sendToId(Constants.msg.types.JOIN_RESPONSE, msg.source, 
-            new JoinRejectedResponse(Constants.errorStrings.NAME_TAKEN_BY_HOST));
+            new Models.ErrorResponse(Constants.errorStrings.NAME_TAKEN_BY_HOST));
         return;
     }
 
     // accept the request if:
     // - the chosen name is already present in the room (reconnect attempt), OR
     // - people are in the lobby
-    const newPlayer = new Player(msg.data.userName, msg.source);
+    const newPlayer = new Models.Player(msg.data.userName, msg.source);
     if(existingPlayer)
     {
         existingPlayer.isOnline = true;
@@ -131,7 +131,7 @@ Game.handleJoinRequest = (msg) =>
 
     broadcastStateAndUpdateUI();
     ClientSocket.sendToId(Constants.msg.types.JOIN_RESPONSE, msg.source, 
-        new JoinApprovedResponse(Game.roomCode, Game.state));
+        new Models.JoinApprovedResponse(Game.roomCode, Game.state));
 };
 
 
@@ -166,7 +166,7 @@ Game.initHistory = (history) =>
     Game.history.listen(location => 
         { 
             if(location.pathname.indexOf("/room") !== 0 && Game.state)
-                disposeCurrentUser();
+                exitRoom();
         });
 };
 
@@ -199,7 +199,7 @@ Game.refreshState = () =>
     loadGameState();
     if(!Game.activeView.isRoomView || !Game.state)
     {
-        disposeCurrentUser();
+        exitRoom();
         return;
     }
     ClientSocket.sendToId(Constants.msg.types.STATE_REQUEST, Game.state.hostSocketId);
@@ -211,13 +211,13 @@ Game.refreshState = () =>
     );
 };
 
-Game.handleStateUpdate = (msg) =>
+Game.stateUpdate = (msg) =>
 {
-    Game.state = msg.data;
+    Game.state = msg.newState;
     saveGameState();
     const currentPlayer = Game.state.players[Game.userName];
     if(!currentPlayer || ClientSocket.getSocketId() !== currentPlayer.socketId)
-        disposeCurrentUser();
+        exitRoom();
     else
         Game.activeView.updateUI();
 };
@@ -226,50 +226,6 @@ Game.handleStateUpdate = (msg) =>
 //-------------------------------------------
 // PRIVATE FUNCTIONS - HOST
 //-------------------------------------------
-
-const updateWritePhaseState = () =>
-{
-    let readyToProceed = true;
-    Object.keys(Game.state.players).forEach(userName => 
-        {
-            const paperId = Game.state.players[userName].paperId;
-            const paper = Game.state.papers[paperId];
-            if(paper && !paper.parts[Game.state.activePart])
-                readyToProceed = false;
-        });
-
-    if(readyToProceed)
-    {
-        if(Game.state.activePart >= Constants.TOTAL_PARTS - 1)
-            Game.state.phase = Constants.phases.REVEAL;
-        else
-        {
-            movePapers();
-            Game.state.activePart++;
-        }
-    }
-};
-
-const movePapers = () =>
-{
-    const players = Game.state.players;
-    const userNames = Object.keys(players);
-    userNames.sort();
-
-    const firstPaperId = players[userNames[0]].paperId;
-    userNames.forEach((userName, index) => 
-    {
-        players[userName].paperId = (index < userNames.length - 1) ? 
-            players[userNames[index+1]].paperId : firstPaperId;
-    });
-};
-
-const broadcastSystemChat = (text) =>
-{
-    const chatMsg = new ChatMessage(null, text);
-    ClientSocket.sendToCurrentRoom(Constants.msg.types.CHAT_MESSAGE, chatMsg);
-    Game.activeView.chatBox.pushMessage(chatMsg);
-};
 
 const broadcastStateAndUpdateUI = () =>
 {
@@ -299,22 +255,7 @@ const loadGameState = () =>
     }
 }
 
-const getPlayerBySocketId = (socketId) =>
-{
-    let player = null;
-    Object.keys(Game.state.players).some(userName =>
-    {
-        if(Game.state.players[userName].socketId === socketId)
-        {
-            player = Game.state.players[userName];
-            return true;
-        }
-        return false;
-    });
-    return player;
-};
-
-const disposeCurrentUser = () =>
+const exitRoom = () =>
 {
     if(Game.activeView.isRoomView)
         Game.activeView.disablePrompt();
@@ -382,12 +323,6 @@ const handleMessage = (msg) =>
     switch(msg.type)
     {
         // MESSAGES FOR HOST
-        case Constants.msg.types.JOIN_REQUEST:
-            Game.handleJoinRequest(msg);
-            break;
-        case Constants.msg.types.SUBMIT_PART:
-            Game.handlePartSubmitted(msg.data);
-            break;
         case Constants.msg.types.SCORE_UPDATE:
             Game.handleScoreUpdate(msg.data.paperId, msg.data.delta);
             break;
@@ -402,14 +337,8 @@ const handleMessage = (msg) =>
         case Constants.msg.types.CHAT_MESSAGE:
             Game.activeView.chatBox.pushMessage(msg.data);
             break;
-        case Constants.msg.types.OTHER_PLAYER_DC:
-            handleOtherPlayerDC(msg.data.socketId);
-            break;
-        case Constants.msg.types.OTHER_PLAYER_RC:
-            handleOtherPlayerRC(msg.data.socketId);
-            break;
         case Constants.msg.types.ROOM_NOT_EXIST:
-            disposeCurrentUser();
+            exitRoom();
             break;
         default:
             break;
