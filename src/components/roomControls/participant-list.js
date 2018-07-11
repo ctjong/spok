@@ -1,16 +1,28 @@
 import React, { Component } from 'react';
-import Game from '../../game';
+import ClientHandler from '../../client-message-handler';
+import { KickPlayerMessage, SetAsHostMessage } from '../../models';
 import './participant-list.css';
+import ClientSocket from '../../client-socket';
 
 
 class ParticipantList extends Component
 {
+    handleKickButtonClick(player)
+    {
+        ClientSocket.send(new KickPlayerMessage(ClientHandler.roomCode, player.userName));
+    }
+
+    handleSetAsHostButtonClick(player)
+    {
+        ClientSocket.send(new SetAsHostMessage(ClientHandler.roomCode, player.userName));
+    }
+
     getList()
     {
         const playerList = [];
-        Object.keys(Game.state.players).forEach(userName => 
+        Object.keys(ClientHandler.getRoomState().players).forEach(userName => 
         {
-            playerList.push(Game.state.players[userName]);
+            playerList.push(ClientHandler.getRoomState().players[userName]);
         });
         playerList.sort((a,b) => { return a.score < b.score; });
 
@@ -18,10 +30,13 @@ class ParticipantList extends Component
         playerList.forEach(player =>
         {
             const className = "player " + (player.isOnline ? "" : "offline");
-            const hostControls = Game.isHostUser() && Game.userName !== player.userName ? (
-                <span>(<a onClick={e => Game.kickPlayer(player)}>kick</a>)(<a onClick={e => Game.setAsHost(player)}>set as host</a>)</span>
+            const hostControls = ClientHandler.isHostUser() && ClientHandler.userName !== player.userName ? (
+                <span>
+                    (<a onClick={() => this.handleKickButtonClick(player)}>kick</a>)
+                    (<a onClick={() => this.handleSetAsHostButtonClick(player)}>set as host</a>)
+                </span>
             ) : null;
-            const hostLabel = Game.state.hostUserName === player.userName ? (
+            const hostLabel = ClientHandler.getRoomState().hostUserName === player.userName ? (
                 <span>(host)</span>
             ) : null;
             items.push(<div key={player.userName} className={className}>{player.userName} = {player.score} {hostLabel}{hostControls}</div>);

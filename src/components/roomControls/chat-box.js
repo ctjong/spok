@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
-import Game from '../../game';
+import ClientHandler from '../../client-message-handler';
 import ClientSocket from '../../client-socket';
-import Constants from '../../constants';
 import { ChatMessage } from '../../models';
 import './chat-box.css';
 
@@ -24,9 +23,10 @@ class ChatBox extends Component
 
     pushMessage(chatMsg)
     {
-        const cloneMsgs = this.state.messages.slice(0);
-        cloneMsgs.push(chatMsg);
-        this.setState({ messages: cloneMsgs });
+        const newMessages = [];
+        this.state.messages.forEach(msg => newMessages.push(msg));
+        newMessages.push(chatMsg);
+        this.setState({ messages: newMessages });
     }
 
     handleSendClick()
@@ -35,8 +35,9 @@ class ChatBox extends Component
         if(!text)
             return;
         this.inputRef.current.value = "";
-        const chatMsg = new ChatMessage(Game.userName, text);
-        ClientSocket.sendToCurrentRoom(Constants.msg.types.CHAT_MESSAGE, chatMsg);
+
+        const chatMsg = new ChatMessage(ClientHandler.roomCode, ClientHandler.userName, text);
+        ClientSocket.send(chatMsg);
         this.pushMessage(chatMsg);
     }
 

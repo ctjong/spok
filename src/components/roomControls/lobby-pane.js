@@ -1,18 +1,20 @@
 import React, { Component } from 'react';
-import Game from '../../game';
+import ClientHandler from '../../client-message-handler';
+import { StartRoundMessage } from '../../models';
 import './lobby-pane.css';
+import ClientSocket from '../../client-socket';
 
 
 class LobbyPane extends Component
 {
     handleStartClick()
     {
-        Game.startRound();
+        ClientSocket.send(new StartRoundMessage());
     }
 
     render() 
     {
-        const content = Game.isHostUser() ? (
+        const content = ClientHandler.isHostUser() ? (
             <div>
                 <button className="btn-box start-btn" onClick={e => this.handleStartClick()}>Start</button>
             </div>
@@ -26,7 +28,7 @@ class LobbyPane extends Component
             <div className="pane lobby-pane">
                 <div>
                     <h2>Room Code:</h2>
-                    <div className="roomcode-large">{Game.roomCode}</div>
+                    <div className="roomcode-large">{ClientHandler.roomCode}</div>
                 </div>
                 {content}
             </div>

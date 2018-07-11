@@ -1,7 +1,7 @@
 import React from 'react';
 import ViewBase from '../../view-base';
 import Constants from '../../constants';
-import Game from '../../game';
+import ClientHandler from '../../client-message-handler';
 import './error-view.css';
 
 
@@ -9,7 +9,7 @@ class ErrorView extends ViewBase
 {
     handleHomeClick()
     {
-        Game.goTo(Constants.HOME_PATH);
+        ClientHandler.goTo(Constants.HOME_PATH);
     }
 
     render() 

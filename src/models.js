@@ -27,21 +27,6 @@ const Models =
         }
     },
 
-    GameState: class
-    {
-        constructor(host, initialPhase, lang)
-        {
-            this.lang = lang;
-            this.activePart = -1;
-            this.phase = initialPhase;
-
-            this.players = {};
-            this.papers = {};
-            this.players[host.userName] = host;
-            this.hostSocketId = host.socketId;
-        }
-    },
-
     Part: class
     {
         constructor(paperId, text, authorUserName)
@@ -54,13 +39,17 @@ const Models =
 
     Room: class
     {
-        constructor(roomCode, lang, firstSocket)
+        constructor(roomCode, lang, hostUserName, hostSocket)
         {
             this.roomCode = roomCode;
             this.lang = lang;
-            this.sockets = {};
-            this.sockets[firstSocket.id] = firstSocket;
-            this.gameState = new Models.GameState();
+            this.activePart = -1;
+            this.phase = Constants.INITIAL_PHASE;
+
+            this.players = {};
+            this.papers = {};
+            this.players[hostUserName] = new Models.Player(hostUserName, hostSocket.id);
+            this.hostUserName = hostUserName;
         }
     },
 
@@ -70,12 +59,24 @@ const Models =
 
     StateUpdateMessage: class
     {
-        constructor(roomCode, source, newState)
+        constructor(roomCode, newState)
         {
-            this.type = Constants.msg.types.STATE_UPDATE;
+            this.type = Constants.msgTypes.STATE_UPDATE;
             this.roomCode = roomCode;
-            this.source = source;
             this.newState = newState;
+        }
+    },
+
+    CreateRoomMessage: class
+    {
+        constructor(roomCode, hostUserName, lang)
+        {
+            this.type = Constants.msgTypes.CREATE_ROOM;
+            this.roomCode = roomCode;
+            this.hostUserName = hostUserName;
+            this.lang = lang;
+            this.players = {};
+            this.papers = {};
         }
     },
 
@@ -83,7 +84,7 @@ const Models =
     {
         constructor(roomCode, userName)
         {
-            this.type = Constants.msg.types.JOIN_REQUEST;
+            this.type = Constants.msgTypes.JOIN_REQUEST;
             this.roomCode = roomCode;
             this.userName = userName;
         }
@@ -91,11 +92,10 @@ const Models =
 
     SubmitPartMessage: class 
     {
-        constructor(roomCode, paperId, part)
+        constructor(roomCode, part)
         {
-            this.type = Constants.msg.types.SUBMIT_PART;
+            this.type = Constants.msgTypes.SUBMIT_PART;
             this.roomCode = roomCode;
-            this.paperId = paperId;
             this.part = part;
         }
     },
@@ -104,10 +104,48 @@ const Models =
     {
         constructor(roomCode, authorUserName, text)
         {
-            this.type = Constants.msg.types.CHAT_MESSAGE;
+            this.type = Constants.msgTypes.CHAT_MESSAGE;
             this.roomCode = roomCode;
             this.authorUserName = authorUserName;
             this.text = text;
+        }
+    },
+
+    GoToLobbyMessage: class
+    {
+        constructor(roomCode)
+        {
+            this.type = Constants.msgTypes.GO_TO_LOBBY;
+            this.roomCode = roomCode;
+        }
+    },
+
+    KickPlayerMessage: class
+    {
+        constructor(roomCode, userName)
+        {
+            this.type = Constants.msgTypes.KICK_PLAYER;
+            this.roomCode = roomCode;
+            this.userName = userName;
+        }
+    },
+
+    SetAsHostMessage: class
+    {
+        constructor(roomCode, userName)
+        {
+            this.type = Constants.msgTypes.SET_AS_HOST;
+            this.roomCode = roomCode;
+            this.userName = userName;
+        }
+    },
+
+    StartRoundMessage: class
+    {
+        constructor(roomCode)
+        {
+            this.type = Constants.msgTypes.START_ROUND;
+            this.roomCode = roomCode;
         }
     },
 
@@ -115,20 +153,20 @@ const Models =
     {
         constructor(roomCode, paperId, delta)
         {
-            this.type = Constants.msg.types.SCORE_UPDATE;
+            this.type = Constants.msgTypes.SCORE_UPDATE;
             this.roomCode = roomCode;
             this.paperId = paperId;
             this.delta = delta;
         }
     },
 
-    PlayerDisconnectedmessage: class
+    StateRequestMessage: class
     {
-        constructor(roomCode, socketId)
+        constructor(roomCode, userName)
         {
-            this.type = Constants.msg.types.OTHER_PLAYER_DC;
+            this.type = Constants.msgTypes.STATE_REQUEST;
             this.roomCode = roomCode;
-            this.socketId = socketId;
+            this.userName = userName;
         }
     },
 
@@ -147,10 +185,10 @@ const Models =
 
     ErrorResponse: class 
     {
-        constructor(errorString)
+        constructor(notifString)
         {
             this.isSuccess = false;
-            this.errorString = errorString;
+            this.notifString = notifString;
         }
     },
 };

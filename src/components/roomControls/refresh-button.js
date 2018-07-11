@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import Game from '../../game';
-import Constants from '../../constants';
+import ClientHandler from '../../client-message-handler';
 import RefreshImg from '../../images/refresh.png';
 import './refresh-button.css';
 
@@ -9,8 +8,7 @@ class RefreshButton extends Component
 {
     handleRefreshClick()
     {
-        Game.activeView.showErrorUI(Constants.errorStrings.SYNCING_STATE);
-        Game.refreshState();
+        ClientHandler.refreshState();
     }
 
     render() 

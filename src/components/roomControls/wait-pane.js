@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import Game from '../../game';
+import ClientHandler from '../../client-message-handler';
+import ClientSocket from '../../client-socket';
 import Strings from '../../strings';
-import { Part } from '../../models';
+import { Part, SubmitPartMessage } from '../../models';
 import './wait-pane.css';
 
 
@@ -9,33 +10,32 @@ class WaitPane extends Component
 {
     handleSkipClick()
     {
-        Object.keys(Game.state.papers).forEach(paperId =>
+        Object.keys(ClientHandler.getRoomState().papers).forEach(paperId =>
         {
-            const paper = Game.state.papers[paperId];
-            if(!paper.parts[Game.state.activePart])
+            const paper = ClientHandler.getRoomState().papers[paperId];
+            if(!paper.parts[ClientHandler.getRoomState().activePart])
             {
-                const randomArr = Strings[Game.state.lang][`part${Game.state.activePart}random`];
+                const randomArr = Strings[ClientHandler.getRoomState().lang][`part${ClientHandler.getRoomState().activePart}random`];
                 const randomIdx = Math.floor(Math.random() * Math.floor(randomArr.length));
                 const part = new Part(paperId, randomArr[randomIdx], null);
-                Game.handlePartSubmitted(part);
+                ClientSocket.send(new SubmitPartMessage(ClientHandler.roomCode, part));
             }
         });
-        Game.activeView.updateUI();
     }
 
     render() 
     {
         const playerNames = [];
-        Object.keys(Game.state.players).forEach(userName => 
+        Object.keys(ClientHandler.getRoomState().players).forEach(userName => 
             {
-                const paperId = Game.state.players[userName].paperId;
-                const paper = Game.state.papers[paperId];
-                if(paper && !paper.parts[Game.state.activePart])
+                const paperId = ClientHandler.getRoomState().players[userName].paperId;
+                const paper = ClientHandler.getRoomState().papers[paperId];
+                if(paper && !paper.parts[ClientHandler.getRoomState().activePart])
                     playerNames.push(userName);
             });
         const playerNamesJoined = playerNames.join(", ");
 
-        const skipBtn = Game.isHostUser() ? (
+        const skipBtn = ClientHandler.isHostUser() ? (
             <div>
                 <button className="btn-box skip-btn" onClick={e => this.handleSkipClick()}>Ignore remaining players</button>
                 <div className="note">(This will fill the papers that those people are holding with random texts)</div>

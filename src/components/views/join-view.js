@@ -1,6 +1,6 @@
 import React from 'react';
 import ViewBase from '../../view-base';
-import Game from '../../game';
+import ClientHandler from '../../client-message-handler';
 import ClientSocket from '../../client-socket';
 import Constants from '../../constants';
 import Title from '../shared/title';
@@ -16,7 +16,7 @@ class JoinView extends ViewBase
         this.roomCodeRef = React.createRef();
         this.userNameRef = React.createRef();
         this.isJoinView = true;
-        this.state = { errorString: null, isLoading: false };
+        this.state = { notifString: null, isLoading: false };
     }
 
     handleSubmitClick()
@@ -25,18 +25,22 @@ class JoinView extends ViewBase
         const userName = this.userNameRef.current.value;
 
         this.setState({ isLoading: true });
-        ClientSocket.sendToServer(Constants.msg.types.JOIN_REQUEST, new JoinRequestMessage(roomCode, userName)).then(response =>
+        ClientSocket.send(new JoinRequestMessage(roomCode, userName)).then(response =>
         {
             if(!response.isSuccess)
-                this.setState({ isLoading: false, errorString: response.errorString });
+                this.setState({ isLoading: false, notifString: response.notifString });
             else
-                Game.initNonHostUser(roomCode, userName, response.gameState);
+            {
+                ClientHandler.setRoomCode(roomCode);
+                ClientHandler.setUserName(userName);
+                ClientHandler.goTo(`/room/${roomCode}`);
+            }
         });
     }
 
     handleBackClick()
     {
-        Game.goTo(Constants.HOME_PATH);
+        ClientHandler.goTo(Constants.HOME_PATH);
     }
 
     render() 
@@ -48,7 +52,7 @@ class JoinView extends ViewBase
         {
             body = (
                 <div>
-                    <div className="error">{this.state.errorString}</div>
+                    <div className="error">{this.state.notifString}</div>
                     <div className="control-group">
                         <div>
                             <label>Room code:</label>

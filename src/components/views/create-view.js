@@ -1,10 +1,11 @@
 import React from 'react';
 import ViewBase from '../../view-base';
-import Game from '../../game';
+import ClientHandler from '../../client-message-handler';
 import ClientSocket from '../../client-socket';
 import Constants from '../../constants';
 import Strings from '../../strings';
 import Title from '../shared/title';
+import { CreateRoomMessage } from '../../models';
 import './create-view.css';
 
 
@@ -20,7 +21,7 @@ class CreateView extends ViewBase
 
     handleSubmitClick()
     {
-        const roomCode = Game.getRandomCode().substring(0, 5);
+        const roomCode = ClientHandler.getRandomCode().substring(0, 5);
         const userName = this.userNameRef.current.value;
         if(!userName)
             return;
@@ -31,17 +32,18 @@ class CreateView extends ViewBase
             const selectedIndex = dropdown.selectedIndex;
             lang = dropdown.options[selectedIndex].value;
         }
-        ClientSocket.sendToServer(Constants.msg.types.CREATE_ROOM, { roomCode, lang }).then(() => 
+        ClientSocket.send(new CreateRoomMessage(roomCode, userName, lang)).then(() => 
         {
-            Game.initHostUser(roomCode, userName, lang);
-            Game.goTo(`/room/${roomCode}`);
+            ClientHandler.setRoomCode(roomCode);
+            ClientHandler.setUserName(userName);
+            ClientHandler.goTo(`/room/${roomCode}`);
         });
         this.setState({ isLoading: true });
     }
 
     handleBackClick()
     {
-        Game.goTo(Constants.HOME_PATH);
+        ClientHandler.goTo(Constants.HOME_PATH);
     }
 
     render() 

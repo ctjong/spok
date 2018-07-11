@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
-import Game from '../../game';
-import Constants from '../../constants';
+import ClientHandler from '../../client-message-handler';
 import Strings from '../../strings';
 import ClientSocket from '../../client-socket';
-import { ScoreUpdateMessage } from '../../models';
+import { ScoreUpdateMessage, GoToLobbyMessage, StartRoundMessage } from '../../models';
 import LikeImg from '../../images/like.png';
 import LikeActiveImg from '../../images/like_active.png';
 import DislikeImg from '../../images/dislike.png';
@@ -21,12 +20,12 @@ class RevealPane extends Component
 
     handleNewRoundClick()
     {
-        Game.startRound(Game.state.lang);
+        ClientSocket.send(new StartRoundMessage(ClientHandler.roomCode));
     }
 
     handleEndRoundClick()
     {
-        Game.goToLobby();
+        ClientSocket.send(new GoToLobbyMessage(ClientHandler.roomCode));
     }
 
     handleVoteClick(paperId, newVote)
@@ -36,16 +35,16 @@ class RevealPane extends Component
         const oldVote = cloneVotes[paperId];
         cloneVotes[paperId] = newVote;
         const delta = newVote - oldVote;
-        ClientSocket.sendToServer(new ScoreUpdateMessage(Game.roomCode, paperId, delta));
+        ClientSocket.send(new ScoreUpdateMessage(ClientHandler.roomCode, paperId, delta));
         this.setState({ votes: cloneVotes });
     }
 
     getSentenceRows()
     {
         const rows = [];
-        Object.keys(Game.state.papers).forEach(paperId => 
+        Object.keys(ClientHandler.getRoomState().papers).forEach(paperId => 
             {
-                const paper = Game.state.papers[paperId];
+                const paper = ClientHandler.getRoomState().papers[paperId];
                 const texts = [];
                 paper.parts.forEach((part, index) => 
                     {
@@ -53,7 +52,7 @@ class RevealPane extends Component
                             texts.push(part.text)
                         else
                         {
-                            const randomArr = Strings[Game.state.lang][`part${index+1}random`];
+                            const randomArr = Strings[ClientHandler.getRoomState().lang][`part${index+1}random`];
                             const randomIdx = Math.floor(Math.random() * Math.floor(randomArr.length));
                             texts.push(randomArr[randomIdx]);
                         }
@@ -82,7 +81,7 @@ class RevealPane extends Component
 
     render() 
     {
-        const bottomControls = Game.isHostUser() ? (
+        const bottomControls = ClientHandler.isHostUser() ? (
                 <div>
                     <button className="btn-box new-round-btn" onClick={e => this.handleNewRoundClick(e)}>
                         New round

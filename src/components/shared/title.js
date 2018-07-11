@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
 import TitleImg from '../../images/title.png';
 import Constants from '../../constants';
-import Game from '../../game';
+import ClientHandler from '../../client-message-handler';
 import './title.css';
 
 class Title extends Component
 {
     handleClick()
     {
-        Game.goTo(Constants.HOME_PATH);
+        ClientHandler.goTo(Constants.HOME_PATH);
     }
 
     render() 

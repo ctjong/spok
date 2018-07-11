@@ -1,7 +1,8 @@
 import React from 'react';
 import { Prompt } from 'react-router';
 import ViewBase from '../../view-base';
-import Game from '../../game';
+import ClientHandler from '../../client-message-handler';
+import ClientSocket from '../../client-socket';
 import Constants from '../../constants';
 import ParticipantList from '../roomControls/participant-list';
 import ChatBox from '../roomControls/chat-box';
@@ -11,6 +12,7 @@ import WaitPane from '../roomControls/wait-pane';
 import WritePane from '../roomControls/write-pane';
 import Title from '../shared/title';
 import RefreshButton from '../roomControls/refresh-button';
+import { GoToLobbyMessage } from '../../models';
 import './room-view.css';
 
 
@@ -19,12 +21,10 @@ class RoomView extends ViewBase
     constructor(props)
     {
         super(props);
-        this.state = { game: Game.state, isPromptDisabled: false, errorString: null };
+        this.state = { room: null, isPromptDisabled: false, notifString: null };
         this.isRoomView = true;
         this.chatBox = null;
-
-        if(!Game.state)
-            Game.refreshState();
+        ClientHandler.refreshState();
     }
 
     componentDidMount()
@@ -32,24 +32,19 @@ class RoomView extends ViewBase
         this.setState({ isPromptDisabled: false });
     }
 
-    updateUI()
-    {
-        this.setState({ game: Game.state });
-    }
-
     getActivePane()
     {
-        switch(this.state.game.phase)
+        switch(this.state.room.phase)
         {
             case Constants.phases.LOBBY:
                 return <LobbyPane/>;
             case Constants.phases.WRITE:
-                const player = this.state.game.players[Game.userName];
+                const player = this.state.room.players[ClientHandler.userName];
                 if(!player)
                     return;
                 const currentPaperId = player.paperId;
-                const currentPaper = Game.state.papers[currentPaperId];
-                if(currentPaper && !currentPaper.parts[this.state.game.activePart])
+                const currentPaper = ClientHandler.getRoomState().papers[currentPaperId];
+                if(currentPaper && !currentPaper.parts[this.state.room.activePart])
                     return <WritePane/>;
                 else
                     return <WaitPane/>;
@@ -60,14 +55,14 @@ class RoomView extends ViewBase
         }
     }
 
-    showErrorUI(errorString)
+    showNotifUI(notifString)
     {
-        this.setState({ errorString });
+        this.setState({ notifString });
     }
 
-    hideErrorUI()
+    hideNotifUI()
     {
-        this.setState({ errorString: null });
+        this.setState({ notifString: null });
     }
 
     disablePrompt()
@@ -75,23 +70,32 @@ class RoomView extends ViewBase
         this.setState({ isPromptDisabled: true });
     }
 
+    updateRoomState(newState)
+    {
+        this.setState({ room: newState });
+    }
+
+    handleLobbyButtonClick()
+    {
+        ClientSocket.send(new GoToLobbyMessage(ClientHandler.roomCode));
+    }
+
     render() 
     {
         const prompt = this.state.isPromptDisabled ? null : <Prompt message="Are you sure you want to leave?"/>;
         let body = null;
-        if(!this.state.game)
-            body = <div>{Constants.errorStrings.CLIENT_DISCONNECTED}</div>;
-        else if(this.state.errorString)
-            body = <div>{this.state.errorString}</div>;
+        if(this.state.notifString)
+            body = <div>{this.state.notifString}</div>;
+        else if(!this.state.room)
+            body = <div>{Constants.notifStrings.CLIENT_DISCONNECTED}</div>;
         else
         {
-            const refreshBtn = Game.isHostUser() ? null : <RefreshButton />;
-            const lobbyBtn = Game.isHostUser() && Game.state.phase > Constants.phases.LOBBY ? (
-                <button className="btn-box lobby-btn" onClick={e => Game.goToLobby()}>Back to lobby</button>
+            const lobbyBtn = ClientHandler.isHostUser() && ClientHandler.getRoomState().phase > Constants.phases.LOBBY ? (
+                <button className="btn-box lobby-btn" onClick={() => this.handleLobbyButtonClick()}>Back to lobby</button>
             ) : null;
             body = (
                 <div>
-                    {refreshBtn}
+                    <RefreshButton />
                     {this.getActivePane()}
                     {lobbyBtn}
                     <ParticipantList/>

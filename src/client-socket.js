@@ -9,8 +9,8 @@ ClientSocket.roomCode = null;
 // PRIVATE VARIABLES
 //-------------------------------------------
 
-const oneTimeHandlers = [];
 const messageHandlers = [];
+const errorHandlers = [];
 const disconnectHandlers = [];
 const reconnectHandlers = [];
 
@@ -21,19 +21,22 @@ let socket = null;
 // PUBLIC FUNCTIONS
 //-------------------------------------------
 
-ClientSocket.sendToServer = (type, data) => 
+ClientSocket.send = (msg) => 
 {
-    return socketSend(type, Constants.msg.targets.SERVER, data);
-};
-
-ClientSocket.sendToId = (type, targetId, data) => 
-{
-    return socketSend(type, targetId, data);
-};
-
-ClientSocket.sendToCurrentRoom = (type, data) => 
-{
-    return socketSend(type, ClientSocket.roomCode, data);
+    return new Promise((resolve) => 
+    {
+        initSocket().then(() => 
+        {
+            console.log("[ClientSocket.send] sending " + JSON.stringify(msg));
+            socket.emit(Constants.eventNames.MSG, msg, response => 
+            {
+                console.log("[ClientSocket.send] received response " + JSON.stringify(response));
+                if(!response.isSuccess)
+                    errorHandlers.forEach(handler => handler(response.notifString));
+                resolve(response)
+            });
+        });
+    });
 };
 
 ClientSocket.getSocketId = () => 
@@ -48,6 +51,11 @@ ClientSocket.addMessageHandler = (handler) =>
     messageHandlers.push(handler);
 };
 
+ClientSocket.addErrorHandler = (handler) =>
+{
+    errorHandlers.push(handler);
+};
+
 ClientSocket.addDisconnectHandler = (handler) =>
 {
     disconnectHandlers.push(handler);
@@ -58,43 +66,33 @@ ClientSocket.addReconnectHandler = (handler) =>
     reconnectHandlers.push(handler);
 };
 
-ClientSocket.addOneTimeHandler = (msgType, successHandler, timeout, timeoutHandler) =>
-{
-    const timer = !timeoutHandler ? null : setTimeout(timeoutHandler, timeout);
-    oneTimeHandlers[msgType] = (msg) => 
-    {
-        clearTimeout(timer);
-        if(successHandler)
-            successHandler(msg);
-    };
-};
-
 
 //-------------------------------------------
 // PRIVATE FUNCTIONS
 //-------------------------------------------
 
-const socketSend = (type, target, data) => 
+const handleMessage = (msg) =>
 {
-    return new Promise((resolve) => 
-    {
-        initSocket().then(() => 
-        {
-            console.log("[ClientSocket.socketSend] sending " + JSON.stringify({ type, target, data, source:socket.id }));
-            socket.emit(Constants.msg.events.MSG, { type, target, data }, response => resolve(response));
-        });
-    });
+    console.log("[ClientSocket.handleMessage] received " + JSON.stringify(msg));
+    messageHandlers.forEach(handler => handler(msg));
 };
 
-const socketReceive = (msg, reply) =>
+const handleConnect = (callback) =>
 {
-    console.log("[ClientSocket.socketReceive] received " + JSON.stringify(msg));
-    messageHandlers.forEach(handler => handler(msg, reply));
-    if(oneTimeHandlers[msg.type])
-    {
-        oneTimeHandlers[msg.type](msg);
-        oneTimeHandlers[msg.type] = null;
-    }
+    console.log("[ClientSocket.handleConnect]");
+    callback();
+};
+
+const handleDisconnect = () =>
+{
+    console.log("[ClientSocket.handleDisconnect]");
+    disconnectHandlers.forEach(handler => handler());
+};
+
+const handleReconnect = () =>
+{
+    console.log("[ClientSocket.handleReconnect]");
+    reconnectHandlers.forEach(handler => handler());
 };
 
 const initSocket = () =>
@@ -110,19 +108,10 @@ const initSocket = () =>
         }
         const origin = (window.location.origin.indexOf("localhost") >= 0) ? "http://localhost:1337" : window.location.origin;
         socket = io(origin);
-        socket.on(Constants.msg.events.CONNECT, () => 
-        {
-            socket.on(Constants.msg.events.MSG, socketReceive);
-            resolve();
-        });
-        socket.on(Constants.msg.events.DISCONNECT, () =>
-        {
-            disconnectHandlers.forEach(handler => handler());
-        });
-        socket.on(Constants.msg.events.RECONNECT, () =>
-        {
-            reconnectHandlers.forEach(handler => handler());
-        });
+        socket.on(Constants.eventNames.MSG, msg => handleMessage(msg));
+        socket.on(Constants.eventNames.CONNECT, () =>  handleConnect(resolve));
+        socket.on(Constants.eventNames.DISCONNECT, () => handleDisconnect());
+        socket.on(Constants.eventNames.RECONNECT, () => handleReconnect());
     });
     return initPromise;
 };
