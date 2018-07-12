@@ -63,8 +63,10 @@ const handleDisconnect = (socket) =>
     const roomCode = socketToRoomMap[socket.id];
     const room = rooms[roomCode];
     if(!roomCode || !room)
+    {
+        console.log(`room not found for socket ${socket.id} (code: ${roomCode})`);
         return;
-    destroyRoomIfUnused();
+    }
 
     const dcSocketId = socket.id;
     const dcPlayer = getPlayerBySocketId(room, dcSocketId);
@@ -74,6 +76,7 @@ const handleDisconnect = (socket) =>
         broadcastSystemChat(socket, room, `${dcPlayer.userName} has disconnected`);
         broadcastStateUpdate(socket, room);
     }
+    destroyRoomIfUnused(roomCode);
 };
 
 const handleReconnect = (socket) =>
@@ -106,7 +109,7 @@ const handleCreateRoom = (socket, msg, reply) =>
     rooms[roomCode] = new Models.Room(roomCode, msg.lang, msg.hostUserName, socket);
     socket.join(roomCode, () => 
     {
-        console.log("sending success response to " + socket.id);
+        console.log(`room ${roomCode} created. sending success response to ${socket.id}.`);
         reply({ isSuccess: true });
     });
 };
@@ -132,12 +135,15 @@ const handleJoinRequest = (socket, msg, reply) =>
     {
         if(existingPlayer)
         {
+            delete socketToRoomMap[existingPlayer.socketId];
+            socketToRoomMap[newPlayer.socketId] = roomCode;
             existingPlayer.isOnline = true;
             existingPlayer.socketId = newPlayer.socketId;
             broadcastSystemChat(socket, room, `${existingPlayer.userName} has reconnected`);
         }
         else
         {
+            socketToRoomMap[newPlayer.socketId] = roomCode;
             room.players[newPlayer.userName] = newPlayer;
             broadcastSystemChat(socket, room, `${newPlayer.userName} has joined`);
         }
@@ -159,7 +165,7 @@ const handleSubmitPart = (socket, msg, reply) =>
         return;
     }
     paper.parts[room.activePart] = part;
-    updateWritePhaseState();
+    updateWritePhaseState(room);
     broadcastStateUpdate(socket, room);
 };
 
@@ -180,7 +186,7 @@ const handleKickPlayer = (socket, msg, reply) =>
     {
         delete room.players[userName];
         if(room.phase === Constants.phases.WRITE)
-            updateWritePhaseState();
+            updateWritePhaseState(room);
         broadcastSystemChat(socket, room, `${userName} has been kicked`);
         broadcastStateUpdate(socket, room);
     }
@@ -217,7 +223,7 @@ const handleScoreUpdate = (socket, msg, reply) =>
 {
     const roomCode = msg.roomCode;
     const room = rooms[roomCode];
-    const paper = room.papers[paperId];
+    const paper = room.papers[msg.paperId];
     if(!paper)
     {
         reply(new Models.ErrorResponse(Constants.notifStrings.UNKNOWN_ERROR));
@@ -228,7 +234,7 @@ const handleScoreUpdate = (socket, msg, reply) =>
             if(part.authorUserName === null)
                 return;
             const player = room.players[part.authorUserName];
-            player.score += delta;
+            player.score += msg.delta;
         });
     broadcastStateUpdate(socket, room);
 };
@@ -255,6 +261,7 @@ const handleStateRequest = (socket, msg, reply) =>
         player.isOnline = true;
         broadcastStateUpdate(socket, room);
     }
+    console.log("sending state response to " + socket.id);
     reply(room);
 };
 
@@ -265,8 +272,9 @@ const handleStateRequest = (socket, msg, reply) =>
 
 const broadcast = (socket, msg) =>
 {
-    console.log("sending " + msg.type + " to " + msg.roomCode);
+    console.log(`sending ${msg.type} to ${msg.roomCode}`);
     socket.to(msg.roomCode).emit(Constants.eventNames.MSG, msg);
+    socket.emit(Constants.eventNames.MSG, msg);
 };
 
 const broadcastStateUpdate = (socket, room) =>
@@ -296,7 +304,7 @@ const updateWritePhaseState = (room) =>
             room.phase = Constants.phases.REVEAL;
         else
         {
-            movePapers();
+            movePapers(room);
             room.activePart++;
         }
     }
@@ -336,16 +344,14 @@ const destroyRoomIfUnused = (roomCode) =>
     const room = rooms[roomCode];
     if(!room)
         return;
-    let isEveryoneOffline = true;
+    let numOnline = 0;
     Object.keys(room.players).forEach(userName =>
     {
         if(room.players[userName].isOnline)
-        {
-            isEveryoneOffline = false;
-            return;
-        }
+            numOnline++;
     });
-    if(isEveryoneOffline)
+    console.log(`remaining online players in room ${roomCode}: ${numOnline}`);
+    if(numOnline === 0)
     {
         // if there is no more active socket in the room, destroy the room
         console.log(`destroying room ${roomCode}`);

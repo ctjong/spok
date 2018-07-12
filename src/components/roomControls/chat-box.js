@@ -35,10 +35,7 @@ class ChatBox extends Component
         if(!text)
             return;
         this.inputRef.current.value = "";
-
-        const chatMsg = new ChatMessage(ClientHandler.roomCode, ClientHandler.userName, text);
-        ClientSocket.send(chatMsg);
-        this.pushMessage(chatMsg);
+        ClientSocket.send(new ChatMessage(ClientHandler.roomCode, ClientHandler.userName, text));
     }
 
     handleKeyDown(e)

@@ -12,7 +12,6 @@ class WritePane extends Component
     {
         super(props);
         this.inputRef = React.createRef();
-        this.state = { isLoading: false, notifString: null };
     }
 
     handleSubmitClick()
@@ -27,21 +26,16 @@ class WritePane extends Component
         
         const part = new Part(paperId, text, ClientHandler.userName);
         ClientSocket.send(new SubmitPartMessage(ClientHandler.roomCode, part));
-        this.setState({ isLoading: true });
     }
 
     render() 
     {
-        if(this.state.isLoading)
-            return <div>Please wait</div>;
-
         const label = Strings[ClientHandler.getRoomState().lang][`part${ClientHandler.getRoomState().activePart}label`];
         const placeholder = Strings[ClientHandler.getRoomState().lang][`part${ClientHandler.getRoomState().activePart}placeholder`];
 
         return (
             <div className="pane write-pane">
                 <div>
-                    <div className="error">{this.state.notifString}</div>
                     <div className="control-group">
                         <div>
                             <label>{label}</label>

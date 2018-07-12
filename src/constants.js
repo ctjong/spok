@@ -41,7 +41,7 @@ Constants.notifStrings =
     CLIENT_DISCONNECTED: "You were disconnected. Please wait while we try to reconnect you.",
     SYNCING_STATE: "We are syncing with the host. Please wait.",
     SUBMIT_PART_FAILED: "An error occurred while trying to submit your input. Please try again later.",
-    ROOM_NOT_EXIST: "Room no longer exists. Please create a new room.",
+    ROOM_NOT_EXIST: "Room does not exist. Please create a new room.",
     UNKNOWN_ERROR: "An unknown error occurred. Please try again later.",
 };
 

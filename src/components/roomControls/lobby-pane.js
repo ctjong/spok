@@ -9,7 +9,7 @@ class LobbyPane extends Component
 {
     handleStartClick()
     {
-        ClientSocket.send(new StartRoundMessage());
+        ClientSocket.send(new StartRoundMessage(ClientHandler.roomCode));
     }
 
     render() 

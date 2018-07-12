@@ -83,8 +83,9 @@ ClientHandler.getRandomCode =() =>
 
 const exitRoom = () =>
 {
-    if(ClientHandler.activeView.isRoomView)
-        ClientHandler.activeView.disablePrompt();
+    if(!ClientHandler.activeView.isRoomView)
+        return;
+    ClientHandler.activeView.disablePrompt();
     sessionStorage.setItem(Constants.USER_NAME_SSKEY, null);
     sessionStorage.setItem(Constants.ROOM_CODE_SSKEY, null);
     if(ClientHandler.history.location.pathname !== Constants.HOME_PATH)
@@ -97,7 +98,7 @@ const handleStateUpdate = (msg) =>
     const existingPlayer = newState.players[ClientHandler.userName];
     if(!existingPlayer || ClientSocket.getSocketId() !== existingPlayer.socketId)
         exitRoom();
-    else
+    else if(ClientHandler.activeView.isRoomView)
         ClientHandler.activeView.updateRoomState(msg.newState);
 };
 
@@ -109,6 +110,7 @@ const handleThisPlayerDC = () =>
 
 const handleThisPlayerRC = () =>
 {
+    ClientSocket.send(new StateRequestMessage(ClientHandler.roomCode, ClientHandler.userName));
     if(ClientHandler.activeView.isRoomView)
         ClientHandler.activeView.hideNotifUI();
 };
@@ -123,7 +125,7 @@ const handleMessage = (msg) =>
 {
     if(msg.type === Constants.msgTypes.STATE_UPDATE)
         handleStateUpdate(msg);
-    else if(msg.type ===  Constants.msgTypes.CHAT_MESSAGE)
+    else if(msg.type ===  Constants.msgTypes.CHAT_MESSAGE && ClientHandler.activeView.isRoomView)
         ClientHandler.activeView.chatBox.pushMessage(msg);
 };
 
