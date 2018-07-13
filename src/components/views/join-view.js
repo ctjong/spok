@@ -16,7 +16,7 @@ class JoinView extends ViewBase
         this.roomCodeRef = React.createRef();
         this.userNameRef = React.createRef();
         this.isJoinView = true;
-        this.state = { notifString: null, isLoading: false };
+        this.state = { notifCode: null, isLoading: false };
     }
 
     handleSubmitClick()
@@ -25,16 +25,13 @@ class JoinView extends ViewBase
         const userName = this.userNameRef.current.value;
 
         this.setState({ isLoading: true });
+        ClientHandler.setUserName(userName);
         ClientSocket.send(new JoinRequestMessage(roomCode, userName)).then(response =>
         {
             if(!response.isSuccess)
-                this.setState({ isLoading: false, notifString: response.notifString });
+                this.setState({ isLoading: false, notifCode: response.notifCode });
             else
-            {
-                ClientHandler.setRoomCode(roomCode);
-                ClientHandler.setUserName(userName);
                 ClientHandler.goTo(`/room/${roomCode}`);
-            }
         });
     }
 
@@ -52,7 +49,7 @@ class JoinView extends ViewBase
         {
             body = (
                 <div>
-                    <div className="error">{this.state.notifString}</div>
+                    <div className="error">{Constants.notifStrings[this.state.notifCode]}</div>
                     <div className="control-group">
                         <div>
                             <label>Room code:</label>

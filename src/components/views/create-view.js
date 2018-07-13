@@ -25,6 +25,9 @@ class CreateView extends ViewBase
         const userName = this.userNameRef.current.value;
         if(!userName)
             return;
+
+        this.setState({ isLoading: true });
+        ClientHandler.setUserName(userName);
         let lang = Constants.DEFAULT_LANG;
         if(this.langSelectRef.current)
         {
@@ -34,11 +37,8 @@ class CreateView extends ViewBase
         }
         ClientSocket.send(new CreateRoomMessage(roomCode, userName, lang)).then(() => 
         {
-            ClientHandler.setRoomCode(roomCode);
-            ClientHandler.setUserName(userName);
             ClientHandler.goTo(`/room/${roomCode}`);
         });
-        this.setState({ isLoading: true });
     }
 
     handleBackClick()

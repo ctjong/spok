@@ -12,11 +12,11 @@ const socketToRoomMap = {};
 
 const handleMessage = (socket, msg, reply) =>
 {
-    console.log("received " + msg.type + " from " + socket.id);
+    console.log(`received ${msg.type} from ${socket.id}`);
     if(msg.type !== Constants.msgTypes.CREATE_ROOM && !rooms[msg.roomCode])
     {
-        console.log("sending ROOM_NOT_EXIST to " + socket.id);
-        reply(new Models.ErrorResponse(Constants.notifStrings.ROOM_NOT_EXIST));
+        console.log(`sending ErrorResponse ${Constants.notifCodes.ROOM_NOT_EXIST} to ${socket.id}`);
+        reply(new Models.ErrorResponse(Constants.notifCodes.ROOM_NOT_EXIST));
         return;
     }
 
@@ -109,8 +109,9 @@ const handleCreateRoom = (socket, msg, reply) =>
     rooms[roomCode] = new Models.Room(roomCode, msg.lang, msg.hostUserName, socket);
     socket.join(roomCode, () => 
     {
-        console.log(`room ${roomCode} created. sending success response to ${socket.id}.`);
-        reply({ isSuccess: true });
+        console.log(`room ${roomCode} created`);
+        console.log(`sending SuccessResponse to ${socket.id}`);
+        reply(new Models.SuccessResponse());
     });
 };
 
@@ -123,7 +124,8 @@ const handleJoinRequest = (socket, msg, reply) =>
     const existingPlayer = room.players[msg.userName];
     if (!existingPlayer && room.phase > Constants.phases.LOBBY)
     {
-        reply(new Models.ErrorResponse(Constants.notifStrings.ROUND_ONGOING));
+        console.log(`sending ErrorResponse ${Constants.notifCodes.ROUND_ONGOING} to ${socket.id}`);
+        reply(new Models.ErrorResponse(Constants.notifCodes.ROUND_ONGOING));
         return;
     }
     const newPlayer = new Models.Player(msg.userName, socket.id);
@@ -148,8 +150,9 @@ const handleJoinRequest = (socket, msg, reply) =>
             broadcastSystemChat(socket, room, `${newPlayer.userName} has joined`);
         }
 
-        broadcastStateUpdate(socket, room);
+        console.log(`sending JoinApprovedResponse to ${socket.id}`);
         reply(new Models.JoinApprovedResponse(room));
+        broadcastStateUpdate(socket, room);
     });
 };
 
@@ -161,10 +164,13 @@ const handleSubmitPart = (socket, msg, reply) =>
     const paper = room.papers[part.paperId];
     if(!paper)
     {
-        reply(new Models.ErrorResponse(Constants.notifStrings.SUBMIT_PART_FAILED));
+        console.log(`sending ErrorResponse ${Constants.notifCodes.SUBMIT_PART_FAILED} to ${socket.id}`);
+        reply(new Models.ErrorResponse(Constants.notifCodes.SUBMIT_PART_FAILED));
         return;
     }
     paper.parts[room.activePart] = part;
+    console.log(`sending SuccessResponse to ${socket.id}`);
+    reply(new Models.SuccessResponse());
     updateWritePhaseState(room);
     broadcastStateUpdate(socket, room);
 };
@@ -174,6 +180,8 @@ const handleGoToLobby = (socket, msg, reply) =>
     const roomCode = msg.roomCode;
     const room = rooms[roomCode];
     room.phase = Constants.phases.LOBBY;
+    console.log(`sending SuccessResponse to ${socket.id}`);
+    reply(new Models.SuccessResponse());
     broadcastStateUpdate(socket, room);
 };
 
@@ -190,6 +198,8 @@ const handleKickPlayer = (socket, msg, reply) =>
         broadcastSystemChat(socket, room, `${userName} has been kicked`);
         broadcastStateUpdate(socket, room);
     }
+    console.log(`sending SuccessResponse to ${socket.id}`);
+    reply(new Models.SuccessResponse());
 };
 
 const handleSetAsHost = (socket, msg, reply) =>
@@ -198,6 +208,8 @@ const handleSetAsHost = (socket, msg, reply) =>
     const room = rooms[roomCode];
     const userName = msg.userName;
     room.hostUserName = userName;
+    console.log(`sending SuccessResponse to ${socket.id}`);
+    reply(new Models.SuccessResponse());
     broadcastSystemChat(socket, room, `${userName} has been set as host`);
     broadcastStateUpdate(socket, room);
 };
@@ -216,6 +228,8 @@ const handleStartRound = (socket, msg, reply) =>
         player.paperId = paper.id;
         room.papers[paper.id] = paper;
     });
+    console.log(`sending SuccessResponse to ${socket.id}`);
+    reply(new Models.SuccessResponse());
     broadcastStateUpdate(socket, room);
 };
 
@@ -226,7 +240,8 @@ const handleScoreUpdate = (socket, msg, reply) =>
     const paper = room.papers[msg.paperId];
     if(!paper)
     {
-        reply(new Models.ErrorResponse(Constants.notifStrings.UNKNOWN_ERROR));
+        console.log(`sending ErrorResponse ${Constants.notifCodes.UNKNOWN_ERROR} to ${socket.id}`);
+        reply(new Models.ErrorResponse(Constants.notifCodes.UNKNOWN_ERROR));
         return;
     }
     paper.parts.forEach(part => 
@@ -236,11 +251,15 @@ const handleScoreUpdate = (socket, msg, reply) =>
             const player = room.players[part.authorUserName];
             player.score += msg.delta;
         });
+    console.log(`sending SuccessResponse to ${socket.id}`);
+    reply(new Models.SuccessResponse());
     broadcastStateUpdate(socket, room);
 };
 
 const handleChatMessage = (socket, msg, reply) =>
 {
+    console.log(`sending SuccessResponse to ${socket.id}`);
+    reply(new Models.SuccessResponse());
     broadcast(socket, msg);
 };
 
@@ -250,6 +269,12 @@ const handleStateRequest = (socket, msg, reply) =>
     const room = rooms[roomCode];
     const userName = msg.userName;
     const player = room.players[userName];
+    if(!player)
+    {
+        console.log(`sending ErrorResponse ${Constants.notifCodes.NOT_IN_ROOM} to ${socket.id}`);
+        reply(new Models.ErrorResponse(Constants.notifCodes.NOT_IN_ROOM));
+        return;
+    }
     if(player.socketId !== socket.id)
     {
         socket.join(roomCode);
@@ -261,8 +286,8 @@ const handleStateRequest = (socket, msg, reply) =>
         player.isOnline = true;
         broadcastStateUpdate(socket, room);
     }
-    console.log("sending state response to " + socket.id);
-    reply(room);
+    console.log("sending StateResponse to " + socket.id);
+    reply(new Models.StateResponse(room));
 };
 
 

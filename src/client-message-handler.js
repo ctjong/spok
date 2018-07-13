@@ -7,6 +7,7 @@ ClientHandler.activeView = null;
 ClientHandler.history = null;
 ClientHandler.userName = null;
 ClientHandler.roomCode = null;
+ClientHandler.lastNotifCode = null;
 
 
 //-------------------------------------------
@@ -24,7 +25,9 @@ ClientHandler.initHistory = (history) =>
     ClientHandler.history.listen(location => 
         { 
             if(location.pathname.indexOf("/room") !== 0 && ClientHandler.getRoomState())
-                exitRoom();
+                exitRoom(Constants.notifCodes.UNKNOWN_ERROR);
+            if(location.pathname !== Constants.HOME_PATH)
+                ClientHandler.lastNotifCode = null;
         });
 };
 
@@ -43,14 +46,15 @@ ClientHandler.isHostUser = () =>
 
 ClientHandler.setUserName = (value) => 
 {
+    console.log(`setting current userName to ${value}`);
     ClientHandler.userName = value;
     sessionStorage.setItem(Constants.USER_NAME_SSKEY, value);
 };
 
 ClientHandler.setRoomCode = (value) => 
 {
+    console.log(`setting current roomCode to ${value}`);
     ClientHandler.roomCode = value;
-    ClientSocket.roomCode = value;
     sessionStorage.setItem(Constants.ROOM_CODE_SSKEY, value);
 };
 
@@ -58,16 +62,16 @@ ClientHandler.refreshState = () =>
 {
     if(!ClientHandler.activeView.isRoomView)
     {
-        exitRoom();
+        exitRoom(Constants.notifCodes.UNKNOWN_ERROR);
         return;
     }
-    ClientHandler.activeView.showNotifUI(Constants.notifStrings.SYNCING_STATE);
+    ClientHandler.activeView.showNotifUI(Constants.notifCodes.SYNCING_STATE);
     ClientSocket.send(new StateRequestMessage(ClientHandler.roomCode, ClientHandler.userName)).then(response =>
     {
         if(!ClientHandler.activeView.isRoomView)
             return;
         ClientHandler.activeView.hideNotifUI();
-        ClientHandler.activeView.updateRoomState(response);
+        ClientHandler.activeView.updateRoomState(response.state);
     });
 };
 
@@ -81,13 +85,15 @@ ClientHandler.getRandomCode =() =>
 // PRIVATE FUNCTIONS
 //-------------------------------------------
 
-const exitRoom = () =>
+const exitRoom = (reasonCode) =>
 {
-    if(!ClientHandler.activeView.isRoomView)
-        return;
-    ClientHandler.activeView.disablePrompt();
+    console.log("Exiting room because of error code " + reasonCode);
+    ClientHandler.lastNotifCode = reasonCode;
+    if(ClientHandler.activeView.isRoomView)
+        ClientHandler.activeView.disablePrompt();
     sessionStorage.setItem(Constants.USER_NAME_SSKEY, null);
     sessionStorage.setItem(Constants.ROOM_CODE_SSKEY, null);
+    ClientSocket.close();
     if(ClientHandler.history.location.pathname !== Constants.HOME_PATH)
         ClientHandler.goTo(Constants.HOME_PATH);
 };
@@ -97,7 +103,7 @@ const handleStateUpdate = (msg) =>
     const newState = msg.newState;
     const existingPlayer = newState.players[ClientHandler.userName];
     if(!existingPlayer || ClientSocket.getSocketId() !== existingPlayer.socketId)
-        exitRoom();
+        exitRoom(Constants.notifCodes.JOIN_ANOTHER_DEVICE);
     else if(ClientHandler.activeView.isRoomView)
         ClientHandler.activeView.updateRoomState(msg.newState);
 };
@@ -105,20 +111,20 @@ const handleStateUpdate = (msg) =>
 const handleThisPlayerDC = () =>
 {
     if(ClientHandler.activeView.isRoomView)
-        ClientHandler.activeView.showNotifUI(Constants.notifStrings.CLIENT_DISCONNECTED);
+        ClientHandler.activeView.showNotifUI(Constants.notifCodes.CLIENT_DISCONNECTED);
 };
 
 const handleThisPlayerRC = () =>
 {
-    ClientSocket.send(new StateRequestMessage(ClientHandler.roomCode, ClientHandler.userName));
+    ClientHandler.refreshState();
     if(ClientHandler.activeView.isRoomView)
         ClientHandler.activeView.hideNotifUI();
 };
 
-const handleError = (notifString) =>
+const handleError = (notifCode) =>
 {
-    if(notifString === Constants.notifStrings.ROOM_NOT_EXIST)
-        exitRoom();
+    if(Constants.fatalErrors.indexOf(notifCode) >= 0)
+        exitRoom(notifCode);
 };
 
 const handleMessage = (msg) => 

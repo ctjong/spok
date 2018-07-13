@@ -2,7 +2,6 @@
 import Constants from './constants';
 
 const ClientSocket = {};
-ClientSocket.roomCode = null;
 
 
 //-------------------------------------------
@@ -25,14 +24,33 @@ ClientSocket.send = (msg) =>
 {
     return new Promise((resolve) => 
     {
+        // prepare timeout timer
+        let isTimedOut = false;
+        const timer = setTimeout(() => 
+        {
+            console.log("[ClientSocket.send] request timed out. aborting.");
+            isTimedOut = true;
+            handleError(Constants.notifCodes.REQUEST_TIMEOUT);
+        }, Constants.REQUEST_TIMEOUT);
+
+        // init socket then fire request
         initSocket().then(() => 
         {
+            if(!socket)
+                return;
+
             console.log("[ClientSocket.send] sending " + JSON.stringify(msg));
             socket.emit(Constants.eventNames.MSG, msg, response => 
             {
+                if(isTimedOut)
+                {
+                    console.log("[ClientSocket.send] response received after timeout. ignoring.");
+                    return;
+                }
                 console.log("[ClientSocket.send] received response " + JSON.stringify(response));
+                clearTimeout(timer);
                 if(!response.isSuccess)
-                    errorHandlers.forEach(handler => handler(response.notifString));
+                    handleError(response.notifCode);
                 resolve(response)
             });
         });
@@ -66,6 +84,14 @@ ClientSocket.addReconnectHandler = (handler) =>
     reconnectHandlers.push(handler);
 };
 
+ClientSocket.close = () =>
+{
+    if(socket)
+        socket.close();
+    socket = null;
+    initPromise = null;
+};
+
 
 //-------------------------------------------
 // PRIVATE FUNCTIONS
@@ -95,6 +121,12 @@ const handleReconnect = () =>
     reconnectHandlers.forEach(handler => handler());
 };
 
+const handleError = (notifCode) =>
+{
+    console.log("[ClientSocket.handleError]");
+    errorHandlers.forEach(handler => handler(notifCode));
+};
+
 const initSocket = () =>
 {
     if(initPromise)
@@ -112,6 +144,7 @@ const initSocket = () =>
         socket.on(Constants.eventNames.CONNECT, () =>  handleConnect(resolve));
         socket.on(Constants.eventNames.DISCONNECT, () => handleDisconnect());
         socket.on(Constants.eventNames.RECONNECT, () => handleReconnect());
+        socket.on(Constants.eventNames.CONNECT_ERROR, () => handleError(Constants.notifCodes.CONNECT_ERROR));
     });
     return initPromise;
 };

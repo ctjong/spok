@@ -185,10 +185,27 @@ const Models =
 
     ErrorResponse: class 
     {
-        constructor(notifString)
+        constructor(notifCode)
         {
             this.isSuccess = false;
-            this.notifString = notifString;
+            this.notifCode = notifCode;
+        }
+    },
+
+    SuccessResponse: class 
+    {
+        constructor()
+        {
+            this.isSuccess = true;
+        }
+    },
+
+    StateResponse: class 
+    {
+        constructor(state)
+        {
+            this.isSuccess = true;
+            this.state = state;
         }
     },
 };

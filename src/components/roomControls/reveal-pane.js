@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import ClientHandler from '../../client-message-handler';
 import Strings from '../../strings';
 import ClientSocket from '../../client-socket';
-import { ScoreUpdateMessage, GoToLobbyMessage, StartRoundMessage } from '../../models';
+import { ScoreUpdateMessage } from '../../models';
 import LikeImg from '../../images/like.png';
 import LikeActiveImg from '../../images/like_active.png';
 import DislikeImg from '../../images/dislike.png';
@@ -16,16 +16,6 @@ class RevealPane extends Component
     {
         super(props);
         this.state = { votes: {} };
-    }
-
-    handleNewRoundClick()
-    {
-        ClientSocket.send(new StartRoundMessage(ClientHandler.roomCode));
-    }
-
-    handleEndRoundClick()
-    {
-        ClientSocket.send(new GoToLobbyMessage(ClientHandler.roomCode));
     }
 
     handleVoteClick(paperId, newVote)
@@ -81,18 +71,9 @@ class RevealPane extends Component
 
     render() 
     {
-        const bottomControls = ClientHandler.isHostUser() ? (
-                <div>
-                    <button className="btn-box new-round-btn" onClick={e => this.handleNewRoundClick(e)}>
-                        New round
-                    </button>
-                    <button className="btn-box end-round-btn" onClick={e => this.handleEndRoundClick(e)}>
-                        Back to lobby
-                    </button>
-                </div>
-            ) : (
-                <div className="reveal-mode-wait-text">Waiting for host to take action</div>
-            );
+        const bottomControls = ClientHandler.isHostUser() ? null : (
+            <div className="reveal-mode-wait-text">Waiting for host to take action</div>
+        );
 
         return (
             <div className="pane reveal-pane">

@@ -13,16 +13,15 @@ Constants.msgTypes =
     SET_AS_HOST: "setAsHost",
     START_ROUND: "startRound",
     SCORE_UPDATE: "scoreUpdate",
-    OTHER_PLAYER_DC: "otherPlayerDC",
-    OTHER_PLAYER_RC: "otherPlayerRC",
 };
 
 Constants.eventNames =
 {
+    MSG: "message",
     CONNECT: "connect",
     DISCONNECT: "disconnect",
     RECONNECT: "reconnect",
-    MSG: "message"
+    CONNECT_ERROR: "connect_error",
 };
 
 Constants.phases =
@@ -32,26 +31,46 @@ Constants.phases =
     REVEAL: 3
 };
 
-Constants.notifStrings =
+Constants.notifCodes = 
 {
-    NAME_TAKEN_BY_HOST: "Name has been taken by host. Please choose another name.",
-    ROUND_ONGOING: "A round is ongoing. Please try again later.",
-    REQUEST_TIMED_OUT: "Request timed out. Please try again later.",
-    HOST_DISCONNECTED: "Host is disconnected. Please wait for host to reconnect.",
-    CLIENT_DISCONNECTED: "You were disconnected. Please wait while we try to reconnect you.",
-    SYNCING_STATE: "We are syncing with the host. Please wait.",
-    SUBMIT_PART_FAILED: "An error occurred while trying to submit your input. Please try again later.",
-    ROOM_NOT_EXIST: "Room does not exist. Please create a new room.",
-    UNKNOWN_ERROR: "An unknown error occurred. Please try again later.",
+    ROUND_ONGOING: 0,
+    CLIENT_DISCONNECTED: 1,
+    SYNCING_STATE: 2,
+    SUBMIT_PART_FAILED: 3,
+    ROOM_NOT_EXIST: 4,
+    JOIN_ANOTHER_DEVICE: 5,
+    REQUEST_TIMEOUT: 6,
+    NOT_IN_ROOM: 7,
+    CONNECT_ERROR: 8,
+    UNKNOWN_ERROR: 9,
 };
 
-Constants.INITIAL_PHASE =Constants.phases.LOBBY;
+Constants.notifStrings = {};
+Constants.notifStrings[Constants.notifCodes.ROUND_ONGOING] = "A round is ongoing. Please try again later.";
+Constants.notifStrings[Constants.notifCodes.CLIENT_DISCONNECTED] = "You were disconnected. Please wait while we try to reconnect you.";
+Constants.notifStrings[Constants.notifCodes.SYNCING_STATE] = "Syncing with server. Please wait.";
+Constants.notifStrings[Constants.notifCodes.SUBMIT_PART_FAILED] = "An error occurred while trying to submit your input. Please try again later.";
+Constants.notifStrings[Constants.notifCodes.ROOM_NOT_EXIST] = "Room does not exist. Please create a new room or join another one.";
+Constants.notifStrings[Constants.notifCodes.JOIN_ANOTHER_DEVICE] = "You have joined on another device so you have been removed on this one.";
+Constants.notifStrings[Constants.notifCodes.REQUEST_TIMEOUT] = "Request timed out. Please try again later.";
+Constants.notifStrings[Constants.notifCodes.NOT_IN_ROOM] = "You haven't joined the room. Please join the room first.";
+Constants.notifStrings[Constants.notifCodes.CONNECT_ERROR] = "Failed to connect with server. Please try again later.";
+Constants.notifStrings[Constants.notifCodes.UNKNOWN_ERROR] = "An unknown error occurred. Please try again later.";
+
+Constants.fatalErrors = [
+    Constants.notifCodes.ROOM_NOT_EXIST,
+    Constants.notifCodes.JOIN_ANOTHER_DEVICE,
+    Constants.notifCodes.REQUEST_TIMEOUT,
+    Constants.notifCodes.NOT_IN_ROOM,
+    Constants.notifCodes.CONNECT_ERROR,
+];
+
+Constants.INITIAL_PHASE = Constants.phases.LOBBY;
 Constants.TOTAL_PARTS = 4;
 Constants.ROOM_CODE_SSKEY = "roomCode";
 Constants.USER_NAME_SSKEY = "userName";
 Constants.DEFAULT_LANG = "en";
-Constants.JOIN_TIMEOUT = 5000;
-Constants.STATE_REFRESH_TIMEOUT = 5000;
+Constants.REQUEST_TIMEOUT = 5000;
 Constants.HOME_PATH = "/";
 
 module.exports = Constants;

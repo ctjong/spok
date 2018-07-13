@@ -21,9 +21,10 @@ class RoomView extends ViewBase
     constructor(props)
     {
         super(props);
-        this.state = { room: null, isPromptDisabled: false, notifString: null };
+        this.state = { room: null, isPromptDisabled: false, notifCode: null };
         this.isRoomView = true;
         this.chatBox = null;
+        ClientHandler.setRoomCode(this.props.match.params.roomCode);
         ClientHandler.refreshState();
     }
 
@@ -55,14 +56,14 @@ class RoomView extends ViewBase
         }
     }
 
-    showNotifUI(notifString)
+    showNotifUI(notifCode)
     {
-        this.setState({ notifString });
+        this.setState({ notifCode });
     }
 
     hideNotifUI()
     {
-        this.setState({ notifString: null });
+        this.setState({ notifCode: null });
     }
 
     disablePrompt()
@@ -84,10 +85,10 @@ class RoomView extends ViewBase
     {
         const prompt = this.state.isPromptDisabled ? null : <Prompt message="Are you sure you want to leave?"/>;
         let body = null;
-        if(this.state.notifString)
-            body = <div>{this.state.notifString}</div>;
+        if(this.state.notifCode)
+            body = <div>{Constants.notifStrings[this.state.notifCode]}</div>;
         else if(!this.state.room)
-            body = <div>{Constants.notifStrings.CLIENT_DISCONNECTED}</div>;
+            body = <div>{Constants.notifStrings[Constants.notifCodes.CLIENT_DISCONNECTED]}</div>;
         else
         {
             const lobbyBtn = ClientHandler.isHostUser() && ClientHandler.getRoomState().phase > Constants.phases.LOBBY ? (
