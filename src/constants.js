@@ -70,7 +70,7 @@ Constants.TOTAL_PARTS = 4;
 Constants.ROOM_CODE_SSKEY = "roomCode";
 Constants.USER_NAME_SSKEY = "userName";
 Constants.DEFAULT_LANG = "en";
-Constants.REQUEST_TIMEOUT = 5000;
+Constants.REQUEST_TIMEOUT = 20000;
 Constants.HOME_PATH = "/";
 
 module.exports = Constants;
