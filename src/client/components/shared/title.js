@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import TitleImg from '../../images/title.png';
-import Constants from '../../constants';
+import Constants from '../../../constants';
 import ClientHandler from '../../client-message-handler';
 import './title.css';
 

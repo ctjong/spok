@@ -3,7 +3,7 @@ import { Prompt } from 'react-router';
 import ViewBase from '../../view-base';
 import ClientHandler from '../../client-message-handler';
 import ClientSocket from '../../client-socket';
-import Constants from '../../constants';
+import Constants from '../../../constants';
 import ParticipantList from '../roomControls/participant-list';
 import ChatBox from '../roomControls/chat-box';
 import LobbyPane from '../roomControls/lobby-pane';
@@ -12,7 +12,7 @@ import WaitPane from '../roomControls/wait-pane';
 import WritePane from '../roomControls/write-pane';
 import Title from '../shared/title';
 import RefreshButton from '../roomControls/refresh-button';
-import { GoToLobbyMessage } from '../../models';
+import { GoToLobbyMessage } from '../../../models';
 import './room-view.css';
 
 

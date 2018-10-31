@@ -2,9 +2,9 @@ import React from 'react';
 import ViewBase from '../../view-base';
 import ClientHandler from '../../client-message-handler';
 import ClientSocket from '../../client-socket';
-import Constants from '../../constants';
+import Constants from '../../../constants';
 import Title from '../shared/title';
-import { JoinRequestMessage } from '../../models';
+import { JoinRequestMessage } from '../../../models';
 import './join-view.css';
 
 

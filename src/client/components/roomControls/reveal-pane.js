@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import ClientHandler from '../../client-message-handler';
 import Strings from '../../strings';
 import ClientSocket from '../../client-socket';
-import { ScoreUpdateMessage } from '../../models';
+import { ScoreUpdateMessage } from '../../../models';
 import LikeImg from '../../images/like.png';
 import LikeActiveImg from '../../images/like_active.png';
 import DislikeImg from '../../images/dislike.png';
