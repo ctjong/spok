@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import ClientHandler from '../../client-message-handler';
 import ClientSocket from '../../client-socket';
 import Strings from '../../strings';
-import { Part, SubmitPartMessage } from '../../models';
+import { Part, SubmitPartMessage } from '../../../models';
 import './wait-pane.css';
 
 

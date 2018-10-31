@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import ClientHandler from '../../client-message-handler';
-import { KickPlayerMessage, SetAsHostMessage } from '../../models';
+import { KickPlayerMessage, SetAsHostMessage } from '../../../models';
 import './participant-list.css';
 import ClientSocket from '../../client-socket';
 

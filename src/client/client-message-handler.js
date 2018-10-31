@@ -1,5 +1,5 @@
-import { StateRequestMessage } from './models';
-import Constants from './constants';
+import { StateRequestMessage } from '../models';
+import Constants from '../constants';
 import ClientSocket from './client-socket';
 
 const ClientHandler = {};

@@ -1,5 +1,5 @@
 ﻿import io from 'socket.io-client';
-import Constants from './constants';
+import Constants from '../constants';
 
 const ClientSocket = {};
 

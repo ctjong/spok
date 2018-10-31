@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import ClientHandler from '../../client-message-handler';
 import Strings from '../../strings';
 import ClientSocket from '../../client-socket';
-import { Part, SubmitPartMessage } from '../../models';
+import { Part, SubmitPartMessage } from '../../../models';
 import './write-pane.css';
 
 

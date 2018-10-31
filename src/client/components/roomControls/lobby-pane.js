@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import ClientHandler from '../../client-message-handler';
-import { StartRoundMessage } from '../../models';
+import { StartRoundMessage } from '../../../models';
 import './lobby-pane.css';
 import ClientSocket from '../../client-socket';
 

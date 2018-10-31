@@ -2,10 +2,10 @@ import React from 'react';
 import ViewBase from '../../view-base';
 import ClientHandler from '../../client-message-handler';
 import ClientSocket from '../../client-socket';
-import Constants from '../../constants';
+import Constants from '../../../constants';
 import Strings from '../../strings';
 import Title from '../shared/title';
-import { CreateRoomMessage } from '../../models';
+import { CreateRoomMessage } from '../../../models';
 import './create-view.css';
 
 

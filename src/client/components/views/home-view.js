@@ -1,6 +1,6 @@
 import React from 'react';
 import ViewBase from '../../view-base';
-import Constants from '../../constants';
+import Constants from '../../../constants';
 import ClientHandler from '../../client-message-handler';
 import Title from '../shared/title';
 import './home-view.css';

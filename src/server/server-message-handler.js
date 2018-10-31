@@ -1,5 +1,5 @@
-const Models = require ('./src/models');
-const Constants = require("./src/constants");
+const Models = require ('../models');
+const Constants = require("../constants");
 
 let io = null;
 const rooms = {};

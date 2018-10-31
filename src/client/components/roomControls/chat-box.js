@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import ClientHandler from '../../client-message-handler';
 import ClientSocket from '../../client-socket';
-import { ChatMessage } from '../../models';
+import { ChatMessage } from '../../../models';
 import './chat-box.css';
 
 
