@@ -21,11 +21,7 @@ app.use('/service-worker.js', express.static(path.join(__dirname, '../../build/s
 app.get("*", (req, res) => 
 {
     let index = fs.readFileSync(path.join(__dirname, "../../build/index.html"), "utf8");
-    console.log(index);
-    const date = new Date();
-    const year = date.getUTCFullYear();
-    console.log(date, year);
-    index = index.replace("<year/>", year);
+    index = index.replace("<year/>", new Date().getUTCFullYear());
     res.send(index);
 });
 
