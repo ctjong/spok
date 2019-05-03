@@ -10,6 +10,7 @@ const path = require('path');
 const app = express();
 const http = require('http').Server(app);
 const serverMsgHandler = require('./server-message-handler');
+const fs = require('fs');
 serverMsgHandler.initialize(http);
 
 app.use('/static', express.static(path.join(__dirname, '../../build/static')));
@@ -19,7 +20,13 @@ app.use('/manifest.json', express.static(path.join(__dirname, '../../build/manif
 app.use('/service-worker.js', express.static(path.join(__dirname, '../../build/service-worker.js')));
 app.get("*", (req, res) => 
 {
-    res.sendFile(path.join(__dirname, "../../build/index.html"));
+    let index = fs.readFileSync(path.join(__dirname, "../../build/index.html"), "utf8");
+    console.log(index);
+    const date = new Date();
+    const year = date.getUTCFullYear();
+    console.log(date, year);
+    index = index.replace("<year/>", year);
+    res.send(index);
 });
 
 const port = process.env.port || 1337;
