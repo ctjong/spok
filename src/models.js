@@ -57,13 +57,13 @@ const Models =
     // MESSAGES
     //-----------------------------------------------------------
 
-    StateUpdateMessage: class
+    RoomUpdateMessage: class
     {
-        constructor(roomCode, newState)
+        constructor(roomCode, newRoomState)
         {
             this.type = Constants.msgTypes.STATE_UPDATE;
             this.roomCode = roomCode;
-            this.newState = newState;
+            this.newRoomState = newRoomState;
         }
     },
 

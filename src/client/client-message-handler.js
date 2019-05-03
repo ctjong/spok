@@ -100,12 +100,12 @@ const exitRoom = (reasonCode) =>
 
 const handleStateUpdate = (msg) =>
 {
-    const newState = msg.newState;
-    const existingPlayer = newState.players[ClientHandler.userName];
+    const newRoomState = msg.newRoomState;
+    const existingPlayer = newRoomState.players[ClientHandler.userName];
     if(!existingPlayer || ClientSocket.getSocketId() !== existingPlayer.socketId)
         exitRoom(Constants.notifCodes.JOIN_ANOTHER_DEVICE);
     else if(ClientHandler.activeView.isRoomView)
-        ClientHandler.activeView.updateRoomState(msg.newState);
+        ClientHandler.activeView.updateRoomState(msg.newRoomState);
 };
 
 const handleThisPlayerDC = () =>

@@ -304,7 +304,7 @@ const broadcast = (socket, msg) =>
 
 const broadcastStateUpdate = (socket, room) =>
 {
-    broadcast(socket, new Models.StateUpdateMessage(room.roomCode, room));
+    broadcast(socket, new Models.RoomUpdateMessage(room.roomCode, room));
 };
 
 const broadcastSystemChat = (socket, room, text) =>

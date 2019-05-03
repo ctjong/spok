@@ -71,9 +71,9 @@ class RoomView extends ViewBase
         this.setState({ isPromptDisabled: true });
     }
 
-    updateRoomState(newState)
+    updateRoomState(newRoomState)
     {
-        this.setState({ room: newState });
+        this.setState({ room: newRoomState });
     }
 
     handleLobbyButtonClick()
