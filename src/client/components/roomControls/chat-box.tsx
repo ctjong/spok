@@ -1,12 +1,19 @@
-import React, { Component } from 'react';
+import React, { Component, RefObject } from 'react';
 import ClientHandler from '../../client-message-handler';
 import ClientSocket from '../../client-socket';
 import { ChatMessage } from '../../../models';
 import './chat-box.css';
 
+interface ChatBoxState {
+    messages:ChatMessage[]
+}
 
 class ChatBox extends Component
 {
+    inputRef:RefObject<any>
+    scrollViewRef:RefObject<any>
+    state:ChatBoxState
+
     constructor(props)
     {
         super(props);

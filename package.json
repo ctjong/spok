@@ -3,7 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@types/jest": "^24.0.12",
+    "@types/node": "^12.0.0",
+    "@types/react": "^16.8.16",
+    "@types/react-dom": "^16.8.4",
     "applicationinsights": "^1.0.3",
+    "awesome-typescript-loader": "^5.2.1",
     "express": "^4.16.3",
     "jquery": "^3.3.1",
     "react": "^16.4.1",
@@ -12,7 +17,8 @@
     "react-router-dom": "^4.3.1",
     "react-scripts": "1.1.4",
     "socket.io": "^2.1.1",
-    "socket.io-client": "^2.1.1"
+    "socket.io-client": "^2.1.1",
+    "source-map-loader": "^0.2.4"
   },
   "scripts": {
     "react": "react-scripts start",
@@ -20,5 +26,6 @@
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "start": "node src/server/server.js"
-  }
+  },
+  "devDependencies": {}
 }

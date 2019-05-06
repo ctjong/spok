@@ -1,22 +1,27 @@
 const Constants = require('./constants');
 
-const Models = 
-{
-    //-----------------------------------------------------------
-    // GENERAL
-    //-----------------------------------------------------------
+const Models:{[key:string]:any} = {};
 
-    Paper: class
+    Models.Paper = class
     {
-        constructor(id)
+        id:string
+        parts:string[]
+
+        constructor(id:string)
         {
             this.id = id;
             this.parts = [];
         }
-    },
+    };
 
-    Player: class
+    Models.Player = class
     {
+        userName:string
+        socketId:string
+        paperId:string
+        isOnline:boolean
+        score:number
+
         constructor(userName, socketId)
         {
             this.userName = userName;
@@ -25,10 +30,14 @@ const Models =
             this.isOnline = true;
             this.score = 0;
         }
-    },
+    };
 
-    Part: class
+    Models.Part = class
     {
+        paperId:string
+        text:string
+        authorUserName:string
+
         constructor(paperId, text, authorUserName)
         {
             this.paperId = paperId;
@@ -37,8 +46,14 @@ const Models =
         }
     },
 
-    Room: class
+    Models.Room = class
     {
+        roomCode:string
+        lang:string
+        activePart:number
+        phase:number
+        players:{[key:string]:Models.Players}
+
         constructor(roomCode, lang, hostUserName, hostSocket)
         {
             this.roomCode = roomCode;
@@ -57,7 +72,7 @@ const Models =
     // MESSAGES
     //-----------------------------------------------------------
 
-    RoomUpdateMessage: class
+    Models.RoomUpdateMessage = class
     {
         constructor(roomCode, newRoomState)
         {
@@ -67,7 +82,7 @@ const Models =
         }
     },
 
-    CreateRoomMessage: class
+    Models.CreateRoomMessage = class
     {
         constructor(roomCode, hostUserName, lang)
         {
@@ -80,7 +95,7 @@ const Models =
         }
     },
 
-    JoinRequestMessage: class
+    Models.JoinRequestMessage = class
     {
         constructor(roomCode, userName)
         {
@@ -90,7 +105,7 @@ const Models =
         }
     },
 
-    SubmitPartMessage: class 
+    Models.SubmitPartMessage = class 
     {
         constructor(roomCode, part)
         {
@@ -100,7 +115,7 @@ const Models =
         }
     },
 
-    ChatMessage: class
+    Models.ChatMessage = class
     {
         constructor(roomCode, authorUserName, text)
         {
@@ -111,7 +126,7 @@ const Models =
         }
     },
 
-    GoToLobbyMessage: class
+    Models.GoToLobbyMessage = class
     {
         constructor(roomCode)
         {
@@ -120,7 +135,7 @@ const Models =
         }
     },
 
-    KickPlayerMessage: class
+    Models.KickPlayerMessage = class
     {
         constructor(roomCode, userName)
         {
@@ -130,7 +145,7 @@ const Models =
         }
     },
 
-    SetAsHostMessage: class
+    Models.SetAsHostMessage = class
     {
         constructor(roomCode, userName)
         {
@@ -140,7 +155,7 @@ const Models =
         }
     },
 
-    StartRoundMessage: class
+    Models.StartRoundMessage = class
     {
         constructor(roomCode)
         {
@@ -149,7 +164,7 @@ const Models =
         }
     },
 
-    ScoreUpdateMessage: class
+    Models.ScoreUpdateMessage = class
     {
         constructor(roomCode, paperId, delta)
         {
@@ -160,7 +175,7 @@ const Models =
         }
     },
 
-    StateRequestMessage: class
+    Models.StateRequestMessage = class
     {
         constructor(roomCode, userName)
         {
@@ -174,7 +189,7 @@ const Models =
     // RESPONSES
     //-----------------------------------------------------------
 
-    JoinApprovedResponse: class 
+    Models.JoinApprovedResponse = class 
     {
         constructor(gameState)
         {
@@ -183,7 +198,7 @@ const Models =
         }
     },
 
-    ErrorResponse: class 
+    Models.ErrorResponse = class 
     {
         constructor(notifCode)
         {
@@ -192,7 +207,7 @@ const Models =
         }
     },
 
-    SuccessResponse: class 
+    Models.SuccessResponse = class 
     {
         constructor()
         {
@@ -200,14 +215,13 @@ const Models =
         }
     },
 
-    StateResponse: class 
+    Models.StateResponse = class 
     {
         constructor(state)
         {
             this.isSuccess = true;
             this.state = state;
         }
-    },
-};
+    }
 
 module.exports = Models;

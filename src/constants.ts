@@ -1,4 +1,4 @@
-const Constants = {};
+const Constants:{[key:string]:any} = {};
 
 Constants.msgTypes =
 {
