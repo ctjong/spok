@@ -19,9 +19,10 @@ import {
   Paper,
   StateResponse,
   RoomUpdateMessage
-} from "src/models";
+} from "../models";
 import Constants from "../constants";
 import { Http2Server } from "http2";
+import { Part } from "models";
 
 let io = null;
 const rooms: { [key: string]: Room } = {};
@@ -292,7 +293,7 @@ const handleScoreUpdate = (
     reply(new ErrorResponse(Constants.notifCodes.UNKNOWN_ERROR));
     return;
   }
-  paper.parts.forEach(part => {
+  paper.parts.forEach((part: Part) => {
     if (part.authorUserName === null) return;
     const player = room.players[part.authorUserName];
     player.score += msg.delta;

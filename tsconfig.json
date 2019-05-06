@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
+    "baseUrl": "src",
     "module": "commonjs",
     "moduleResolution": "node",
     "sourceMap": true,
@@ -9,6 +9,7 @@
     "removeComments": false,
     "noImplicitAny": true,
     "allowJs": true,
-    "target": "es5"
+    "target": "es5",
+    "jsx": "react"
   }
 }

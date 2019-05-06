@@ -8,9 +8,9 @@ ADD public ./public
 ADD src ./src
 ADD package.json ./
 RUN npm install
-RUN npm run buildclient
+RUN npm run build
 
 RUN ls
 
-CMD ["npm", "run", "startserver"]
+CMD ["npm", "start"]
 EXPOSE 1337
