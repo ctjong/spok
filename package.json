@@ -73,7 +73,7 @@
   "scripts": {
     "buildclient": "node config/client/build.js",
     "buildserver": "tsc -p ./config/server/tsconfig.json",
-    "build": "tsc -p ./config/server/tsconfig.json; node config/client/build.js",
+    "build": "tsc -p ./config/server/tsconfig.json && node config/client/build.js",
     "startclient": "node config/client/start.js",
     "start": "node build/server/server/server.js"
   },
