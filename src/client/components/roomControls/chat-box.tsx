@@ -13,7 +13,7 @@ class ChatBox extends React.Component {
   scrollViewRef: React.RefObject<any>;
   state: ChatBoxState;
 
-  constructor(props) {
+  constructor(props: {}) {
     super(props);
     this.inputRef = React.createRef();
     this.scrollViewRef = React.createRef();
@@ -25,7 +25,7 @@ class ChatBox extends React.Component {
     el.scrollTo(0, el.scrollHeight);
   }
 
-  pushMessage(chatMsg) {
+  pushMessage(chatMsg: ChatMessage) {
     const newMessages = [];
     this.state.messages.forEach(msg => newMessages.push(msg));
     newMessages.push(chatMsg);
@@ -41,13 +41,13 @@ class ChatBox extends React.Component {
     );
   }
 
-  handleKeyDown(e) {
+  handleKeyDown(e: any) {
     if (e.keyCode === 13) this.handleSendClick();
   }
 
   render() {
     let counter = 0;
-    const rows = [];
+    const rows: any[] = [];
     this.state.messages.forEach(msg => {
       if (msg.authorUserName) {
         rows.push(

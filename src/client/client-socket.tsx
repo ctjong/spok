@@ -1,9 +1,9 @@
 ﻿import * as io from "socket.io-client";
 import Constants from "../constants";
-import { Message } from "../models";
+import { SpokMessage } from "../models";
 
 class ClientSocket {
-  messageHandlers: ((msg: Message) => void)[] = [];
+  messageHandlers: ((msg: SpokMessage) => void)[] = [];
   errorHandlers: ((notifCode: number) => void)[] = [];
   disconnectHandlers: (() => void)[] = [];
   reconnectHandlers: (() => void)[] = [];
@@ -11,7 +11,7 @@ class ClientSocket {
   initPromise: Promise<any> = null;
   socket: any = null;
 
-  send(msg: Message) {
+  send(msg: SpokMessage) {
     return new Promise(resolve => {
       // prepare timeout timer
       let isTimedOut = false;
@@ -44,7 +44,7 @@ class ClientSocket {
     return this.socket.id;
   }
 
-  addMessageHandler(handler: (msg: Message) => void) {
+  addMessageHandler(handler: (msg: SpokMessage) => void) {
     this.messageHandlers.push(handler);
   }
 
@@ -70,7 +70,7 @@ class ClientSocket {
   // PRIVATE FUNCTIONS
   //-------------------------------------------
 
-  handleMessage = (msg: Message) => {
+  handleMessage = (msg: SpokMessage) => {
     console.log("[handleMessage] received " + JSON.stringify(msg));
     this.messageHandlers.forEach(handler => handler(msg));
   };
@@ -107,7 +107,7 @@ class ClientSocket {
           ? "http://localhost:1337"
           : window.location.origin;
       this.socket = io(origin);
-      this.socket.on(Constants.eventNames.MSG, (msg: Message) =>
+      this.socket.on(Constants.eventNames.MSG, (msg: SpokMessage) =>
         this.handleMessage(msg)
       );
       this.socket.on(Constants.eventNames.CONNECT, () =>

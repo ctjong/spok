@@ -6,7 +6,9 @@ import { Part, SubmitPartMessage } from "../../../models";
 import "./write-pane.css";
 
 class WritePane extends React.Component {
-  constructor(props) {
+  inputRef: React.RefObject<any>;
+
+  constructor(props: {}) {
     super(props);
     this.inputRef = React.createRef();
   }
@@ -25,12 +27,12 @@ class WritePane extends React.Component {
 
   render() {
     const label =
-      Strings[ClientHandler.getRoomState().lang][
-        `part${ClientHandler.getRoomState().activePart}label`
+      Strings[ClientHandler.getRoomState().lang].labels[
+        ClientHandler.getRoomState().activePart
       ];
     const placeholder =
-      Strings[ClientHandler.getRoomState().lang][
-        `part${ClientHandler.getRoomState().activePart}placeholder`
+      Strings[ClientHandler.getRoomState().lang].placeholders[
+        ClientHandler.getRoomState().activePart
       ];
 
     return (

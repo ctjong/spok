@@ -4,7 +4,11 @@ import Constants from "../../../constants";
 import ClientHandler from "../../client-message-handler";
 import "./title.css";
 
-class Title extends React.Component {
+interface TitleProps {
+  isLarge: boolean;
+}
+
+class Title extends React.Component<TitleProps> {
   handleClick() {
     ClientHandler.goTo(Constants.HOME_PATH);
   }

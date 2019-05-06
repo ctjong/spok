@@ -4,19 +4,23 @@ import { History } from "history";
 import { Room } from "../models";
 import ChatBox from "./components/roomControls/chat-box";
 
-interface ViewBaseProps {
+export interface ViewBaseProps {
   history: History;
+  match: any;
 }
 
 interface ViewBaseStates {
   room: Room;
 }
 
-abstract class ViewBase extends React.Component<ViewBaseProps, ViewBaseStates> {
+export abstract class ViewBase<ChildProps, ChildStates> extends React.Component<
+  ViewBaseProps & ChildProps,
+  ViewBaseStates & ChildStates
+> {
   isRoomView: boolean;
   chatBox: ChatBox;
 
-  constructor(props: any) {
+  constructor(props: ViewBaseProps & ChildProps) {
     super(props);
     ClientHandler.activeView = this;
     ClientHandler.initHistory(this.props.history);
@@ -27,5 +31,3 @@ abstract class ViewBase extends React.Component<ViewBaseProps, ViewBaseStates> {
   abstract updateRoomState(state: Room): void;
   abstract disablePrompt(): void;
 }
-
-export default ViewBase;

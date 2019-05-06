@@ -1,87 +1,125 @@
-import React from 'react';
-import ViewBase from '../../view-base';
-import ClientHandler from '../../client-message-handler';
-import ClientSocket from '../../client-socket';
-import Constants from '../../../constants';
-import Title from '../shared/title';
-import { JoinRequestMessage } from '../../../models';
-import './join-view.css';
+import * as React from "react";
+import { ViewBase, ViewBaseProps } from "../../view-base";
+import ClientHandler from "../../client-message-handler";
+import ClientSocket from "../../client-socket";
+import Constants from "../../../constants";
+import Title from "../shared/title";
+import {
+  JoinRequestMessage,
+  SpokResponse,
+  ErrorResponse,
+  Room
+} from "../../../models";
+import "./join-view.css";
 
+interface JoinViewStates {
+  notifCode: number;
+  isLoading: boolean;
+}
 
-class JoinView extends ViewBase
-{
-    constructor(props)
-    {
-        super(props);
-        this.roomCodeRef = React.createRef();
-        this.userNameRef = React.createRef();
-        this.isJoinView = true;
-        this.state = { notifCode: null, isLoading: false };
-    }
+class JoinView extends ViewBase<{}, JoinViewStates> {
+  roomCodeRef: React.RefObject<any>;
+  userNameRef: React.RefObject<any>;
+  isJoinView: boolean;
 
-    handleSubmitClick()
-    {
-        const roomCode = this.roomCodeRef.current.value;
-        const userName = this.userNameRef.current.value;
+  constructor(props: ViewBaseProps) {
+    super(props);
+    this.roomCodeRef = React.createRef();
+    this.userNameRef = React.createRef();
+    this.isJoinView = true;
+    this.state = { room: null, notifCode: null, isLoading: false };
+  }
 
-        this.setState({ isLoading: true });
-        ClientHandler.setUserName(userName);
-        ClientSocket.send(new JoinRequestMessage(roomCode, userName)).then(response =>
-        {
-            if(!response.isSuccess)
-                this.setState({ isLoading: false, notifCode: response.notifCode });
-            else
-                ClientHandler.goTo(`/room/${roomCode}`);
-        });
-    }
+  handleSubmitClick() {
+    const roomCode = this.roomCodeRef.current.value;
+    const userName = this.userNameRef.current.value;
 
-    handleBackClick()
-    {
-        ClientHandler.goTo(Constants.HOME_PATH);
-    }
+    this.setState({ isLoading: true });
+    ClientHandler.setUserName(userName);
+    ClientSocket.send(new JoinRequestMessage(roomCode, userName)).then(
+      (response: SpokResponse) => {
+        if (!response.isSuccess) {
+          const errResponse = response as ErrorResponse;
+          this.setState({
+            isLoading: false,
+            notifCode: errResponse.notifCode
+          });
+        } else ClientHandler.goTo(`/room/${roomCode}`);
+      }
+    );
+  }
 
-    render() 
-    {
-        let body = null;
-        if(this.state.isLoading)
-            body = <div>Please wait</div>;
-        else
-        {
-            body = (
-                <div>
-                    <div className="error">{Constants.notifStrings[this.state.notifCode]}</div>
-                    <div className="control-group">
-                        <div>
-                            <label>Room code:</label>
-                        </div>
-                        <div>
-                            <input type="text" className="input" id="joinPage_roomCode" ref={this.roomCodeRef}/>
-                        </div>
-                    </div>
-                    <div className="control-group">
-                        <div>
-                            <label>Your user name:</label>
-                        </div>
-                        <div>
-                            <input type="text" className="input" id="joinPage_userName" ref={this.userNameRef}/>
-                        </div>
-                    </div>
-                    <div className="note">
-                        If you are trying to reconnect, please enter the same user name that you used previously.
-                    </div>
-                    <button className="btn-box submit-btn" onClick={e => this.handleSubmitClick()}>Submit</button>
-                    <button className="btn-box back-btn" onClick={e => this.handleBackClick()}>Back</button>
-                </div>
-            );
-        }
+  handleBackClick() {
+    ClientHandler.goTo(Constants.HOME_PATH);
+  }
 
-        return(
-            <div className="view join-view">
-                <Title isLarge={true} />
-                {body}
+  showNotifUI(notifCode: number) {}
+  hideNotifUI() {}
+  updateRoomState(state: Room) {}
+  disablePrompt() {}
+
+  render() {
+    let body = null;
+    if (this.state.isLoading) body = <div>Please wait</div>;
+    else {
+      body = (
+        <div>
+          <div className="error">
+            {Constants.notifStrings[this.state.notifCode]}
+          </div>
+          <div className="control-group">
+            <div>
+              <label>Room code:</label>
             </div>
-        );
+            <div>
+              <input
+                type="text"
+                className="input"
+                id="joinPage_roomCode"
+                ref={this.roomCodeRef}
+              />
+            </div>
+          </div>
+          <div className="control-group">
+            <div>
+              <label>Your user name:</label>
+            </div>
+            <div>
+              <input
+                type="text"
+                className="input"
+                id="joinPage_userName"
+                ref={this.userNameRef}
+              />
+            </div>
+          </div>
+          <div className="note">
+            If you are trying to reconnect, please enter the same user name that
+            you used previously.
+          </div>
+          <button
+            className="btn-box submit-btn"
+            onClick={e => this.handleSubmitClick()}
+          >
+            Submit
+          </button>
+          <button
+            className="btn-box back-btn"
+            onClick={e => this.handleBackClick()}
+          >
+            Back
+          </button>
+        </div>
+      );
     }
+
+    return (
+      <div className="view join-view">
+        <Title isLarge={true} />
+        {body}
+      </div>
+    );
+  }
 }
 
 export default JoinView;

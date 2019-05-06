@@ -1,11 +1,16 @@
-import { StateRequestMessage, RoomUpdateMessage, Message } from "../models";
+import {
+  StateRequestMessage,
+  RoomUpdateMessage,
+  SpokMessage,
+  ChatMessage
+} from "../models";
 import Constants from "../constants";
 import ClientSocket from "./client-socket";
-import ViewBase from "./view-base";
+import { ViewBase } from "./view-base";
 import { History } from "history";
 
 class ClientHandler {
-  activeView: ViewBase = null;
+  activeView: ViewBase<any, any> = null;
   history: History = null;
   userName: string = null;
   roomCode: string = null;
@@ -111,14 +116,14 @@ class ClientHandler {
     if (Constants.fatalErrors.indexOf(notifCode) >= 0) this.exitRoom(notifCode);
   }
 
-  handleMessage(msg: Message) {
+  handleMessage(msg: SpokMessage) {
     if (msg.type === Constants.msgTypes.ROOM_UPDATE)
       this.handeRoomUpdate(msg as RoomUpdateMessage);
     else if (
       msg.type === Constants.msgTypes.CHAT_MESSAGE &&
       this.activeView.isRoomView
     )
-      this.activeView.chatBox.pushMessage(msg);
+      this.activeView.chatBox.pushMessage(msg as ChatMessage);
   }
 }
 

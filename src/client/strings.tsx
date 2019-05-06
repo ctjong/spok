@@ -1,35 +1,131 @@
-export default
-    {
-        "en":
-        {
-            "langName": "English",
-            "part0label": "Enter a subject",
-            "part0placeholder": "Examples: Ned, Catelyn, Robb",
-            "part1label": "Enter a verb",
-            "part1placeholder": "Examples: bring, eat, drink",
-            "part2label": "Enter an object",
-            "part2placeholder": "Examples: ball, fruit, Ned's head",
-            "part3label": "Enter extra details (place/time/adjective/adverb)",
-            "part3placeholder": "Examples: in the woods, in the morning",
-            "part0random": ["Donald Trump", "Barrack Obama", "Tom Cruise", "Bill Gates", "Emma Watson", "Taylor Swift", "Miley Cyrus", "Justin Bieber"],
-            "part1random": ["pushes", "eats", "dances with", "looks at", "stares at", "picks", "kicks", "shakes", "lifts", "throws", "punches", "shoots", "stabs"],
-            "part2random": ["Donald Trump", "Barrack Obama", "Tom Cruise", "Bill Gates", "Emma Watson", "Taylor Swift", "Miley Cyrus", "Justin Bieber"],
-            "part3random": ["vigorously", "with passion", "because why not", "today", "this morning", "every day", "until the end of time", "on the himalayas"],
-        },
-        "id":
-        {
-            "langName": "Bahasa Indonesia",
-            "part0label": "Masukkan subjek",
-            "part0placeholder": "Contoh: Joko, Widodo, Ahok, Andi",
-            "part1label": "Masukkan kata kerja",
-            "part1placeholder": "Contoh: membawa, menggendong",
-            "part2label": "Masukkan objek",
-            "part2placeholder": "Contoh: bola, buah, hidung Andi",
-            "part3label": "Masukkan keterangan (tempat/waktu/dll)",
-            "part3placeholder": "Contoh: di gunung, sampai puas",
-            "part0random": ["Jokowi", "Ahok", "Donald Trump", "Bambang Pamungkas", "Emma Watson", "Taylor Swift", "Miley Cyrus", "Justin Bieber"],
-            "part1random": ["menonjok", "makan", "menari dengan", "melihat", "menyaksikan", "menendang", "mengangkat", "melempar", "mengerjai", "menembak"],
-            "part2random": ["Jokowi", "Ahok", "Donald Trump", "Bambang Pamungkas", "Emma Watson", "Taylor Swift", "Miley Cyrus", "Justin Bieber"],
-            "part3random": ["sampai puas", "dengan semangat", "karena bosan", "hari ini", "setiap hari", "sampai akhir jaman", "di atas gunung semeru"],
-        },
-    };
+interface LangEntry {
+  langName: string;
+  labels: string[];
+  placeholders: string[];
+  randoms: string[][];
+}
+
+const Strings: { [key: string]: LangEntry } = {
+  en: {
+    langName: "English",
+    labels: [
+      "Enter a subject",
+      "Enter a verb",
+      "Enter an object",
+      "Enter extra details (place/time/adjective/adverb)"
+    ],
+    placeholders: [
+      "Examples: Ned, Catelyn, Robb",
+      "Examples: bring, eat, drink",
+      "Examples: ball, fruit, Ned's head",
+      "Examples: in the woods, in the morning"
+    ],
+    randoms: [
+      [
+        "Donald Trump",
+        "Barrack Obama",
+        "Tom Cruise",
+        "Bill Gates",
+        "Emma Watson",
+        "Taylor Swift",
+        "Miley Cyrus",
+        "Justin Bieber"
+      ],
+      [
+        "pushes",
+        "eats",
+        "dances with",
+        "looks at",
+        "stares at",
+        "picks",
+        "kicks",
+        "shakes",
+        "lifts",
+        "throws",
+        "punches",
+        "shoots",
+        "stabs"
+      ],
+      [
+        "Donald Trump",
+        "Barrack Obama",
+        "Tom Cruise",
+        "Bill Gates",
+        "Emma Watson",
+        "Taylor Swift",
+        "Miley Cyrus",
+        "Justin Bieber"
+      ],
+      [
+        "vigorously",
+        "with passion",
+        "because why not",
+        "today",
+        "this morning",
+        "every day",
+        "until the end of time",
+        "on the himalayas"
+      ]
+    ]
+  },
+  id: {
+    langName: "Bahasa Indonesia",
+    labels: [
+      "Masukkan subjek",
+      "Masukkan kata kerja",
+      "Masukkan objek",
+      "Masukkan keterangan (tempat/waktu/dll)"
+    ],
+    placeholders: [
+      "Contoh: Joko, Widodo, Ahok, Andi",
+      "Contoh: membawa, menggendong",
+      "Contoh: bola, buah, hidung Andi",
+      "Contoh: di gunung, sampai puas"
+    ],
+    randoms: [
+      [
+        "Jokowi",
+        "Ahok",
+        "Donald Trump",
+        "Bambang Pamungkas",
+        "Emma Watson",
+        "Taylor Swift",
+        "Miley Cyrus",
+        "Justin Bieber"
+      ],
+      [
+        "menonjok",
+        "makan",
+        "menari dengan",
+        "melihat",
+        "menyaksikan",
+        "menendang",
+        "mengangkat",
+        "melempar",
+        "mengerjai",
+        "menembak"
+      ],
+      [
+        "Jokowi",
+        "Ahok",
+        "Donald Trump",
+        "Bambang Pamungkas",
+        "Emma Watson",
+        "Taylor Swift",
+        "Miley Cyrus",
+        "Justin Bieber"
+      ],
+      [
+        "sampai puas",
+        "dengan semangat",
+        "karena bosan",
+        "hari ini",
+        "setiap hari",
+        "sampai akhir jaman",
+        "di atas gunung semeru"
+      ]
+    ]
+  }
+};
+
+export default Strings;

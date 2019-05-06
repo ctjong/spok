@@ -2,7 +2,7 @@ import * as React from "react";
 import ClientHandler from "../../client-message-handler";
 import Strings from "../../strings";
 import ClientSocket from "../../client-socket";
-import { ScoreUpdateMessage } from "../../../models";
+import { ScoreUpdateMessage, Part } from "../../../models";
 import LikeImg from "../../images/like.png";
 import LikeActiveImg from "../../images/like_active.png";
 import DislikeImg from "../../images/dislike.png";
@@ -10,12 +10,14 @@ import DislikeActiveImg from "../../images/dislike_active.png";
 import "./reveal-pane.css";
 
 class RevealPane extends React.Component {
-  constructor(props) {
+  state: { votes: { [key: string]: number } };
+
+  constructor(props: {}) {
     super(props);
     this.state = { votes: {} };
   }
 
-  handleVoteClick(paperId, newVote) {
+  handleVoteClick(paperId: string, newVote: number) {
     const cloneVotes = Object.assign({}, this.state.votes);
     cloneVotes[paperId] = cloneVotes[paperId] || 0;
     const oldVote = cloneVotes[paperId];
@@ -28,17 +30,15 @@ class RevealPane extends React.Component {
   }
 
   getSentenceRows() {
-    const rows = [];
+    const rows: any[] = [];
     Object.keys(ClientHandler.getRoomState().papers).forEach(paperId => {
       const paper = ClientHandler.getRoomState().papers[paperId];
-      const texts = [];
-      paper.parts.forEach((part, index) => {
+      const texts: string[] = [];
+      paper.parts.forEach((part: Part, index: number) => {
         if (part.text) texts.push(part.text);
         else {
           const randomArr =
-            Strings[ClientHandler.getRoomState().lang][
-              `part${index + 1}random`
-            ];
+            Strings[ClientHandler.getRoomState().lang].randoms[index + 1];
           const randomIdx = Math.floor(
             Math.random() * Math.floor(randomArr.length)
           );

@@ -11,8 +11,8 @@ class WaitPane extends React.Component {
       const paper = ClientHandler.getRoomState().papers[paperId];
       if (!paper.parts[ClientHandler.getRoomState().activePart]) {
         const randomArr =
-          Strings[ClientHandler.getRoomState().lang][
-            `part${ClientHandler.getRoomState().activePart}random`
+          Strings[ClientHandler.getRoomState().lang].randoms[
+            ClientHandler.getRoomState().activePart
           ];
         const randomIdx = Math.floor(
           Math.random() * Math.floor(randomArr.length)
@@ -24,7 +24,7 @@ class WaitPane extends React.Component {
   }
 
   render() {
-    const playerNames = [];
+    const playerNames: string[] = [];
     Object.keys(ClientHandler.getRoomState().players).forEach(userName => {
       const paperId = ClientHandler.getRoomState().players[userName].paperId;
       const paper = ClientHandler.getRoomState().papers[paperId];

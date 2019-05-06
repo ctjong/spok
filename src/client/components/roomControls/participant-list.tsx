@@ -1,32 +1,32 @@
 import * as React from "react";
 import ClientHandler from "../../client-message-handler";
-import { KickPlayerMessage, SetAsHostMessage } from "../../../models";
+import { KickPlayerMessage, SetAsHostMessage, Player } from "../../../models";
 import "./participant-list.css";
 import ClientSocket from "../../client-socket";
 
 class ParticipantList extends React.Component {
-  handleKickButtonClick(player) {
+  handleKickButtonClick(player: Player) {
     ClientSocket.send(
       new KickPlayerMessage(ClientHandler.roomCode, player.userName)
     );
   }
 
-  handleSetAsHostButtonClick(player) {
+  handleSetAsHostButtonClick(player: Player) {
     ClientSocket.send(
       new SetAsHostMessage(ClientHandler.roomCode, player.userName)
     );
   }
 
   getList() {
-    const playerList = [];
+    const playerList: Player[] = [];
     Object.keys(ClientHandler.getRoomState().players).forEach(userName => {
       playerList.push(ClientHandler.getRoomState().players[userName]);
     });
-    playerList.sort((a, b) => {
-      return a.score < b.score;
+    playerList.sort((a: Player, b: Player) => {
+      return b.score - a.score;
     });
 
-    const items = [];
+    const playerDivs: any[] = [];
     playerList.forEach(player => {
       const className = "player " + (player.isOnline ? "" : "offline");
       const hostControls =
@@ -44,14 +44,14 @@ class ParticipantList extends React.Component {
         ClientHandler.getRoomState().hostUserName === player.userName ? (
           <span>(host)</span>
         ) : null;
-      items.push(
+      playerDivs.push(
         <div key={player.userName} className={className}>
           {player.userName} = {player.score} {hostLabel}
           {hostControls}
         </div>
       );
     });
-    return items;
+    return playerDivs;
   }
 
   render() {

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Prompt } from "react-router";
-import ViewBase from "../../view-base";
+import { ViewBase, ViewBaseProps } from "../../view-base";
 import ClientHandler from "../../client-message-handler";
 import ClientSocket from "../../client-socket";
 import Constants from "../../../constants";
@@ -12,11 +12,16 @@ import WaitPane from "../roomControls/wait-pane";
 import WritePane from "../roomControls/write-pane";
 import Title from "../shared/title";
 import RefreshButton from "../roomControls/refresh-button";
-import { GoToLobbyMessage } from "../../../models";
+import { GoToLobbyMessage, Room } from "../../../models";
 import "./room-view.css";
 
-class RoomView extends ViewBase {
-  constructor(props) {
+interface RoomViewStates {
+  isPromptDisabled: boolean;
+  notifCode: number;
+}
+
+class RoomView extends ViewBase<{}, RoomViewStates> {
+  constructor(props: ViewBaseProps) {
     super(props);
     this.state = { room: null, isPromptDisabled: false, notifCode: null };
     this.isRoomView = true;
@@ -50,7 +55,7 @@ class RoomView extends ViewBase {
     }
   }
 
-  showNotifUI(notifCode) {
+  showNotifUI(notifCode: number) {
     this.setState({ notifCode });
   }
 
@@ -62,7 +67,7 @@ class RoomView extends ViewBase {
     this.setState({ isPromptDisabled: true });
   }
 
-  updateRoomState(newRoomState) {
+  updateRoomState(newRoomState: Room) {
     this.setState({ room: newRoomState });
   }
 

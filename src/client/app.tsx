@@ -8,6 +8,7 @@ import RoomView from "./components/views/room-view";
 import HowToView from "./components/views/howto-view";
 import ErrorView from "./components/views/error-view";
 import registerServiceWorker from "./register-service-worker";
+import "./declare.d.ts";
 import "./app.css";
 
 class App extends React.Component {

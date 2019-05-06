@@ -1,16 +1,18 @@
+import * as express from "express";
+import * as path from "path";
+import * as http from "http";
+import * as fs from "fs";
+import ServerMessageHandler from "./server-message-handler";
+
 if (process.env.APPINSIGHTS_INSTRUMENTATIONKEY) {
   const appInsights = require("applicationinsights");
   appInsights.setup(process.env.APPINSIGHTS_INSTRUMENTATIONKEY);
   appInsights.start();
 }
 
-const express = require("express");
-const path = require("path");
 const app = express();
-const http = require("http").Server(app);
-const serverMsgHandler = require("./server-message-handler");
-const fs = require("fs");
-serverMsgHandler.initialize(http);
+const httpServer = new http.Server(app);
+ServerMessageHandler.initialize(httpServer);
 
 app.use("/static", express.static(path.join(__dirname, "../../client/static")));
 app.use(
@@ -34,11 +36,12 @@ app.get("*", (req: any, res: any) => {
     path.join(__dirname, "../../client/index.html"),
     "utf8"
   );
-  index = index.replace("<year/>", new Date().getUTCFullYear());
+  const year = new Date().getUTCFullYear().toString();
+  index = index.replace("<year/>", year);
   res.send(index);
 });
 
 const port = process.env.port || 1337;
-http.listen(port, () => {
+httpServer.listen(port, () => {
   console.log(`listening on ${port}`);
 });
