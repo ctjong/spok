@@ -19,10 +19,12 @@ class ClientHandler {
   constructor() {
     this.userName = sessionStorage.getItem(Constants.USER_NAME_SSKEY);
     this.roomCode = sessionStorage.getItem(Constants.ROOM_CODE_SSKEY);
-    ClientSocket.addDisconnectHandler(this.handleThisPlayerDC);
-    ClientSocket.addReconnectHandler(this.handleThisPlayerRC);
-    ClientSocket.addErrorHandler(this.handleError);
-    ClientSocket.addMessageHandler(this.handleMessage);
+    ClientSocket.addDisconnectHandler(() => this.handleThisPlayerDC());
+    ClientSocket.addReconnectHandler(() => this.handleThisPlayerRC());
+    ClientSocket.addErrorHandler((code: number) => this.handleError(code));
+    ClientSocket.addMessageHandler((msg: SpokMessage) =>
+      this.handleMessage(msg)
+    );
   }
 
   goTo(path: string) {

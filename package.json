@@ -71,10 +71,12 @@
     "whatwg-fetch": "^2.0.3"
   },
   "scripts": {
-    "buildclient": "node config/client/build.js",
     "buildserver": "tsc -p ./config/server/tsconfig.json",
-    "build": "tsc -p ./config/server/tsconfig.json && node config/client/build.js",
-    "startclient": "node config/client/start.js",
+    "buildclientdev": "node config/client/build.js development",
+    "buildclientprod": "node config/client/build.js production",
+    "builddev": "tsc -p ./config/server/tsconfig.json && node config/client/build.js development",
+    "buildprod": "tsc -p ./config/server/tsconfig.json && node config/client/build.js production",
+    "debug": "tsc -p ./config/server/tsconfig.json && node config/client/build.js development && node build/server/server/server.js",
     "start": "node build/server/server/server.js"
   },
   "devDependencies": {

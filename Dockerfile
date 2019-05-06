@@ -8,7 +8,7 @@ ADD public ./public
 ADD src ./src
 ADD package.json ./
 RUN npm install
-RUN npm run build
+RUN npm run buildprod
 
 RUN ls
 
