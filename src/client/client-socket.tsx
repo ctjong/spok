@@ -2,9 +2,9 @@
 import Constants from "../constants";
 import { Message } from "../models";
 
-export class ClientSocket {
+class ClientSocket {
   messageHandlers: ((msg: Message) => void)[] = [];
-  errorHandlers: ((notifCode: string) => void)[] = [];
+  errorHandlers: ((notifCode: number) => void)[] = [];
   disconnectHandlers: (() => void)[] = [];
   reconnectHandlers: (() => void)[] = [];
 
@@ -48,7 +48,7 @@ export class ClientSocket {
     this.messageHandlers.push(handler);
   }
 
-  addErrorHandler(handler: (code: string) => void) {
+  addErrorHandler(handler: (code: number) => void) {
     this.errorHandlers.push(handler);
   }
 
@@ -90,7 +90,7 @@ export class ClientSocket {
     this.reconnectHandlers.forEach(handler => handler());
   }
 
-  handleError(notifCode: string) {
+  handleError(notifCode: number) {
     console.log("[handleError]");
     this.errorHandlers.forEach(handler => handler(notifCode));
   }
@@ -126,3 +126,5 @@ export class ClientSocket {
     return this.initPromise;
   }
 }
+
+export default new ClientSocket();

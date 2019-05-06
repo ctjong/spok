@@ -1,149 +1,125 @@
-import { StateRequestMessage } from '../models';
-import Constants from '../constants';
-import ClientSocket from './client-socket';
+import { StateRequestMessage, RoomUpdateMessage, Message } from "../models";
+import Constants from "../constants";
+import ClientSocket from "./client-socket";
+import ViewBase from "./view-base";
+import { History } from "history";
 
-const ClientHandler = {};
-ClientHandler.activeView = null;
-ClientHandler.history = null;
-ClientHandler.userName = null;
-ClientHandler.roomCode = null;
-ClientHandler.lastNotifCode = null;
+class ClientHandler {
+  activeView: ViewBase = null;
+  history: History = null;
+  userName: string = null;
+  roomCode: string = null;
+  lastNotifCode: number = null;
 
+  constructor() {
+    this.userName = sessionStorage.getItem(Constants.USER_NAME_SSKEY);
+    this.roomCode = sessionStorage.getItem(Constants.ROOM_CODE_SSKEY);
+    ClientSocket.addDisconnectHandler(this.handleThisPlayerDC);
+    ClientSocket.addReconnectHandler(this.handleThisPlayerRC);
+    ClientSocket.addErrorHandler(this.handleError);
+    ClientSocket.addMessageHandler(this.handleMessage);
+  }
 
-//-------------------------------------------
-// PUBLIC FUNCTIONS
-//-------------------------------------------
+  goTo(path: string) {
+    this.history.push(path);
+  }
 
-ClientHandler.goTo = (path) => 
-{
-    ClientHandler.history.push(path);
-};
-
-ClientHandler.initHistory = (history) => 
-{
-    ClientHandler.history = history;
-    ClientHandler.history.listen(location => 
-        { 
-            if(location.pathname.indexOf("/room") !== 0 && ClientHandler.getRoomState())
-                exitRoom(Constants.notifCodes.UNKNOWN_ERROR);
-            if(location.pathname !== Constants.HOME_PATH)
-                ClientHandler.lastNotifCode = null;
-        });
-};
-
-ClientHandler.getRoomState = () =>
-{
-    if(!ClientHandler.activeView.isRoomView || !ClientHandler.activeView.state)
-        return null;
-    return ClientHandler.activeView.state.room;
-};
-
-ClientHandler.isHostUser = () => 
-{
-    const roomState = ClientHandler.getRoomState();
-    return roomState && ClientHandler.userName === roomState.hostUserName;
-};
-
-ClientHandler.setUserName = (value) => 
-{
-    console.log(`setting current userName to ${value}`);
-    ClientHandler.userName = value;
-    sessionStorage.setItem(Constants.USER_NAME_SSKEY, value);
-};
-
-ClientHandler.setRoomCode = (value) => 
-{
-    console.log(`setting current roomCode to ${value}`);
-    ClientHandler.roomCode = value;
-    sessionStorage.setItem(Constants.ROOM_CODE_SSKEY, value);
-};
-
-ClientHandler.refreshState = () =>
-{
-    if(!ClientHandler.activeView.isRoomView)
-    {
-        exitRoom(Constants.notifCodes.UNKNOWN_ERROR);
-        return;
-    }
-    ClientHandler.activeView.showNotifUI(Constants.notifCodes.SYNCING_STATE);
-    ClientSocket.send(new StateRequestMessage(ClientHandler.roomCode, ClientHandler.userName)).then(response =>
-    {
-        if(!ClientHandler.activeView.isRoomView)
-            return;
-        ClientHandler.activeView.hideNotifUI();
-        ClientHandler.activeView.updateRoomState(response.state);
+  initHistory(history: History) {
+    this.history = history;
+    history.listen(location => {
+      if (location.pathname.indexOf("/room") !== 0 && this.getRoomState())
+        this.exitRoom(Constants.notifCodes.UNKNOWN_ERROR);
+      if (location.pathname !== Constants.HOME_PATH) this.lastNotifCode = null;
     });
-};
+  }
 
-ClientHandler.getRandomCode =() =>
-{
+  getRoomState() {
+    if (!this.activeView.isRoomView || !this.activeView.state) return null;
+    return this.activeView.state.room;
+  }
+
+  isHostUser() {
+    const roomState = this.getRoomState();
+    return roomState && this.userName === roomState.hostUserName;
+  }
+
+  setUserName(value: string) {
+    console.log(`setting current userName to ${value}`);
+    this.userName = value;
+    sessionStorage.setItem(Constants.USER_NAME_SSKEY, value);
+  }
+
+  setRoomCode(value: string) {
+    console.log(`setting current roomCode to ${value}`);
+    this.roomCode = value;
+    sessionStorage.setItem(Constants.ROOM_CODE_SSKEY, value);
+  }
+
+  refreshState() {
+    if (!this.activeView.isRoomView) {
+      this.exitRoom(Constants.notifCodes.UNKNOWN_ERROR);
+      return;
+    }
+    this.activeView.showNotifUI(Constants.notifCodes.SYNCING_STATE);
+    ClientSocket.send(
+      new StateRequestMessage(this.roomCode, this.userName)
+    ).then((response: any) => {
+      if (!this.activeView.isRoomView) return;
+      this.activeView.hideNotifUI();
+      this.activeView.updateRoomState(response.state);
+    });
+  }
+
+  getRandomCode() {
     return Math.floor((1 + Math.random()) * 0x1000000000).toString(16);
-};
+  }
 
-
-//-------------------------------------------
-// PRIVATE FUNCTIONS
-//-------------------------------------------
-
-const exitRoom = (reasonCode) =>
-{
+  exitRoom(reasonCode: number) {
     console.log("Exiting room because of error code " + reasonCode);
-    ClientHandler.lastNotifCode = reasonCode;
-    if(ClientHandler.activeView.isRoomView)
-        ClientHandler.activeView.disablePrompt();
+    this.lastNotifCode = reasonCode;
+    if (this.activeView.isRoomView) this.activeView.disablePrompt();
     sessionStorage.setItem(Constants.USER_NAME_SSKEY, null);
     sessionStorage.setItem(Constants.ROOM_CODE_SSKEY, null);
     ClientSocket.close();
-    if(ClientHandler.history.location.pathname !== Constants.HOME_PATH)
-        ClientHandler.goTo(Constants.HOME_PATH);
-};
+    if (this.history.location.pathname !== Constants.HOME_PATH)
+      this.goTo(Constants.HOME_PATH);
+  }
 
-const handleStateUpdate = (msg) =>
-{
+  handeRoomUpdate(msg: RoomUpdateMessage) {
     const newRoomState = msg.newRoomState;
-    const existingPlayer = newRoomState.players[ClientHandler.userName];
-    if(!existingPlayer || ClientSocket.getSocketId() !== existingPlayer.socketId)
-        exitRoom(Constants.notifCodes.JOIN_ANOTHER_DEVICE);
-    else if(ClientHandler.activeView.isRoomView)
-        ClientHandler.activeView.updateRoomState(msg.newRoomState);
-};
+    const existingPlayer = newRoomState.players[this.userName];
+    if (
+      !existingPlayer ||
+      ClientSocket.getSocketId() !== existingPlayer.socketId
+    )
+      this.exitRoom(Constants.notifCodes.JOIN_ANOTHER_DEVICE);
+    else if (this.activeView.isRoomView)
+      this.activeView.updateRoomState(msg.newRoomState);
+  }
 
-const handleThisPlayerDC = () =>
-{
-    if(ClientHandler.activeView.isRoomView)
-        ClientHandler.activeView.showNotifUI(Constants.notifCodes.CLIENT_DISCONNECTED);
-};
+  handleThisPlayerDC() {
+    if (this.activeView.isRoomView)
+      this.activeView.showNotifUI(Constants.notifCodes.CLIENT_DISCONNECTED);
+  }
 
-const handleThisPlayerRC = () =>
-{
-    ClientHandler.refreshState();
-    if(ClientHandler.activeView.isRoomView)
-        ClientHandler.activeView.hideNotifUI();
-};
+  handleThisPlayerRC() {
+    this.refreshState();
+    if (this.activeView.isRoomView) this.activeView.hideNotifUI();
+  }
 
-const handleError = (notifCode) =>
-{
-    if(Constants.fatalErrors.indexOf(notifCode) >= 0)
-        exitRoom(notifCode);
-};
+  handleError(notifCode: number) {
+    if (Constants.fatalErrors.indexOf(notifCode) >= 0) this.exitRoom(notifCode);
+  }
 
-const handleMessage = (msg) => 
-{
-    if(msg.type === Constants.msgTypes.STATE_UPDATE)
-        handleStateUpdate(msg);
-    else if(msg.type ===  Constants.msgTypes.CHAT_MESSAGE && ClientHandler.activeView.isRoomView)
-        ClientHandler.activeView.chatBox.pushMessage(msg);
-};
+  handleMessage(msg: Message) {
+    if (msg.type === Constants.msgTypes.ROOM_UPDATE)
+      this.handeRoomUpdate(msg as RoomUpdateMessage);
+    else if (
+      msg.type === Constants.msgTypes.CHAT_MESSAGE &&
+      this.activeView.isRoomView
+    )
+      this.activeView.chatBox.pushMessage(msg);
+  }
+}
 
-const initialize = () =>
-{
-    ClientHandler.userName = sessionStorage.getItem(Constants.USER_NAME_SSKEY);
-    ClientHandler.roomCode = sessionStorage.getItem(Constants.ROOM_CODE_SSKEY);
-    ClientSocket.addDisconnectHandler(handleThisPlayerDC);
-    ClientSocket.addReconnectHandler(handleThisPlayerRC);
-    ClientSocket.addErrorHandler(handleError);
-    ClientSocket.addMessageHandler(handleMessage);
-};
-
-initialize();
-export default ClientHandler;
+export default new ClientHandler();
