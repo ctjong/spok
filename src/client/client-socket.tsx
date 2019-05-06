@@ -1,134 +1,128 @@
 ﻿import * as io from "socket.io-client";
 import Constants from "../constants";
+import { Message } from "../models";
 
-const ClientSocket = {};
+export class ClientSocket {
+  messageHandlers: ((msg: Message) => void)[] = [];
+  errorHandlers: ((notifCode: string) => void)[] = [];
+  disconnectHandlers: (() => void)[] = [];
+  reconnectHandlers: (() => void)[] = [];
 
-//-------------------------------------------
-// PRIVATE VARIABLES
-//-------------------------------------------
+  initPromise: Promise<any> = null;
+  socket: any = null;
 
-const messageHandlers = [];
-const errorHandlers = [];
-const disconnectHandlers = [];
-const reconnectHandlers = [];
+  send(msg: Message) {
+    return new Promise(resolve => {
+      // prepare timeout timer
+      let isTimedOut = false;
+      const timer = setTimeout(() => {
+        console.log("[send] request timed out. aborting.");
+        isTimedOut = true;
+        this.handleError(Constants.notifCodes.REQUEST_TIMEOUT);
+      }, Constants.REQUEST_TIMEOUT);
 
-let initPromise = null;
-let socket = null;
+      // init socket then fire request
+      this.initSocket().then(() => {
+        if (!this.socket) return;
 
-//-------------------------------------------
-// PUBLIC FUNCTIONS
-//-------------------------------------------
-
-ClientSocket.send = msg => {
-  return new Promise(resolve => {
-    // prepare timeout timer
-    let isTimedOut = false;
-    const timer = setTimeout(() => {
-      console.log("[ClientSocket.send] request timed out. aborting.");
-      isTimedOut = true;
-      handleError(Constants.notifCodes.REQUEST_TIMEOUT);
-    }, Constants.REQUEST_TIMEOUT);
-
-    // init socket then fire request
-    initSocket().then(() => {
-      if (!socket) return;
-
-      console.log("[ClientSocket.send] sending " + JSON.stringify(msg));
-      socket.emit(Constants.eventNames.MSG, msg, response => {
-        if (isTimedOut) {
-          console.log(
-            "[ClientSocket.send] response received after timeout. ignoring."
-          );
-          return;
-        }
-        console.log(
-          "[ClientSocket.send] received response " + JSON.stringify(response)
-        );
-        clearTimeout(timer);
-        if (!response.isSuccess) handleError(response.notifCode);
-        resolve(response);
+        console.log("[send] sending " + JSON.stringify(msg));
+        this.socket.emit(Constants.eventNames.MSG, msg, (response: any) => {
+          if (isTimedOut) {
+            console.log("[send] response received after timeout. ignoring.");
+            return;
+          }
+          console.log("[send] received response " + JSON.stringify(response));
+          clearTimeout(timer);
+          if (!response.isSuccessStatusCode) resolve(response);
+        });
       });
     });
-  });
-};
+  }
 
-ClientSocket.getSocketId = () => {
-  if (!socket) return null;
-  return socket.id;
-};
+  getSocketId() {
+    if (!this.socket) return null;
+    return this.socket.id;
+  }
 
-ClientSocket.addMessageHandler = handler => {
-  messageHandlers.push(handler);
-};
+  addMessageHandler(handler: (msg: Message) => void) {
+    this.messageHandlers.push(handler);
+  }
 
-ClientSocket.addErrorHandler = handler => {
-  errorHandlers.push(handler);
-};
+  addErrorHandler(handler: (code: string) => void) {
+    this.errorHandlers.push(handler);
+  }
 
-ClientSocket.addDisconnectHandler = handler => {
-  disconnectHandlers.push(handler);
-};
+  addDisconnectHandler(handler: () => void) {
+    this.disconnectHandlers.push(handler);
+  }
 
-ClientSocket.addReconnectHandler = handler => {
-  reconnectHandlers.push(handler);
-};
+  addReconnectHandler(handler: () => void) {
+    this.reconnectHandlers.push(handler);
+  }
 
-ClientSocket.close = () => {
-  if (socket) socket.close();
-  socket = null;
-  initPromise = null;
-};
+  close() {
+    if (this.socket) this.socket.close();
+    this.socket = null;
+    this.initPromise = null;
+  }
 
-//-------------------------------------------
-// PRIVATE FUNCTIONS
-//-------------------------------------------
+  //-------------------------------------------
+  // PRIVATE FUNCTIONS
+  //-------------------------------------------
 
-const handleMessage = msg => {
-  console.log("[ClientSocket.handleMessage] received " + JSON.stringify(msg));
-  messageHandlers.forEach(handler => handler(msg));
-};
+  handleMessage = (msg: Message) => {
+    console.log("[handleMessage] received " + JSON.stringify(msg));
+    this.messageHandlers.forEach(handler => handler(msg));
+  };
 
-const handleConnect = callback => {
-  console.log("[ClientSocket.handleConnect]");
-  callback();
-};
+  handleConnect = (callback: () => void) => {
+    console.log("[handleConnect]");
+    callback();
+  };
 
-const handleDisconnect = () => {
-  console.log("[ClientSocket.handleDisconnect]");
-  disconnectHandlers.forEach(handler => handler());
-};
+  handleDisconnect() {
+    console.log("[handleDisconnect]");
+    this.disconnectHandlers.forEach(handler => handler());
+  }
 
-const handleReconnect = () => {
-  console.log("[ClientSocket.handleReconnect]");
-  reconnectHandlers.forEach(handler => handler());
-};
+  handleReconnect() {
+    console.log("[handleReconnect]");
+    this.reconnectHandlers.forEach(handler => handler());
+  }
 
-const handleError = notifCode => {
-  console.log("[ClientSocket.handleError]");
-  errorHandlers.forEach(handler => handler(notifCode));
-};
+  handleError(notifCode: string) {
+    console.log("[handleError]");
+    this.errorHandlers.forEach(handler => handler(notifCode));
+  }
 
-const initSocket = () => {
-  if (initPromise) return initPromise;
-  initPromise = new Promise(resolve => {
-    if (socket) {
-      resolve();
-      return;
-    }
-    const origin =
-      window.location.origin.indexOf("localhost") >= 0
-        ? "http://localhost:1337"
-        : window.location.origin;
-    socket = io(origin);
-    socket.on(Constants.eventNames.MSG, msg => handleMessage(msg));
-    socket.on(Constants.eventNames.CONNECT, () => handleConnect(resolve));
-    socket.on(Constants.eventNames.DISCONNECT, () => handleDisconnect());
-    socket.on(Constants.eventNames.RECONNECT, () => handleReconnect());
-    socket.on(Constants.eventNames.CONNECT_ERROR, () =>
-      handleError(Constants.notifCodes.CONNECT_ERROR)
-    );
-  });
-  return initPromise;
-};
-
-export default ClientSocket;
+  initSocket() {
+    if (this.initPromise) return this.initPromise;
+    this.initPromise = new Promise(resolve => {
+      if (this.socket) {
+        resolve();
+        return;
+      }
+      const origin =
+        window.location.origin.indexOf("localhost") >= 0
+          ? "http://localhost:1337"
+          : window.location.origin;
+      this.socket = io(origin);
+      this.socket.on(Constants.eventNames.MSG, (msg: Message) =>
+        this.handleMessage(msg)
+      );
+      this.socket.on(Constants.eventNames.CONNECT, () =>
+        this.handleConnect(resolve)
+      );
+      this.socket.on(Constants.eventNames.DISCONNECT, () =>
+        this.handleDisconnect()
+      );
+      this.socket.on(Constants.eventNames.RECONNECT, () =>
+        this.handleReconnect()
+      );
+      this.socket.on(Constants.eventNames.CONNECT_ERROR, () =>
+        this.handleError(Constants.notifCodes.CONNECT_ERROR)
+      );
+    });
+    return this.initPromise;
+  }
+}
