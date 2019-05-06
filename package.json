@@ -3,10 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@types/jest": "^24.0.12",
-    "@types/node": "^12.0.0",
-    "@types/react": "^16.8.16",
-    "@types/react-dom": "^16.8.4",
     "applicationinsights": "^1.0.3",
     "autoprefixer": "7.1.6",
     "babel-core": "6.26.0",
@@ -64,6 +60,12 @@
     "startserver": "tsc -p ./config/server/tsconfig.json; node build/server/server.js"
   },
   "devDependencies": {
+    "@types/jest": "^24.0.12",
+    "@types/node": "^12.0.0",
+    "@types/react": "^16.8.16",
+    "@types/react-dom": "^16.8.4",
+    "@types/socket.io": "^2.1.2",
+    "@types/socket.io-client": "^1.4.32",
     "typescript": "^3.4.5",
     "webpack-cli": "^3.3.2"
   },
