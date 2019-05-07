@@ -77,6 +77,8 @@ class RoomView extends ViewBase<{}, RoomViewStates> {
 
   render() {
     const prompt = this.state.isPromptDisabled ? null : (
+      // React-router's Prompt element will be shown automatically
+      // before the page unloads.
       <Prompt message="Are you sure you want to leave?" />
     );
     let body = null;

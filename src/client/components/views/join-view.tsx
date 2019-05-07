@@ -53,10 +53,21 @@ class JoinView extends ViewBase<{}, JoinViewStates> {
     ClientHandler.goTo(Constants.HOME_PATH);
   }
 
-  showNotifUI(notifCode: number) {}
-  hideNotifUI() {}
-  updateRoomState(state: Room) {}
-  disablePrompt() {}
+  showNotifUI(notifCode: number) {
+    throw new Error("Not implemented");
+  }
+
+  hideNotifUI() {
+    throw new Error("Not implemented");
+  }
+
+  updateRoomState(state: Room) {
+    throw new Error("Not implemented");
+  }
+
+  disablePrompt() {
+    throw new Error("Not implemented");
+  }
 
   render() {
     let body = null;
