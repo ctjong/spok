@@ -100,7 +100,7 @@ class ClientHandler {
       !existingPlayer ||
       ClientSocket.getSocketId() !== existingPlayer.socketId
     )
-      this.exitRoom(Constants.notifCodes.JOIN_ANOTHER_DEVICE);
+      this.exitRoom(Constants.notifCodes.PLAYER_KICKED);
     else if (this.activeView.isRoomView)
       this.activeView.updateRoomState(msg.newRoomState);
   }

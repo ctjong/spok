@@ -33,7 +33,7 @@ Constants.notifCodes = {
   SYNCING_STATE: 2,
   SUBMIT_PART_FAILED: 3,
   ROOM_NOT_EXIST: 4,
-  JOIN_ANOTHER_DEVICE: 5,
+  PLAYER_KICKED: 5,
   REQUEST_TIMEOUT: 6,
   NOT_IN_ROOM: 7,
   CONNECT_ERROR: 8,
@@ -53,8 +53,8 @@ Constants.notifStrings[Constants.notifCodes.SUBMIT_PART_FAILED] =
   "An error occurred while trying to submit your input. Please try again later.";
 Constants.notifStrings[Constants.notifCodes.ROOM_NOT_EXIST] =
   "Room does not exist. Please create a new room or join another one.";
-Constants.notifStrings[Constants.notifCodes.JOIN_ANOTHER_DEVICE] =
-  "You have joined on another device so you have been removed on this one.";
+Constants.notifStrings[Constants.notifCodes.PLAYER_KICKED] =
+  "You have been removed from the game, either because you joined on another device or you were kicked by the host.";
 Constants.notifStrings[Constants.notifCodes.REQUEST_TIMEOUT] =
   "Request timed out. Please try again later.";
 Constants.notifStrings[Constants.notifCodes.NOT_IN_ROOM] =
@@ -70,7 +70,7 @@ Constants.notifStrings[Constants.notifCodes.RECONNECTING] =
 
 Constants.fatalErrors = [
   Constants.notifCodes.ROOM_NOT_EXIST,
-  Constants.notifCodes.JOIN_ANOTHER_DEVICE,
+  Constants.notifCodes.PLAYER_KICKED,
   Constants.notifCodes.CLIENT_DISCONNECTED,
   Constants.notifCodes.NOT_IN_ROOM,
   Constants.notifCodes.CONNECT_ERROR
