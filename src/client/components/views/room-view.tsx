@@ -21,16 +21,20 @@ interface RoomViewStates {
 }
 
 class RoomView extends ViewBase<{}, RoomViewStates> {
+  isCompMounted: boolean;
+
   constructor(props: ViewBaseProps) {
     super(props);
     this.state = { room: null, isPromptDisabled: false, notifCode: null };
     this.isRoomView = true;
     this.chatBox = null;
+    this.isCompMounted = false;
     ClientHandler.setRoomCode(this.props.match.params.roomCode);
     ClientHandler.refreshState();
   }
 
   componentDidMount() {
+    this.isCompMounted = true;
     this.setState({ isPromptDisabled: false });
   }
 
@@ -56,19 +60,23 @@ class RoomView extends ViewBase<{}, RoomViewStates> {
   }
 
   showNotifUI(notifCode: number) {
-    this.setState({ notifCode });
+    if (this.isCompMounted) this.setState({ notifCode });
+    else this.state = { ...this.state, notifCode };
   }
 
   hideNotifUI() {
-    this.setState({ notifCode: null });
+    if (this.isCompMounted) this.setState({ notifCode: null });
+    else this.state = { ...this.state, notifCode: null };
   }
 
   disablePrompt() {
-    this.setState({ isPromptDisabled: true });
+    if (this.isCompMounted) this.setState({ isPromptDisabled: true });
+    else this.state = { ...this.state, isPromptDisabled: true };
   }
 
   updateRoomState(newRoomState: Room) {
-    this.setState({ room: newRoomState });
+    if (this.isCompMounted) this.setState({ room: newRoomState });
+    else this.state = { ...this.state, room: newRoomState };
   }
 
   handleLobbyButtonClick() {
@@ -85,11 +93,7 @@ class RoomView extends ViewBase<{}, RoomViewStates> {
     if (this.state.notifCode)
       body = <div>{Constants.notifStrings[this.state.notifCode]}</div>;
     else if (!this.state.room)
-      body = (
-        <div>
-          {Constants.notifStrings[Constants.notifCodes.CLIENT_DISCONNECTED]}
-        </div>
-      );
+      body = <div>{Constants.notifStrings[Constants.notifCodes.LOADING]}</div>;
     else {
       const lobbyBtn =
         ClientHandler.isHostUser() &&
