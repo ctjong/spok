@@ -119,13 +119,14 @@ class ClientHandler {
   }
 
   handleMessage(msg: SpokMessage) {
-    if (msg.type === Constants.msgTypes.ROOM_UPDATE)
+    if (msg.type === Constants.msgTypes.ROOM_UPDATE) {
       this.handeRoomUpdate(msg as RoomUpdateMessage);
-    else if (
+    } else if (
       msg.type === Constants.msgTypes.CHAT_MESSAGE &&
       this.activeView.isRoomView
-    )
+    ) {
       this.activeView.chatBox.pushMessage(msg as ChatMessage);
+    }
   }
 }
 

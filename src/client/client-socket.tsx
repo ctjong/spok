@@ -102,7 +102,7 @@ class ClientSocket {
         window.location.origin.indexOf("localhost") >= 0
           ? "http://localhost:1337"
           : window.location.origin;
-      this.socket = io(origin);
+      this.socket = io(origin, { reconnection: false });
       this.socket.on(Constants.eventNames.MSG, (msg: SpokMessage) =>
         this.handleMessage(msg)
       );
