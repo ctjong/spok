@@ -66,19 +66,15 @@ class ClientSocket {
     this.initPromise = null;
   }
 
-  //-------------------------------------------
-  // PRIVATE FUNCTIONS
-  //-------------------------------------------
-
-  handleMessage = (msg: SpokMessage) => {
+  handleMessage(msg: SpokMessage) {
     console.log("[handleMessage] received " + JSON.stringify(msg));
     this.messageHandlers.forEach(handler => handler(msg));
-  };
+  }
 
-  handleConnect = (callback: () => void) => {
+  handleConnect(callback: () => void) {
     console.log("[handleConnect]");
     callback();
-  };
+  }
 
   handleDisconnect() {
     console.log("[handleDisconnect]");
