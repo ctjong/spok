@@ -2,7 +2,8 @@ import {
   StateRequestMessage,
   RoomUpdateMessage,
   SpokMessage,
-  ChatMessage
+  ChatMessage,
+  StateResponse
 } from "../models";
 import Constants from "../constants";
 import ClientSocket from "./client-socket";
@@ -15,12 +16,12 @@ class ClientHandler {
   userName: string = null;
   roomCode: string = null;
   lastNotifCode: number = null;
+  isReconnecting: boolean = false;
 
   constructor() {
     this.userName = sessionStorage.getItem(Constants.USER_NAME_SSKEY);
     this.roomCode = sessionStorage.getItem(Constants.ROOM_CODE_SSKEY);
     ClientSocket.addDisconnectHandler(() => this.handleThisPlayerDC());
-    ClientSocket.addReconnectHandler(() => this.handleThisPlayerRC());
     ClientSocket.addErrorHandler((code: number) => this.handleError(code));
     ClientSocket.addMessageHandler((msg: SpokMessage) =>
       this.handleMessage(msg)
@@ -70,7 +71,7 @@ class ClientHandler {
     this.activeView.showNotifUI(Constants.notifCodes.SYNCING_STATE);
     ClientSocket.send(
       new StateRequestMessage(this.roomCode, this.userName)
-    ).then((response: any) => {
+    ).then((response: StateResponse) => {
       if (!this.activeView.isRoomView) return;
       this.activeView.hideNotifUI();
       this.activeView.updateRoomState(response.state);
@@ -99,33 +100,62 @@ class ClientHandler {
       !existingPlayer ||
       ClientSocket.getSocketId() !== existingPlayer.socketId
     )
-      this.exitRoom(Constants.notifCodes.JOIN_ANOTHER_DEVICE);
+      this.exitRoom(Constants.notifCodes.PLAYER_KICKED);
     else if (this.activeView.isRoomView)
       this.activeView.updateRoomState(msg.newRoomState);
   }
 
-  handleThisPlayerDC() {
-    if (this.activeView.isRoomView)
-      this.activeView.showNotifUI(Constants.notifCodes.CLIENT_DISCONNECTED);
-  }
+  async handleThisPlayerDC() {
+    if (!this.activeView.isRoomView) return;
+    this.activeView.showNotifUI(Constants.notifCodes.RECONNECTING);
 
-  handleThisPlayerRC() {
-    this.refreshState();
-    if (this.activeView.isRoomView) this.activeView.hideNotifUI();
+    // Try to reconnect
+    let elapsed = 0;
+    let isInitialized = ClientSocket.isSocketInitialized();
+    this.isReconnecting = true;
+    while (!isInitialized && elapsed <= Constants.RECONNECT_TIMEOUT) {
+      console.log(`[handleThisPlayerDC] Reconnecting. ${elapsed}ms elapsed.`);
+      await ClientSocket.initSocket();
+      isInitialized = ClientSocket.isSocketInitialized();
+      if (!isInitialized) {
+        await this.delay(Constants.RECONNECT_INTERVAL);
+        elapsed += Constants.RECONNECT_INTERVAL;
+      }
+    }
+    this.isReconnecting = false;
+
+    // If reconnection succeeded, fetch states. Otherwise, display an error
+    if (ClientSocket.isSocketInitialized()) {
+      console.log("[handleThisPlayerDC] reconnection successful");
+      this.refreshState();
+    } else {
+      console.error("[handleThisPlayerDC] Failed to re-initialize socket");
+      this.exitRoom(Constants.notifCodes.CLIENT_DISCONNECTED);
+    }
   }
 
   handleError(notifCode: number) {
-    if (Constants.fatalErrors.indexOf(notifCode) >= 0) this.exitRoom(notifCode);
+    if (!this.isReconnecting && Constants.fatalErrors.indexOf(notifCode) >= 0) {
+      console.log("[handleError] Fatal error received. Exiting room.");
+      this.exitRoom(notifCode);
+    }
   }
 
   handleMessage(msg: SpokMessage) {
-    if (msg.type === Constants.msgTypes.ROOM_UPDATE)
+    if (msg.type === Constants.msgTypes.ROOM_UPDATE) {
       this.handeRoomUpdate(msg as RoomUpdateMessage);
-    else if (
+    } else if (
       msg.type === Constants.msgTypes.CHAT_MESSAGE &&
       this.activeView.isRoomView
-    )
+    ) {
       this.activeView.chatBox.pushMessage(msg as ChatMessage);
+    }
+  }
+
+  delay(timeout: number) {
+    return new Promise(resolve => {
+      setTimeout(resolve, timeout);
+    });
   }
 }
 
