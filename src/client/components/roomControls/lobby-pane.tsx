@@ -1,12 +1,11 @@
 import * as React from "react";
-import ClientHandler from "../../client-message-handler";
+import ClientHandler from "../../client-handler";
 import { StartRoundMessage } from "../../../models";
 import "./lobby-pane.css";
-import ClientSocket from "../../client-socket";
 
 class LobbyPane extends React.Component {
   handleStartClick() {
-    ClientSocket.send(new StartRoundMessage(ClientHandler.roomCode));
+    ClientHandler.send(new StartRoundMessage(ClientHandler.roomCode));
   }
 
   render() {

@@ -24,7 +24,7 @@ import Constants from "../constants";
 import { Http2Server } from "http2";
 import { Part } from "models";
 
-class ServerMessageHandler {
+class ServerHandler {
   io: Socket = null;
   rooms: { [key: string]: Room } = {};
   socketToRoomMap: { [key: string]: string } = {};
@@ -473,4 +473,4 @@ class ServerMessageHandler {
   }
 }
 
-export default new ServerMessageHandler();
+export default new ServerHandler();

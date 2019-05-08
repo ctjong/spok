@@ -1,7 +1,6 @@
 import * as React from "react";
 import { ViewBase, ViewBaseProps } from "../../view-base";
-import ClientHandler from "../../client-message-handler";
-import ClientSocket from "../../client-socket";
+import ClientHandler from "../../client-handler";
 import Constants from "../../../constants";
 import Strings from "../../strings";
 import Title from "../shared/title";
@@ -36,7 +35,7 @@ class CreateView extends ViewBase<{}, CreateViewStates> {
       const selectedIndex = dropdown.selectedIndex;
       lang = dropdown.options[selectedIndex].value;
     }
-    ClientSocket.send(new CreateRoomMessage(roomCode, userName, lang)).then(
+    ClientHandler.send(new CreateRoomMessage(roomCode, userName, lang)).then(
       () => {
         ClientHandler.goTo(`/room/${roomCode}`);
       }

@@ -1,18 +1,17 @@
 import * as React from "react";
-import ClientHandler from "../../client-message-handler";
+import ClientHandler from "../../client-handler";
 import { KickPlayerMessage, SetAsHostMessage, Player } from "../../../models";
 import "./participant-list.css";
-import ClientSocket from "../../client-socket";
 
 class ParticipantList extends React.Component {
   handleKickButtonClick(player: Player) {
-    ClientSocket.send(
+    ClientHandler.send(
       new KickPlayerMessage(ClientHandler.roomCode, player.userName)
     );
   }
 
   handleSetAsHostButtonClick(player: Player) {
-    ClientSocket.send(
+    ClientHandler.send(
       new SetAsHostMessage(ClientHandler.roomCode, player.userName)
     );
   }

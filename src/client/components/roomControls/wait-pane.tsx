@@ -1,6 +1,5 @@
 import * as React from "react";
-import ClientHandler from "../../client-message-handler";
-import ClientSocket from "../../client-socket";
+import ClientHandler from "../../client-handler";
 import Strings from "../../strings";
 import { Part, SubmitPartMessage } from "../../../models";
 import "./wait-pane.css";
@@ -18,7 +17,7 @@ class WaitPane extends React.Component {
           Math.random() * Math.floor(randomArr.length)
         );
         const part = new Part(paperId, randomArr[randomIdx], null);
-        ClientSocket.send(new SubmitPartMessage(ClientHandler.roomCode, part));
+        ClientHandler.send(new SubmitPartMessage(ClientHandler.roomCode, part));
       }
     });
   }

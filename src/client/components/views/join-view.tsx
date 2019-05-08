@@ -1,7 +1,6 @@
 import * as React from "react";
 import { ViewBase, ViewBaseProps } from "../../view-base";
-import ClientHandler from "../../client-message-handler";
-import ClientSocket from "../../client-socket";
+import ClientHandler from "../../client-handler";
 import Constants from "../../../constants";
 import Title from "../shared/title";
 import {
@@ -36,7 +35,7 @@ class JoinView extends ViewBase<{}, JoinViewStates> {
 
     this.setState({ isLoading: true });
     ClientHandler.setUserName(userName);
-    ClientSocket.send(new JoinRequestMessage(roomCode, userName)).then(
+    ClientHandler.send(new JoinRequestMessage(roomCode, userName)).then(
       (response: SpokResponse) => {
         if (!response.isSuccess) {
           const errResponse = response as ErrorResponse;

@@ -2,7 +2,7 @@ import * as express from "express";
 import * as path from "path";
 import * as http from "http";
 import * as fs from "fs";
-import ServerMessageHandler from "./server-message-handler";
+import ServerHandler from "./server-handler";
 
 if (process.env.APPINSIGHTS_INSTRUMENTATIONKEY) {
   const appInsights = require("applicationinsights");
@@ -12,7 +12,7 @@ if (process.env.APPINSIGHTS_INSTRUMENTATIONKEY) {
 
 const app = express();
 const httpServer = new http.Server(app);
-ServerMessageHandler.initialize(httpServer);
+ServerHandler.initialize(httpServer);
 
 app.use("/static", express.static(path.join(__dirname, "../../client/static")));
 app.use(

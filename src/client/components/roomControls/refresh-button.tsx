@@ -1,5 +1,5 @@
 import * as React from "react";
-import ClientHandler from "../../client-message-handler";
+import ClientHandler from "../../client-handler";
 import RefreshImg from "../../images/refresh.png";
 import "./refresh-button.css";
 
