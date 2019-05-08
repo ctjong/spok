@@ -1,5 +1,5 @@
 import * as React from "react";
-import ClientHandler from "./client-message-handler";
+import ClientHandler from "./client-handler";
 import { History } from "history";
 import { Room } from "../models";
 import ChatBox from "./components/roomControls/chat-box";

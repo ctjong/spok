@@ -1,7 +1,7 @@
 import * as React from "react";
 import { ViewBase } from "../../view-base";
 import Constants from "../../../constants";
-import ClientHandler from "../../client-message-handler";
+import ClientHandler from "../../client-handler";
 import "./error-view.css";
 import { Room } from "../../../models";
 

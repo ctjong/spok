@@ -1,7 +1,7 @@
 import * as React from "react";
 import TitleImg from "../../images/title.png";
 import Constants from "../../../constants";
-import ClientHandler from "../../client-message-handler";
+import ClientHandler from "../../client-handler";
 import "./title.css";
 
 interface TitleProps {

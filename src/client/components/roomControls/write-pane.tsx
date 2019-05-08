@@ -1,7 +1,6 @@
 import * as React from "react";
-import ClientHandler from "../../client-message-handler";
+import ClientHandler from "../../client-handler";
 import Strings from "../../strings";
-import ClientSocket from "../../client-socket";
 import { Part, SubmitPartMessage } from "../../../models";
 import "./write-pane.css";
 
@@ -22,7 +21,7 @@ class WritePane extends React.Component {
       .paperId;
 
     const part = new Part(paperId, text, ClientHandler.userName);
-    ClientSocket.send(new SubmitPartMessage(ClientHandler.roomCode, part));
+    ClientHandler.send(new SubmitPartMessage(ClientHandler.roomCode, part));
   }
 
   render() {

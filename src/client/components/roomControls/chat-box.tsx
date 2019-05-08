@@ -1,6 +1,5 @@
 import * as React from "react";
-import ClientHandler from "../../client-message-handler";
-import ClientSocket from "../../client-socket";
+import ClientHandler from "../../client-handler";
 import { ChatMessage } from "../../../models";
 import "./chat-box.css";
 
@@ -36,7 +35,7 @@ class ChatBox extends React.Component {
     const text = this.inputRef.current.value;
     if (!text) return;
     this.inputRef.current.value = "";
-    ClientSocket.send(
+    ClientHandler.send(
       new ChatMessage(ClientHandler.roomCode, ClientHandler.userName, text)
     );
   }

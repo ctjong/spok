@@ -1,7 +1,6 @@
 import * as React from "react";
-import ClientHandler from "../../client-message-handler";
+import ClientHandler from "../../client-handler";
 import Strings from "../../strings";
-import ClientSocket from "../../client-socket";
 import { ScoreUpdateMessage, Part } from "../../../models";
 import LikeImg from "../../images/like.png";
 import LikeActiveImg from "../../images/like_active.png";
@@ -23,7 +22,7 @@ class RevealPane extends React.Component {
     const oldVote = cloneVotes[paperId];
     cloneVotes[paperId] = newVote;
     const delta = newVote - oldVote;
-    ClientSocket.send(
+    ClientHandler.send(
       new ScoreUpdateMessage(ClientHandler.roomCode, paperId, delta)
     );
     this.setState({ votes: cloneVotes });

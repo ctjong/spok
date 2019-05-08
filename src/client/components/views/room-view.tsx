@@ -1,8 +1,7 @@
 import * as React from "react";
 import { Prompt } from "react-router";
 import { ViewBase, ViewBaseProps } from "../../view-base";
-import ClientHandler from "../../client-message-handler";
-import ClientSocket from "../../client-socket";
+import ClientHandler from "../../client-handler";
 import Constants from "../../../constants";
 import ParticipantList from "../roomControls/participant-list";
 import ChatBox from "../roomControls/chat-box";
@@ -80,7 +79,7 @@ class RoomView extends ViewBase<{}, RoomViewStates> {
   }
 
   handleLobbyButtonClick() {
-    ClientSocket.send(new GoToLobbyMessage(ClientHandler.roomCode));
+    ClientHandler.send(new GoToLobbyMessage(ClientHandler.roomCode));
   }
 
   render() {
