@@ -1,8 +1,8 @@
 import * as React from "react";
 import TitleImg from "../../images/title.png";
-import Constants from "../../../constants";
-import ClientHandler from "../../client-handler";
+import constants from "../../../constants";
 import "./title.css";
+import util from "../../util";
 
 interface TitleProps {
   isLarge: boolean;
@@ -10,7 +10,7 @@ interface TitleProps {
 
 class Title extends React.Component<TitleProps> {
   handleClick() {
-    ClientHandler.goTo(Constants.HOME_PATH);
+    util.goTo(constants.HOME_PATH);
   }
 
   render() {

@@ -1,7 +1,8 @@
 import * as React from "react";
-import ClientHandler from "../../client-handler";
+import clientHandler from "../../client-handler";
 import { ChatMessage } from "../../../models";
 import "./chat-box.css";
+import clientSocket from "../../client-socket";
 
 interface ChatBoxState {
   messages: ChatMessage[];
@@ -35,8 +36,8 @@ class ChatBox extends React.Component {
     const text = this.inputRef.current.value;
     if (!text) return;
     this.inputRef.current.value = "";
-    ClientHandler.send(
-      new ChatMessage(ClientHandler.roomCode, ClientHandler.userName, text)
+    clientSocket.send(
+      new ChatMessage(clientHandler.roomCode, clientHandler.userName, text)
     );
   }
 

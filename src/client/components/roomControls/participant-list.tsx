@@ -1,25 +1,26 @@
 import * as React from "react";
-import ClientHandler from "../../client-handler";
+import clientHandler from "../../client-handler";
 import { KickPlayerMessage, SetAsHostMessage, Player } from "../../../models";
 import "./participant-list.css";
+import clientSocket from "../../client-socket";
 
 class ParticipantList extends React.Component {
   handleKickButtonClick(player: Player) {
-    ClientHandler.send(
-      new KickPlayerMessage(ClientHandler.roomCode, player.userName)
+    clientSocket.send(
+      new KickPlayerMessage(clientHandler.roomCode, player.userName)
     );
   }
 
   handleSetAsHostButtonClick(player: Player) {
-    ClientHandler.send(
-      new SetAsHostMessage(ClientHandler.roomCode, player.userName)
+    clientSocket.send(
+      new SetAsHostMessage(clientHandler.roomCode, player.userName)
     );
   }
 
   getList() {
     const playerList: Player[] = [];
-    Object.keys(ClientHandler.getRoomState().players).forEach(userName => {
-      playerList.push(ClientHandler.getRoomState().players[userName]);
+    Object.keys(clientHandler.getRoomState().players).forEach(userName => {
+      playerList.push(clientHandler.getRoomState().players[userName]);
     });
     playerList.sort((a: Player, b: Player) => {
       return b.score - a.score;
@@ -29,8 +30,8 @@ class ParticipantList extends React.Component {
     playerList.forEach(player => {
       const className = "player " + (player.isOnline ? "" : "offline");
       const hostControls =
-        ClientHandler.isHostUser() &&
-        ClientHandler.userName !== player.userName ? (
+        clientHandler.isHostUser() &&
+        clientHandler.userName !== player.userName ? (
           <span>
             (<a onClick={() => this.handleKickButtonClick(player)}>kick</a>) (
             <a onClick={() => this.handleSetAsHostButtonClick(player)}>
@@ -40,7 +41,7 @@ class ParticipantList extends React.Component {
           </span>
         ) : null;
       const hostLabel =
-        ClientHandler.getRoomState().hostUserName === player.userName ? (
+        clientHandler.getRoomState().hostUserName === player.userName ? (
           <span>(host)</span>
         ) : null;
       playerDivs.push(

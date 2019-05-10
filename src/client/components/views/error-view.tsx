@@ -1,16 +1,16 @@
 import * as React from "react";
 import { ViewBase } from "../../view-base";
-import Constants from "../../../constants";
-import ClientHandler from "../../client-handler";
+import constants from "../../../constants";
 import "./error-view.css";
 import { Room } from "../../../models";
+import util from "../../util";
 
 class ErrorView extends ViewBase<{}, {}> {
   handleHomeClick() {
-    ClientHandler.goTo(Constants.HOME_PATH);
+    util.goTo(constants.HOME_PATH);
   }
 
-  showNotifUI(notifCode: number) {
+  showNotifUI(notifCode: string) {
     throw new Error("Not implemented");
   }
 

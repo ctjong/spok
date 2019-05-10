@@ -1,8 +1,9 @@
 import * as React from "react";
-import ClientHandler from "../../client-handler";
+import clientHandler from "../../client-handler";
 import Strings from "../../strings";
 import { Part, SubmitPartMessage } from "../../../models";
 import "./write-pane.css";
+import clientSocket from "../../client-socket";
 
 class WritePane extends React.Component {
   inputRef: React.RefObject<any>;
@@ -17,21 +18,21 @@ class WritePane extends React.Component {
     const text = this.inputRef.current.value;
     if (!text) return;
     this.inputRef.current.value = "";
-    const paperId = ClientHandler.getRoomState().players[ClientHandler.userName]
+    const paperId = clientHandler.getRoomState().players[clientHandler.userName]
       .paperId;
 
-    const part = new Part(paperId, text, ClientHandler.userName);
-    ClientHandler.send(new SubmitPartMessage(ClientHandler.roomCode, part));
+    const part = new Part(paperId, text, clientHandler.userName);
+    clientSocket.send(new SubmitPartMessage(clientHandler.roomCode, part));
   }
 
   render() {
     const label =
-      Strings[ClientHandler.getRoomState().lang].labels[
-        ClientHandler.getRoomState().activePart
+      Strings[clientHandler.getRoomState().lang].labels[
+        clientHandler.getRoomState().activePart
       ];
     const placeholder =
-      Strings[ClientHandler.getRoomState().lang].placeholders[
-        ClientHandler.getRoomState().activePart
+      Strings[clientHandler.getRoomState().lang].placeholders[
+        clientHandler.getRoomState().activePart
       ];
 
     return (

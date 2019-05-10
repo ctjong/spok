@@ -1,10 +1,10 @@
 ﻿import * as io from "socket.io-client";
-import Constants from "../constants";
+import constants from "../constants";
 import { SpokMessage, SpokResponse, ErrorResponse } from "../models";
 
 class ClientSocket {
   messageHandlers: ((msg: SpokMessage) => void)[] = [];
-  errorHandlers: ((notifCode: number) => void)[] = [];
+  errorHandlers: ((notifCode: string) => void)[] = [];
   disconnectedHandlers: (() => void)[] = [];
   reconnectingHandlers: (() => void)[] = [];
   reconnectedHandlers: (() => void)[] = [];
@@ -12,7 +12,7 @@ class ClientSocket {
   socket: any = null;
   isReconnecting: boolean = false;
 
-  sendMessageEvent(msg: SpokMessage): Promise<SpokResponse> {
+  send(msg: SpokMessage): Promise<SpokResponse> {
     return new Promise(async resolve => {
       // init socket if it's not yet initialized
       if (!this.socket) {
@@ -23,7 +23,7 @@ class ClientSocket {
       // send message and check for response status
       console.log("[ClientSocket.send] sending", msg);
       this.socket.emit(
-        Constants.eventNames.MSG,
+        constants.eventNames.MSG,
         msg,
         (response: SpokResponse) => {
           console.log("[ClientSocket.send] received", response);
@@ -47,7 +47,7 @@ class ClientSocket {
     this.messageHandlers.push(handler);
   }
 
-  addErrorHandler(handler: (code: number) => void) {
+  addErrorHandler(handler: (code: string) => void) {
     this.errorHandlers.push(handler);
   }
 
@@ -81,14 +81,14 @@ class ClientSocket {
     this.socket = null;
     this.isReconnecting = true;
     this.reconnectingHandlers.forEach(handler => handler());
-    while (!this.socket && elapsed <= Constants.RECONNECT_TIMEOUT) {
+    while (!this.socket && elapsed <= constants.RECONNECT_TIMEOUT) {
       console.log(
         `[ClientSocket.handleDisconnect] Reconnecting. ${elapsed}ms elapsed.`
       );
       await this.initSocket();
       if (!this.socket) {
-        await this.delay(Constants.RECONNECT_INTERVAL);
-        elapsed += Constants.RECONNECT_INTERVAL;
+        await this.delay(constants.RECONNECT_INTERVAL);
+        elapsed += constants.RECONNECT_INTERVAL;
       }
     }
     this.isReconnecting = false;
@@ -108,7 +108,7 @@ class ClientSocket {
     console.log("[ClientSocket.handleReconnect]");
   }
 
-  handleError(notifCode: number) {
+  handleError(notifCode: string) {
     console.log("[ClientSocket.handleError]");
     this.errorHandlers.forEach(handler => handler(notifCode));
   }
@@ -126,20 +126,20 @@ class ClientSocket {
             : window.location.origin;
 
         const socket = io(origin, { reconnection: false });
-        socket.on(Constants.eventNames.CONNECT, () => {
+        socket.on(constants.eventNames.CONNECT, () => {
           this.socket = socket;
           this.initPromise = null;
           resolve();
         });
-        socket.on(Constants.eventNames.CONNECT_ERROR, () => {
-          this.handleError(Constants.notifCodes.CONNECT_ERROR);
+        socket.on(constants.eventNames.CONNECT_ERROR, () => {
+          this.handleError(constants.notifCodes.CONNECT_ERROR);
           this.initPromise = null;
           resolve();
         });
-        socket.on(Constants.eventNames.MSG, (msg: SpokMessage) => {
+        socket.on(constants.eventNames.MSG, (msg: SpokMessage) => {
           this.handleMessage(msg);
         });
-        socket.on(Constants.eventNames.DISCONNECT, () => {
+        socket.on(constants.eventNames.DISCONNECT, () => {
           this.handleDisconnect();
         });
       }
@@ -154,4 +154,4 @@ class ClientSocket {
   }
 }
 
-export default ClientSocket;
+export default new ClientSocket();

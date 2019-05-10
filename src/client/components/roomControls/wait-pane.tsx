@@ -1,38 +1,39 @@
 import * as React from "react";
-import ClientHandler from "../../client-handler";
+import clientHandler from "../../client-handler";
 import Strings from "../../strings";
 import { Part, SubmitPartMessage } from "../../../models";
 import "./wait-pane.css";
+import clientSocket from "../../client-socket";
 
 class WaitPane extends React.Component {
   handleSkipClick() {
-    Object.keys(ClientHandler.getRoomState().papers).forEach(paperId => {
-      const paper = ClientHandler.getRoomState().papers[paperId];
-      if (!paper.parts[ClientHandler.getRoomState().activePart]) {
+    Object.keys(clientHandler.getRoomState().papers).forEach(paperId => {
+      const paper = clientHandler.getRoomState().papers[paperId];
+      if (!paper.parts[clientHandler.getRoomState().activePart]) {
         const randomArr =
-          Strings[ClientHandler.getRoomState().lang].randoms[
-            ClientHandler.getRoomState().activePart
+          Strings[clientHandler.getRoomState().lang].randoms[
+            clientHandler.getRoomState().activePart
           ];
         const randomIdx = Math.floor(
           Math.random() * Math.floor(randomArr.length)
         );
         const part = new Part(paperId, randomArr[randomIdx], null);
-        ClientHandler.send(new SubmitPartMessage(ClientHandler.roomCode, part));
+        clientSocket.send(new SubmitPartMessage(clientHandler.roomCode, part));
       }
     });
   }
 
   render() {
     const playerNames: string[] = [];
-    Object.keys(ClientHandler.getRoomState().players).forEach(userName => {
-      const paperId = ClientHandler.getRoomState().players[userName].paperId;
-      const paper = ClientHandler.getRoomState().papers[paperId];
-      if (paper && !paper.parts[ClientHandler.getRoomState().activePart])
+    Object.keys(clientHandler.getRoomState().players).forEach(userName => {
+      const paperId = clientHandler.getRoomState().players[userName].paperId;
+      const paper = clientHandler.getRoomState().papers[paperId];
+      if (paper && !paper.parts[clientHandler.getRoomState().activePart])
         playerNames.push(userName);
     });
     const playerNamesJoined = playerNames.join(", ");
 
-    const skipBtn = ClientHandler.isHostUser() ? (
+    const skipBtn = clientHandler.isHostUser() ? (
       <div>
         <button
           className="btn-box skip-btn"

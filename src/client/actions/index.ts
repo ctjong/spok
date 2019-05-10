@@ -2,7 +2,8 @@ import { Room } from "../../models";
 
 export enum SpokActionType {
   SetErrorActionType,
-  SetRoomActionType
+  SetRoomActionType,
+  SetNotificationctionType
 }
 
 type SetErrorActionTypeType = "SET_ERROR_ACTION";
@@ -19,6 +20,13 @@ export type SetRoomAction = {
   newRoom: Room;
 };
 
-export type SpokAction = SetErrorAction | SetRoomAction;
+type SetNotificationActionTypeType = "SET_NOTIFICATION_ACTION";
+export const SetNotificationctionType = "SET_NOTIFICATION_ACTION";
+export type SetNotificationction = {
+  type: SetNotificationActionTypeType;
+  code: string;
+};
+
+export type SpokAction = SetErrorAction | SetRoomAction | SetNotificationction;
 
 export type SpokActionCreator = AsyncIterableIterator<SpokAction>;

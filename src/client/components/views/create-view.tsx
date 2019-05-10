@@ -1,11 +1,13 @@
 import * as React from "react";
 import { ViewBase, ViewBaseProps } from "../../view-base";
-import ClientHandler from "../../client-handler";
-import Constants from "../../../constants";
+import clientHandler from "../../client-handler";
+import constants from "../../../constants";
 import Strings from "../../strings";
 import Title from "../shared/title";
 import { CreateRoomMessage, Room } from "../../../models";
 import "./create-view.css";
+import util from "../../util";
+import clientSocket from "../../client-socket";
 
 interface CreateViewStates {
   isLoading: boolean;
@@ -23,30 +25,30 @@ class CreateView extends ViewBase<{}, CreateViewStates> {
   }
 
   handleSubmitClick() {
-    const roomCode = ClientHandler.getRandomCode().substring(0, 5);
+    const roomCode = clientHandler.getRandomCode().substring(0, 5);
     const userName = this.userNameRef.current.value;
     if (!userName) return;
 
     this.setState({ isLoading: true });
-    ClientHandler.setUserName(userName);
-    let lang = Constants.DEFAULT_LANG;
+    clientHandler.setUserName(userName);
+    let lang = constants.DEFAULT_LANG;
     if (this.langSelectRef.current) {
       const dropdown = this.langSelectRef.current;
       const selectedIndex = dropdown.selectedIndex;
       lang = dropdown.options[selectedIndex].value;
     }
-    ClientHandler.send(new CreateRoomMessage(roomCode, userName, lang)).then(
-      () => {
-        ClientHandler.goTo(`/room/${roomCode}`);
-      }
-    );
+    clientSocket
+      .send(new CreateRoomMessage(roomCode, userName, lang))
+      .then(() => {
+        util.goTo(`/room/${roomCode}`);
+      });
   }
 
   handleBackClick() {
-    ClientHandler.goTo(Constants.HOME_PATH);
+    util.goTo(constants.HOME_PATH);
   }
 
-  showNotifUI(notifCode: number) {
+  showNotifUI(notifCode: string) {
     throw new Error("Not implemented");
   }
 

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { ViewBase } from "../../view-base";
-import Constants from "../../../constants";
-import ClientHandler from "../../client-handler";
+import constants from "../../../constants";
+import clientHandler from "../../client-handler";
 import Title from "../shared/title";
 import "./home-view.css";
 import { Room } from "../../../models";
@@ -9,13 +9,16 @@ import { connect } from "react-redux";
 import { StoreShape, returnType } from "../../reducers";
 import { bindActionCreators } from "redux";
 import { setError } from "../../actions/error";
+import util from "../../util";
+import { hideNotification } from "../../actions/notification";
 
-const actionCreators = { setError };
+const actionCreators = { setError, hideNotification };
 type DispatchProps = typeof actionCreators;
 
 const mapStateToProps = (state: StoreShape) => {
   return {
-    room: state.room
+    room: state.room,
+    activeNotifCode: state.notification.activeCode
   };
 };
 
@@ -23,19 +26,23 @@ const storeProps = returnType(mapStateToProps);
 type StoreProps = typeof storeProps.returnType;
 
 class HomeView extends ViewBase<StoreProps & DispatchProps, {}> {
+  componentWillUnmount() {
+    this.props.hideNotification();
+  }
+
   handleCreateClick() {
-    ClientHandler.goTo("/create");
+    util.goTo("/create");
   }
 
   handleJoinClick() {
-    ClientHandler.goTo("/join");
+    util.goTo("/join");
   }
 
   handleHowToClick() {
-    ClientHandler.goTo("/howto");
+    util.goTo("/howto");
   }
 
-  showNotifUI(notifCode: number) {
+  showNotifUI(notifCode: string) {
     throw new Error("Not implemented");
   }
 
@@ -52,9 +59,9 @@ class HomeView extends ViewBase<StoreProps & DispatchProps, {}> {
   }
 
   render() {
-    const errorBanner = !ClientHandler.lastNotifCode ? null : (
+    const errorBanner = !this.props.activeNotifCode ? null : (
       <div className="error">
-        {Constants.notifStrings[ClientHandler.lastNotifCode]}
+        {constants.notifStrings[this.props.activeNotifCode]}
       </div>
     );
     return (

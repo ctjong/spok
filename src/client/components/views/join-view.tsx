@@ -1,7 +1,7 @@
 import * as React from "react";
 import { ViewBase, ViewBaseProps } from "../../view-base";
-import ClientHandler from "../../client-handler";
-import Constants from "../../../constants";
+import clientHandler from "../../client-handler";
+import constants from "../../../constants";
 import Title from "../shared/title";
 import {
   JoinRequestMessage,
@@ -10,9 +10,10 @@ import {
   Room
 } from "../../../models";
 import "./join-view.css";
+import util from "../../util";
 
 interface JoinViewStates {
-  notifCode: number;
+  notifCode: string;
   isLoading: boolean;
 }
 
@@ -34,25 +35,25 @@ class JoinView extends ViewBase<{}, JoinViewStates> {
     const userName = this.userNameRef.current.value;
 
     this.setState({ isLoading: true });
-    ClientHandler.setUserName(userName);
-    ClientHandler.send(new JoinRequestMessage(roomCode, userName)).then(
-      (response: SpokResponse) => {
+    clientHandler.setUserName(userName);
+    clientHandler
+      .send(new JoinRequestMessage(roomCode, userName))
+      .then((response: SpokResponse) => {
         if (!response.isSuccess) {
           const errResponse = response as ErrorResponse;
           this.setState({
             isLoading: false,
             notifCode: errResponse.notifCode
           });
-        } else ClientHandler.goTo(`/room/${roomCode}`);
-      }
-    );
+        } else util.goTo(`/room/${roomCode}`);
+      });
   }
 
   handleBackClick() {
-    ClientHandler.goTo(Constants.HOME_PATH);
+    util.goTo(constants.HOME_PATH);
   }
 
-  showNotifUI(notifCode: number) {
+  showNotifUI(notifCode: string) {
     throw new Error("Not implemented");
   }
 
@@ -75,7 +76,7 @@ class JoinView extends ViewBase<{}, JoinViewStates> {
       body = (
         <div>
           <div className="error">
-            {Constants.notifStrings[this.state.notifCode]}
+            {constants.notifStrings[this.state.notifCode]}
           </div>
           <div className="control-group">
             <div>

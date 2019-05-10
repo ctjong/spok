@@ -19,12 +19,15 @@ class App extends React.Component {
       <BrowserRouter>
         <div className="app">
           <Switch>
-            <Route path="/join" component={JoinView} />
-            <Route path="/create" component={CreateView} />
-            <Route path="/room/:roomCode" component={RoomView} />
-            <Route path="/howto" component={HowToView} />
+            <Route path="/join" render={props => <JoinView {...props} />} />
+            <Route path="/create" render={props => <CreateView {...props} />} />
+            <Route
+              path="/room/:roomCode"
+              render={props => <RoomView {...props} />}
+            />
+            <Route path="/howto" render={props => <HowToView {...props} />} />
             <Route path="/" render={props => <HomeView {...props} />} />
-            <Route path="*" component={ErrorView} />
+            <Route path="*" render={props => <ErrorView {...props} />} />
           </Switch>
         </div>
       </BrowserRouter>

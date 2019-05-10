@@ -1,15 +1,18 @@
 import { Room } from "models";
 import { roomReducer } from "./room";
 import { ErrorState, errorReducer } from "./error";
+import { notificationReducer, NotificationState } from "./notification";
 
 export const reducers = {
   room: roomReducer,
-  error: errorReducer
+  error: errorReducer,
+  notification: notificationReducer
 };
 
 export interface StoreShape {
   room: Room;
   error: ErrorState;
+  notification: NotificationState;
 }
 
 export function returnType<R>(f: (...args: any[]) => R): { returnType: R } {

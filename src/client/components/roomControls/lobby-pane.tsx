@@ -1,15 +1,16 @@
 import * as React from "react";
-import ClientHandler from "../../client-handler";
+import clientHandler from "../../client-handler";
 import { StartRoundMessage } from "../../../models";
 import "./lobby-pane.css";
+import clientSocket from "../../client-socket";
 
 class LobbyPane extends React.Component {
   handleStartClick() {
-    ClientHandler.send(new StartRoundMessage(ClientHandler.roomCode));
+    clientSocket.send(new StartRoundMessage(clientHandler.roomCode));
   }
 
   render() {
-    const content = ClientHandler.isHostUser() ? (
+    const content = clientHandler.isHostUser() ? (
       <div>
         <button
           className="btn-box start-btn"
@@ -28,7 +29,7 @@ class LobbyPane extends React.Component {
       <div className="pane lobby-pane">
         <div>
           <h2>Room Code:</h2>
-          <div className="roomcode-large">{ClientHandler.roomCode}</div>
+          <div className="roomcode-large">{clientHandler.roomCode}</div>
         </div>
         {content}
       </div>

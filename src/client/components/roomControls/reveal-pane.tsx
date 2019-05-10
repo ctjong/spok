@@ -1,5 +1,5 @@
 import * as React from "react";
-import ClientHandler from "../../client-handler";
+import clientHandler from "../../client-handler";
 import Strings from "../../strings";
 import { ScoreUpdateMessage, Part } from "../../../models";
 import LikeImg from "../../images/like.png";
@@ -7,6 +7,7 @@ import LikeActiveImg from "../../images/like_active.png";
 import DislikeImg from "../../images/dislike.png";
 import DislikeActiveImg from "../../images/dislike_active.png";
 import "./reveal-pane.css";
+import clientSocket from "../../client-socket";
 
 class RevealPane extends React.Component {
   state: { votes: { [key: string]: number } };
@@ -22,22 +23,22 @@ class RevealPane extends React.Component {
     const oldVote = cloneVotes[paperId];
     cloneVotes[paperId] = newVote;
     const delta = newVote - oldVote;
-    ClientHandler.send(
-      new ScoreUpdateMessage(ClientHandler.roomCode, paperId, delta)
+    clientSocket.send(
+      new ScoreUpdateMessage(clientHandler.roomCode, paperId, delta)
     );
     this.setState({ votes: cloneVotes });
   }
 
   getSentenceRows() {
     const rows: any[] = [];
-    Object.keys(ClientHandler.getRoomState().papers).forEach(paperId => {
-      const paper = ClientHandler.getRoomState().papers[paperId];
+    Object.keys(clientHandler.getRoomState().papers).forEach(paperId => {
+      const paper = clientHandler.getRoomState().papers[paperId];
       const texts: string[] = [];
       paper.parts.forEach((part: Part, index: number) => {
         if (part.text) texts.push(part.text);
         else {
           const randomArr =
-            Strings[ClientHandler.getRoomState().lang].randoms[index + 1];
+            Strings[clientHandler.getRoomState().lang].randoms[index + 1];
           const randomIdx = Math.floor(
             Math.random() * Math.floor(randomArr.length)
           );
@@ -93,7 +94,7 @@ class RevealPane extends React.Component {
   }
 
   render() {
-    const bottomControls = ClientHandler.isHostUser() ? null : (
+    const bottomControls = clientHandler.isHostUser() ? null : (
       <div className="reveal-mode-wait-text">
         Waiting for host to take action
       </div>

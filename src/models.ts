@@ -1,4 +1,4 @@
-import Constants from "./constants";
+import constants from "./constants";
 
 export class Paper {
   id: string;
@@ -56,7 +56,7 @@ export class Room {
     this.roomCode = roomCode;
     this.lang = lang;
     this.activePart = -1;
-    this.phase = Constants.INITIAL_PHASE;
+    this.phase = constants.INITIAL_PHASE;
     this.players = {};
     this.papers = {};
     this.players[hostUserName] = new Player(hostUserName, hostSocket.id);
@@ -79,7 +79,7 @@ export class RoomUpdateMessage implements SpokMessage {
   newRoomState: Room;
 
   constructor(roomCode: string, newRoomState: Room) {
-    this.type = Constants.msgTypes.ROOM_UPDATE;
+    this.type = constants.msgTypes.ROOM_UPDATE;
     this.roomCode = roomCode;
     this.newRoomState = newRoomState;
   }
@@ -94,7 +94,7 @@ export class CreateRoomMessage implements SpokMessage {
   papers: { [key: string]: Paper };
 
   constructor(roomCode: string, hostUserName: string, lang: string) {
-    this.type = Constants.msgTypes.CREATE_ROOM;
+    this.type = constants.msgTypes.CREATE_ROOM;
     this.roomCode = roomCode;
     this.hostUserName = hostUserName;
     this.lang = lang;
@@ -109,7 +109,7 @@ export class JoinRequestMessage implements SpokMessage {
   userName: string;
 
   constructor(roomCode: string, userName: string) {
-    this.type = Constants.msgTypes.JOIN_REQUEST;
+    this.type = constants.msgTypes.JOIN_REQUEST;
     this.roomCode = roomCode;
     this.userName = userName;
   }
@@ -121,7 +121,7 @@ export class SubmitPartMessage implements SpokMessage {
   part: Part;
 
   constructor(roomCode: string, part: Part) {
-    this.type = Constants.msgTypes.SUBMIT_PART;
+    this.type = constants.msgTypes.SUBMIT_PART;
     this.roomCode = roomCode;
     this.part = part;
   }
@@ -134,7 +134,7 @@ export class ChatMessage implements SpokMessage {
   text: string;
 
   constructor(roomCode: string, authorUserName: string, text: string) {
-    this.type = Constants.msgTypes.CHAT_MESSAGE;
+    this.type = constants.msgTypes.CHAT_MESSAGE;
     this.roomCode = roomCode;
     this.authorUserName = authorUserName;
     this.text = text;
@@ -146,7 +146,7 @@ export class GoToLobbyMessage implements SpokMessage {
   roomCode: string;
 
   constructor(roomCode: string) {
-    this.type = Constants.msgTypes.GO_TO_LOBBY;
+    this.type = constants.msgTypes.GO_TO_LOBBY;
     this.roomCode = roomCode;
   }
 }
@@ -157,7 +157,7 @@ export class KickPlayerMessage implements SpokMessage {
   userName: string;
 
   constructor(roomCode: string, userName: string) {
-    this.type = Constants.msgTypes.KICK_PLAYER;
+    this.type = constants.msgTypes.KICK_PLAYER;
     this.roomCode = roomCode;
     this.userName = userName;
   }
@@ -169,7 +169,7 @@ export class SetAsHostMessage implements SpokMessage {
   userName: string;
 
   constructor(roomCode: string, userName: string) {
-    this.type = Constants.msgTypes.SET_AS_HOST;
+    this.type = constants.msgTypes.SET_AS_HOST;
     this.roomCode = roomCode;
     this.userName = userName;
   }
@@ -180,7 +180,7 @@ export class StartRoundMessage implements SpokMessage {
   roomCode: string;
 
   constructor(roomCode: string) {
-    this.type = Constants.msgTypes.START_ROUND;
+    this.type = constants.msgTypes.START_ROUND;
     this.roomCode = roomCode;
   }
 }
@@ -192,7 +192,7 @@ export class ScoreUpdateMessage implements SpokMessage {
   delta: number;
 
   constructor(roomCode: string, paperId: string, delta: number) {
-    this.type = Constants.msgTypes.SCORE_UPDATE;
+    this.type = constants.msgTypes.SCORE_UPDATE;
     this.roomCode = roomCode;
     this.paperId = paperId;
     this.delta = delta;
@@ -205,7 +205,7 @@ export class StateRequestMessage implements SpokMessage {
   userName: string;
 
   constructor(roomCode: string, userName: string) {
-    this.type = Constants.msgTypes.STATE_REQUEST;
+    this.type = constants.msgTypes.STATE_REQUEST;
     this.roomCode = roomCode;
     this.userName = userName;
   }
@@ -231,9 +231,9 @@ export class JoinApprovedResponse implements SpokResponse {
 
 export class ErrorResponse implements SpokResponse {
   isSuccess: boolean;
-  notifCode: number;
+  notifCode: string;
 
-  constructor(notifCode: number) {
+  constructor(notifCode: string) {
     this.isSuccess = false;
     this.notifCode = notifCode;
   }

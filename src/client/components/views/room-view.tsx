@@ -1,8 +1,8 @@
 import * as React from "react";
 import { Prompt } from "react-router";
 import { ViewBase, ViewBaseProps } from "../../view-base";
-import ClientHandler from "../../client-handler";
-import Constants from "../../../constants";
+import clientHandler from "../../client-handler";
+import constants from "../../../constants";
 import ParticipantList from "../roomControls/participant-list";
 import ChatBox from "../roomControls/chat-box";
 import LobbyPane from "../roomControls/lobby-pane";
@@ -13,10 +13,11 @@ import Title from "../shared/title";
 import RefreshButton from "../roomControls/refresh-button";
 import { GoToLobbyMessage, Room } from "../../../models";
 import "./room-view.css";
+import clientSocket from "../../client-socket";
 
 interface RoomViewStates {
   isPromptDisabled: boolean;
-  notifCode: number;
+  notifCode: string;
 }
 
 class RoomView extends ViewBase<{}, RoomViewStates> {
@@ -28,8 +29,8 @@ class RoomView extends ViewBase<{}, RoomViewStates> {
     this.isRoomView = true;
     this.chatBox = null;
     this.isCompMounted = false;
-    ClientHandler.setRoomCode(this.props.match.params.roomCode);
-    ClientHandler.refreshState();
+    clientHandler.setRoomCode(this.props.match.params.roomCode);
+    clientHandler.refreshState();
   }
 
   componentDidMount() {
@@ -39,26 +40,26 @@ class RoomView extends ViewBase<{}, RoomViewStates> {
 
   getActivePane() {
     switch (this.state.room.phase) {
-      case Constants.phases.LOBBY:
+      case constants.phases.LOBBY:
         return <LobbyPane />;
-      case Constants.phases.WRITE:
-        const player = this.state.room.players[ClientHandler.userName];
+      case constants.phases.WRITE:
+        const player = this.state.room.players[clientHandler.userName];
         if (!player) return;
         const currentPaperId = player.paperId;
-        const currentPaper = ClientHandler.getRoomState().papers[
+        const currentPaper = clientHandler.getRoomState().papers[
           currentPaperId
         ];
         if (currentPaper && !currentPaper.parts[this.state.room.activePart])
           return <WritePane />;
         else return <WaitPane />;
-      case Constants.phases.REVEAL:
+      case constants.phases.REVEAL:
         return <RevealPane />;
       default:
         return null;
     }
   }
 
-  showNotifUI(notifCode: number) {
+  showNotifUI(notifCode: string) {
     if (this.isCompMounted) this.setState({ notifCode });
     else this.state = { ...this.state, notifCode };
   }
@@ -79,7 +80,7 @@ class RoomView extends ViewBase<{}, RoomViewStates> {
   }
 
   handleLobbyButtonClick() {
-    ClientHandler.send(new GoToLobbyMessage(ClientHandler.roomCode));
+    clientSocket.send(new GoToLobbyMessage(clientHandler.roomCode));
   }
 
   render() {
@@ -90,13 +91,13 @@ class RoomView extends ViewBase<{}, RoomViewStates> {
     );
     let body = null;
     if (this.state.notifCode)
-      body = <div>{Constants.notifStrings[this.state.notifCode]}</div>;
+      body = <div>{constants.notifStrings[this.state.notifCode]}</div>;
     else if (!this.state.room)
-      body = <div>{Constants.notifStrings[Constants.notifCodes.LOADING]}</div>;
+      body = <div>{constants.notifStrings[constants.notifCodes.LOADING]}</div>;
     else {
       const lobbyBtn =
-        ClientHandler.isHostUser() &&
-        ClientHandler.getRoomState().phase > Constants.phases.LOBBY ? (
+        clientHandler.isHostUser() &&
+        clientHandler.getRoomState().phase > constants.phases.LOBBY ? (
           <button
             className="btn-box lobby-btn"
             onClick={() => this.handleLobbyButtonClick()}
