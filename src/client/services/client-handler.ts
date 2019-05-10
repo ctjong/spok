@@ -4,12 +4,13 @@ import {
   SpokMessage,
   ChatMessage,
   StateResponse
-} from "../models";
-import constants from "../constants";
+} from "../../models";
+import constants from "../../constants";
 import clientSocket from "./client-socket";
-import { ViewBase } from "./view-base";
+import { ViewBase } from "../view-base";
 import { History } from "history";
-import util from "./util";
+import util from "../../util";
+import navigationService from "./navigation-service";
 
 class ClientHandler {
   activeView: ViewBase<any, any> = null;
@@ -40,32 +41,18 @@ class ClientHandler {
     return roomState && this.userName === roomState.hostUserName;
   }
 
-  setUserName(value: string) {
-    this.userName = value;
-    sessionStorage.setItem(constants.USER_NAME_SSKEY, value);
-  }
-
-  setRoomCode(value: string) {
-    this.roomCode = value;
-    sessionStorage.setItem(constants.ROOM_CODE_SSKEY, value);
-  }
-
   async refreshState() {
     if (!this.activeView.isRoomView) {
       this.exitRoom(constants.notifCodes.UNKNOWN_ERROR);
       return;
     }
     this.activeView.showNotifUI(constants.notifCodes.SYNCING_STATE);
-    const response: StateResponse = (await this.send(
+    const response: StateResponse = (await clientSocket.send(
       new StateRequestMessage(this.roomCode, this.userName)
     )) as StateResponse;
     if (!this.activeView.isRoomView) return;
     this.activeView.hideNotifUI();
     this.activeView.updateRoomState(response.state);
-  }
-
-  getRandomCode() {
-    return Math.floor((1 + Math.random()) * 0x1000000000).toString(16);
   }
 
   exitRoom(reasonCode: string) {
@@ -75,8 +62,8 @@ class ClientHandler {
     sessionStorage.setItem(constants.USER_NAME_SSKEY, null);
     sessionStorage.setItem(constants.ROOM_CODE_SSKEY, null);
     clientSocket.close();
-    if (util.history.location.pathname !== constants.HOME_PATH)
-      util.goTo(constants.HOME_PATH);
+    if (navigationService.history.location.pathname !== constants.HOME_PATH)
+      navigationService.goTo(constants.HOME_PATH);
   }
 
   handeRoomUpdate(msg: RoomUpdateMessage) {
@@ -128,10 +115,6 @@ class ClientHandler {
     ) {
       this.activeView.chatBox.pushMessage(msg as ChatMessage);
     }
-  }
-
-  send(msg: SpokMessage) {
-    return clientSocket.send(msg);
   }
 }
 

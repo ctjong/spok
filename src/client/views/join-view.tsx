@@ -1,28 +1,47 @@
 import * as React from "react";
-import { ViewBase, ViewBaseProps } from "../../view-base";
-import clientHandler from "../../client-handler";
-import constants from "../../../constants";
-import Title from "../shared/title";
+import { ViewBase, ViewBaseProps } from "../view-base";
+import clientHandler from "../services/client-handler";
+import constants from "../../constants";
+import Title from "../components/title";
 import {
   JoinRequestMessage,
   SpokResponse,
   ErrorResponse,
   Room
-} from "../../../models";
+} from "../../models";
 import "./join-view.css";
-import util from "../../util";
+import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
+import { setError } from "../actions/error";
+import { setSessionUserName } from "../actions/session";
+import { returnType, StoreShape } from "../reducers";
+import navigationService from "../services/navigation-service";
+import clientSocket from "../services/client-socket";
 
-interface JoinViewStates {
+const actionCreators = { setError, setSessionUserName };
+type DispatchProps = typeof actionCreators;
+
+const mapStateToProps = (state: StoreShape) => {
+  return {
+    room: state.room,
+    session: state.session
+  };
+};
+
+const storeProps = returnType(mapStateToProps);
+type StoreProps = typeof storeProps.returnType;
+
+interface JoinViewState {
   notifCode: string;
   isLoading: boolean;
 }
 
-class JoinView extends ViewBase<{}, JoinViewStates> {
+class JoinView extends ViewBase<DispatchProps & StoreProps, JoinViewState> {
   roomCodeRef: React.RefObject<any>;
   userNameRef: React.RefObject<any>;
   isJoinView: boolean;
 
-  constructor(props: ViewBaseProps) {
+  constructor(props: DispatchProps & StoreProps & ViewBaseProps) {
     super(props);
     this.roomCodeRef = React.createRef();
     this.userNameRef = React.createRef();
@@ -35,8 +54,8 @@ class JoinView extends ViewBase<{}, JoinViewStates> {
     const userName = this.userNameRef.current.value;
 
     this.setState({ isLoading: true });
-    clientHandler.setUserName(userName);
-    clientHandler
+    this.props.setSessionUserName(userName);
+    clientSocket
       .send(new JoinRequestMessage(roomCode, userName))
       .then((response: SpokResponse) => {
         if (!response.isSuccess) {
@@ -45,12 +64,12 @@ class JoinView extends ViewBase<{}, JoinViewStates> {
             isLoading: false,
             notifCode: errResponse.notifCode
           });
-        } else util.goTo(`/room/${roomCode}`);
+        } else navigationService.goTo(`/room/${roomCode}`);
       });
   }
 
   handleBackClick() {
-    util.goTo(constants.HOME_PATH);
+    navigationService.goTo(constants.HOME_PATH);
   }
 
   showNotifUI(notifCode: string) {
@@ -133,4 +152,7 @@ class JoinView extends ViewBase<{}, JoinViewStates> {
   }
 }
 
-export default JoinView;
+export default connect(
+  mapStateToProps,
+  dispatch => bindActionCreators(actionCreators, dispatch)
+)(JoinView);

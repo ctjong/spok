@@ -1,6 +1,6 @@
 import * as React from "react";
-import clientHandler from "../../client-handler";
-import RefreshImg from "../../images/refresh.png";
+import clientHandler from "../services/client-handler";
+import RefreshImg from "../images/refresh.png";
 import "./refresh-button.css";
 
 class RefreshButton extends React.Component {

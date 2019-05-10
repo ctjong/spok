@@ -1,19 +1,38 @@
 import * as React from "react";
-import clientHandler from "../../client-handler";
-import { ChatMessage } from "../../../models";
+import { ChatMessage } from "../../models";
 import "./chat-box.css";
-import clientSocket from "../../client-socket";
+import clientSocket from "../services/client-socket";
+import { setError } from "../actions/error";
+import { StoreShape, returnType } from "../reducers";
+import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
+
+const actionCreators = { setError };
+type DispatchProps = typeof actionCreators;
+
+const mapStateToProps = (state: StoreShape) => {
+  return {
+    room: state.room,
+    session: state.session
+  };
+};
+
+const storeProps = returnType(mapStateToProps);
+type StoreProps = typeof storeProps.returnType;
 
 interface ChatBoxState {
   messages: ChatMessage[];
 }
 
-class ChatBox extends React.Component {
+class ChatBox extends React.Component<
+  DispatchProps & StoreProps,
+  ChatBoxState
+> {
   inputRef: React.RefObject<any>;
   scrollViewRef: React.RefObject<any>;
   state: ChatBoxState;
 
-  constructor(props: {}) {
+  constructor(props: DispatchProps & StoreProps) {
     super(props);
     this.inputRef = React.createRef();
     this.scrollViewRef = React.createRef();
@@ -37,7 +56,11 @@ class ChatBox extends React.Component {
     if (!text) return;
     this.inputRef.current.value = "";
     clientSocket.send(
-      new ChatMessage(clientHandler.roomCode, clientHandler.userName, text)
+      new ChatMessage(
+        this.props.session.roomCode,
+        this.props.session.userName,
+        text
+      )
     );
   }
 
@@ -84,4 +107,7 @@ class ChatBox extends React.Component {
   }
 }
 
-export default ChatBox;
+export default connect(
+  mapStateToProps,
+  dispatch => bindActionCreators(actionCreators, dispatch)
+)(ChatBox);

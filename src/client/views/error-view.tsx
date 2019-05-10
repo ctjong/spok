@@ -1,13 +1,13 @@
 import * as React from "react";
-import { ViewBase } from "../../view-base";
-import constants from "../../../constants";
+import { ViewBase } from "../view-base";
+import constants from "../../constants";
 import "./error-view.css";
-import { Room } from "../../../models";
-import util from "../../util";
+import { Room } from "../../models";
+import navigationService from "../services/navigation-service";
 
 class ErrorView extends ViewBase<{}, {}> {
   handleHomeClick() {
-    util.goTo(constants.HOME_PATH);
+    navigationService.goTo(constants.HOME_PATH);
   }
 
   showNotifUI(notifCode: string) {

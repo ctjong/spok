@@ -1,35 +1,53 @@
 import * as React from "react";
 import { Prompt } from "react-router";
-import { ViewBase, ViewBaseProps } from "../../view-base";
-import clientHandler from "../../client-handler";
-import constants from "../../../constants";
-import ParticipantList from "../roomControls/participant-list";
-import ChatBox from "../roomControls/chat-box";
-import LobbyPane from "../roomControls/lobby-pane";
-import RevealPane from "../roomControls/reveal-pane";
-import WaitPane from "../roomControls/wait-pane";
-import WritePane from "../roomControls/write-pane";
-import Title from "../shared/title";
-import RefreshButton from "../roomControls/refresh-button";
-import { GoToLobbyMessage, Room } from "../../../models";
+import { ViewBase, ViewBaseProps } from "../view-base";
+import clientHandler from "../services/client-handler";
+import constants from "../../constants";
+import ParticipantList from "../components/participant-list";
+import ChatBox from "../components/chat-box";
+import LobbyPane from "../components/lobby-pane";
+import RevealPane from "../components/reveal-pane";
+import WaitPane from "../components/wait-pane";
+import WritePane from "../components/write-pane";
+import Title from "../components/title";
+import RefreshButton from "../components/refresh-button";
+import { GoToLobbyMessage, Room } from "../../models";
 import "./room-view.css";
-import clientSocket from "../../client-socket";
+import clientSocket from "../services/client-socket";
+import { returnType, StoreShape } from "../reducers";
+import { setError } from "../actions/error";
+import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
+import { setSessionRoomCode } from "../actions/session";
 
-interface RoomViewStates {
+const actionCreators = { setError, setSessionRoomCode };
+type DispatchProps = typeof actionCreators;
+
+const mapStateToProps = (state: StoreShape) => {
+  return {
+    room: state.room,
+    session: state.session
+  };
+};
+
+const storeProps = returnType(mapStateToProps);
+type StoreProps = typeof storeProps.returnType;
+
+interface RoomViewState {
   isPromptDisabled: boolean;
   notifCode: string;
 }
 
-class RoomView extends ViewBase<{}, RoomViewStates> {
+class RoomView extends ViewBase<DispatchProps & StoreProps, RoomViewState> {
   isCompMounted: boolean;
 
-  constructor(props: ViewBaseProps) {
+  constructor(props: DispatchProps & StoreProps & ViewBaseProps) {
     super(props);
     this.state = { room: null, isPromptDisabled: false, notifCode: null };
     this.isRoomView = true;
     this.chatBox = null;
     this.isCompMounted = false;
-    clientHandler.setRoomCode(this.props.match.params.roomCode);
+    this.props.setSessionRoomCode(this.props.match.params.roomCode);
     clientHandler.refreshState();
   }
 
@@ -43,12 +61,10 @@ class RoomView extends ViewBase<{}, RoomViewStates> {
       case constants.phases.LOBBY:
         return <LobbyPane />;
       case constants.phases.WRITE:
-        const player = this.state.room.players[clientHandler.userName];
+        const player = this.state.room.players[this.props.session.userName];
         if (!player) return;
         const currentPaperId = player.paperId;
-        const currentPaper = clientHandler.getRoomState().papers[
-          currentPaperId
-        ];
+        const currentPaper = this.props.room.papers[currentPaperId];
         if (currentPaper && !currentPaper.parts[this.state.room.activePart])
           return <WritePane />;
         else return <WaitPane />;
@@ -80,7 +96,7 @@ class RoomView extends ViewBase<{}, RoomViewStates> {
   }
 
   handleLobbyButtonClick() {
-    clientSocket.send(new GoToLobbyMessage(clientHandler.roomCode));
+    clientSocket.send(new GoToLobbyMessage(this.props.session.roomCode));
   }
 
   render() {
@@ -97,7 +113,7 @@ class RoomView extends ViewBase<{}, RoomViewStates> {
     else {
       const lobbyBtn =
         clientHandler.isHostUser() &&
-        clientHandler.getRoomState().phase > constants.phases.LOBBY ? (
+        this.props.room.phase > constants.phases.LOBBY ? (
           <button
             className="btn-box lobby-btn"
             onClick={() => this.handleLobbyButtonClick()}
@@ -126,4 +142,7 @@ class RoomView extends ViewBase<{}, RoomViewStates> {
   }
 }
 
-export default RoomView;
+export default connect(
+  mapStateToProps,
+  dispatch => bindActionCreators(actionCreators, dispatch)
+)(RoomView);

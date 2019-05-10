@@ -1,8 +1,8 @@
 import * as React from "react";
-import TitleImg from "../../images/title.png";
-import constants from "../../../constants";
+import TitleImg from "../images/title.png";
+import constants from "../../constants";
 import "./title.css";
-import util from "../../util";
+import navigationService from "../services/navigation-service";
 
 interface TitleProps {
   isLarge: boolean;
@@ -10,7 +10,7 @@ interface TitleProps {
 
 class Title extends React.Component<TitleProps> {
   handleClick() {
-    util.goTo(constants.HOME_PATH);
+    navigationService.goTo(constants.HOME_PATH);
   }
 
   render() {

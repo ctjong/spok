@@ -23,6 +23,7 @@ import {
 import constants from "../constants";
 import { Http2Server } from "http2";
 import { Part } from "models";
+import util from "../util";
 
 class ServerHandler {
   io: Socket = null;
@@ -309,7 +310,7 @@ class ServerHandler {
     room.activePart = 0;
     room.papers = {};
     Object.keys(room.players).forEach(userName => {
-      const paper = new Paper(this.getRandomCode());
+      const paper = new Paper(util.getRandomCode());
       const player = room.players[userName];
       player.paperId = paper.id;
       room.papers[paper.id] = paper;
@@ -466,10 +467,6 @@ class ServerHandler {
       delete this.rooms[roomCode];
       return;
     }
-  }
-
-  getRandomCode() {
-    return Math.floor((1 + Math.random()) * 0x1000000000).toString(16);
   }
 }
 

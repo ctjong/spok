@@ -1,32 +1,31 @@
 import * as React from "react";
-import clientHandler from "./client-handler";
-import util from "./util";
+import clientHandler from "./services/client-handler";
 import { History } from "history";
 import { Room } from "../models";
-import ChatBox from "./components/roomControls/chat-box";
 import constants from "../constants";
+import navigationService from "./services/navigation-service";
 
 export interface ViewBaseProps {
   history: History;
   match: any;
 }
 
-interface ViewBaseStates {
+interface ViewBaseState {
   room: Room;
 }
 
 export abstract class ViewBase<ChildProps, ChildStates> extends React.Component<
   ViewBaseProps & ChildProps,
-  ViewBaseStates & ChildStates
+  ViewBaseState & ChildStates
 > {
   isRoomView: boolean;
-  chatBox: ChatBox;
+  chatBox: any; //TODO
 
   constructor(props: ViewBaseProps & ChildProps) {
     super(props);
     clientHandler.activeView = this;
-    util.initHistory(this.props.history);
-    util.addHistoryChangeHandler(location => {
+    navigationService.setHistory(this.props.history);
+    navigationService.addHistoryChangeHandler("roomStateError", location => {
       if (
         location.pathname.indexOf("/room") !== 0 &&
         clientHandler.getRoomState()

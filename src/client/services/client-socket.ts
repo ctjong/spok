@@ -1,6 +1,6 @@
 ﻿import * as io from "socket.io-client";
-import constants from "../constants";
-import { SpokMessage, SpokResponse, ErrorResponse } from "../models";
+import constants from "../../constants";
+import { SpokMessage, SpokResponse, ErrorResponse } from "../../models";
 
 class ClientSocket {
   messageHandlers: ((msg: SpokMessage) => void)[] = [];

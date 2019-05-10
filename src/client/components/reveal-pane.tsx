@@ -1,18 +1,35 @@
 import * as React from "react";
-import clientHandler from "../../client-handler";
-import Strings from "../../strings";
-import { ScoreUpdateMessage, Part } from "../../../models";
-import LikeImg from "../../images/like.png";
-import LikeActiveImg from "../../images/like_active.png";
-import DislikeImg from "../../images/dislike.png";
-import DislikeActiveImg from "../../images/dislike_active.png";
+import clientHandler from "../services/client-handler";
+import Strings from "../strings";
+import { ScoreUpdateMessage, Part } from "../../models";
+import LikeImg from "../images/like.png";
+import LikeActiveImg from "../images/like_active.png";
+import DislikeImg from "../images/dislike.png";
+import DislikeActiveImg from "../images/dislike_active.png";
 import "./reveal-pane.css";
-import clientSocket from "../../client-socket";
+import clientSocket from "../services/client-socket";
+import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
+import { returnType, StoreShape } from "../reducers";
+import { setError } from "../actions/error";
 
-class RevealPane extends React.Component {
+const actionCreators = { setError };
+type DispatchProps = typeof actionCreators;
+
+const mapStateToProps = (state: StoreShape) => {
+  return {
+    room: state.room,
+    session: state.session
+  };
+};
+
+const storeProps = returnType(mapStateToProps);
+type StoreProps = typeof storeProps.returnType;
+
+class RevealPane extends React.Component<DispatchProps & StoreProps, {}> {
   state: { votes: { [key: string]: number } };
 
-  constructor(props: {}) {
+  constructor(props: DispatchProps & StoreProps) {
     super(props);
     this.state = { votes: {} };
   }
@@ -24,21 +41,20 @@ class RevealPane extends React.Component {
     cloneVotes[paperId] = newVote;
     const delta = newVote - oldVote;
     clientSocket.send(
-      new ScoreUpdateMessage(clientHandler.roomCode, paperId, delta)
+      new ScoreUpdateMessage(this.props.session.roomCode, paperId, delta)
     );
     this.setState({ votes: cloneVotes });
   }
 
   getSentenceRows() {
     const rows: any[] = [];
-    Object.keys(clientHandler.getRoomState().papers).forEach(paperId => {
-      const paper = clientHandler.getRoomState().papers[paperId];
+    Object.keys(this.props.room.papers).forEach(paperId => {
+      const paper = this.props.room.papers[paperId];
       const texts: string[] = [];
       paper.parts.forEach((part: Part, index: number) => {
         if (part.text) texts.push(part.text);
         else {
-          const randomArr =
-            Strings[clientHandler.getRoomState().lang].randoms[index + 1];
+          const randomArr = Strings[this.props.room.lang].randoms[index + 1];
           const randomIdx = Math.floor(
             Math.random() * Math.floor(randomArr.length)
           );
@@ -110,4 +126,7 @@ class RevealPane extends React.Component {
   }
 }
 
-export default RevealPane;
+export default connect(
+  mapStateToProps,
+  dispatch => bindActionCreators(actionCreators, dispatch)
+)(RevealPane);

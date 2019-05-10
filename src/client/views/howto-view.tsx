@@ -1,14 +1,14 @@
 import * as React from "react";
-import { ViewBase } from "../../view-base";
-import constants from "../../../constants";
-import Title from "../shared/title";
+import { ViewBase } from "../view-base";
+import constants from "../../constants";
+import Title from "../components/title";
 import "./howto-view.css";
-import { Room } from "../../../models";
-import util from "../../util";
+import { Room } from "../../models";
+import navigationService from "../services/navigation-service";
 
 class HowToView extends ViewBase<{}, {}> {
   handleBackClick() {
-    util.goTo(constants.HOME_PATH);
+    navigationService.goTo(constants.HOME_PATH);
   }
 
   showNotifUI(notifCode: string) {

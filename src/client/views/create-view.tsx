@@ -1,23 +1,41 @@
 import * as React from "react";
-import { ViewBase, ViewBaseProps } from "../../view-base";
-import clientHandler from "../../client-handler";
-import constants from "../../../constants";
-import Strings from "../../strings";
-import Title from "../shared/title";
-import { CreateRoomMessage, Room } from "../../../models";
+import { ViewBase, ViewBaseProps } from "../view-base";
+import constants from "../../constants";
+import Strings from "../strings";
+import Title from "../components/title";
+import { CreateRoomMessage, Room } from "../../models";
 import "./create-view.css";
 import util from "../../util";
-import clientSocket from "../../client-socket";
+import clientSocket from "../services/client-socket";
+import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
+import { setError } from "../actions/error";
+import { StoreShape, returnType } from "../reducers";
+import { setSessionUserName } from "../actions/session";
+import navigationService from "../services/navigation-service";
 
-interface CreateViewStates {
+const actionCreators = { setError, setSessionUserName };
+type DispatchProps = typeof actionCreators;
+
+const mapStateToProps = (state: StoreShape) => {
+  return {
+    room: state.room,
+    session: state.session
+  };
+};
+
+const storeProps = returnType(mapStateToProps);
+type StoreProps = typeof storeProps.returnType;
+
+interface CreateViewState {
   isLoading: boolean;
 }
 
-class CreateView extends ViewBase<{}, CreateViewStates> {
+class CreateView extends ViewBase<DispatchProps & StoreProps, CreateViewState> {
   userNameRef: React.RefObject<any>;
   langSelectRef: React.RefObject<any>;
 
-  constructor(props: ViewBaseProps) {
+  constructor(props: DispatchProps & StoreProps & ViewBaseProps) {
     super(props);
     this.userNameRef = React.createRef();
     this.langSelectRef = React.createRef();
@@ -25,12 +43,12 @@ class CreateView extends ViewBase<{}, CreateViewStates> {
   }
 
   handleSubmitClick() {
-    const roomCode = clientHandler.getRandomCode().substring(0, 5);
+    const roomCode = util.getRandomCode().substring(0, 5);
     const userName = this.userNameRef.current.value;
     if (!userName) return;
 
     this.setState({ isLoading: true });
-    clientHandler.setUserName(userName);
+    this.props.setSessionUserName(userName);
     let lang = constants.DEFAULT_LANG;
     if (this.langSelectRef.current) {
       const dropdown = this.langSelectRef.current;
@@ -40,12 +58,12 @@ class CreateView extends ViewBase<{}, CreateViewStates> {
     clientSocket
       .send(new CreateRoomMessage(roomCode, userName, lang))
       .then(() => {
-        util.goTo(`/room/${roomCode}`);
+        navigationService.goTo(`/room/${roomCode}`);
       });
   }
 
   handleBackClick() {
-    util.goTo(constants.HOME_PATH);
+    navigationService.goTo(constants.HOME_PATH);
   }
 
   showNotifUI(notifCode: string) {
@@ -121,4 +139,7 @@ class CreateView extends ViewBase<{}, CreateViewStates> {
   }
 }
 
-export default CreateView;
+export default connect(
+  mapStateToProps,
+  dispatch => bindActionCreators(actionCreators, dispatch)
+)(CreateView);
