@@ -23,7 +23,7 @@ class App extends React.Component {
             <Route path="/create" component={CreateView} />
             <Route path="/room/:roomCode" component={RoomView} />
             <Route path="/howto" component={HowToView} />
-            <Route path="/" component={HomeView} />
+            <Route path="/" render={props => <HomeView {...props} />} />
             <Route path="*" component={ErrorView} />
           </Switch>
         </div>
