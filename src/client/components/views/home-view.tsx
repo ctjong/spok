@@ -5,8 +5,24 @@ import ClientHandler from "../../client-handler";
 import Title from "../shared/title";
 import "./home-view.css";
 import { Room } from "../../../models";
+import { connect } from "react-redux";
+import { StoreShape, returnType } from "../../reducers";
+import { bindActionCreators } from "redux";
+import { setError } from "../../actions/error";
 
-class HomeView extends ViewBase<{}, {}> {
+const actionCreators = { setError };
+type DispatchProps = typeof actionCreators;
+
+const mapStateToProps = (state: StoreShape) => {
+  return {
+    room: state.room
+  };
+};
+
+const storeProps = returnType(mapStateToProps);
+type StoreProps = typeof storeProps.returnType;
+
+class HomeView extends ViewBase<StoreProps & DispatchProps, {}> {
   handleCreateClick() {
     ClientHandler.goTo("/create");
   }
@@ -68,4 +84,7 @@ class HomeView extends ViewBase<{}, {}> {
   }
 }
 
-export default HomeView;
+export default connect(
+  mapStateToProps,
+  dispatch => bindActionCreators(actionCreators, dispatch)
+)(HomeView);

@@ -1,5 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
+import { Provider } from "react-redux";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
 import HomeView from "./components/views/home-view";
 import JoinView from "./components/views/join-view";
@@ -10,6 +11,7 @@ import ErrorView from "./components/views/error-view";
 import registerServiceWorker from "./register-service-worker";
 import "./declare.d.ts";
 import "./app.css";
+import configureStore from "./configure-store";
 
 class App extends React.Component {
   render() {
@@ -30,5 +32,11 @@ class App extends React.Component {
   }
 }
 
-ReactDOM.render(<App />, document.getElementById("root"));
+const store = configureStore();
+ReactDOM.render(
+  <Provider store={store}>
+    <App />
+  </Provider>,
+  document.getElementById("root")
+);
 registerServiceWorker();
