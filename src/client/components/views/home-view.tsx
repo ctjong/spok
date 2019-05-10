@@ -1,7 +1,6 @@
 import * as React from "react";
 import { ViewBase } from "../../view-base";
 import constants from "../../../constants";
-import clientHandler from "../../client-handler";
 import Title from "../shared/title";
 import "./home-view.css";
 import { Room } from "../../../models";
