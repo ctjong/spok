@@ -79,7 +79,6 @@ constants.fatalErrors = [
 
 constants.INITIAL_PHASE = constants.phases.LOBBY;
 constants.TOTAL_PARTS = 4;
-constants.ROOM_CODE_SSKEY = "roomCode";
 constants.USER_NAME_SSKEY = "userName";
 constants.DEFAULT_LANG = "en";
 constants.REQUEST_TIMEOUT = 20000;

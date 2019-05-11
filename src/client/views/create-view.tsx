@@ -2,26 +2,22 @@ import * as React from "react";
 import constants from "../../constants";
 import Strings from "../strings";
 import Title from "../components/title";
-import { CreateRoomMessage, Room } from "../../models";
 import "./create-view.css";
-import util from "../../util";
-import clientSocket from "../services/client-socket";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import { setError } from "../actions/error";
 import { StoreShape, returnType } from "../reducers";
-import { setSessionUserName } from "../actions/session";
 import navigationService from "../services/navigation-service";
-import { exitRoom } from "../actions/room";
+import { exitRoom, createRoom } from "../actions/room";
 
-const actionCreators = { setError, setSessionUserName, exitRoom };
+const actionCreators = { setError, exitRoom, createRoom };
 type DispatchProps = typeof actionCreators;
 
 const mapStateToProps = (state: StoreShape) => {
   return {
     room: state.room.data,
-    userName: state.session.userName,
-    roomCode: state.session.roomCode
+    userName: state.room.userName,
+    roomCode: state.room.roomCode
   };
 };
 
@@ -46,30 +42,24 @@ class CreateView extends React.Component<
     this.state = { isLoading: false };
   }
 
-  componentDidMount() {
-    if (this.props.room) {
-      this.props.exitRoom(constants.notifCodes.UNKNOWN_ERROR);
-    }
+  componentDidUpdate(prevProps: DispatchProps & StoreProps) {
+    if (!prevProps.roomCode && this.props.roomCode)
+      navigationService.goTo(`/room/${this.props.roomCode}`);
   }
 
   handleSubmitClick() {
-    const roomCode = util.getRandomCode().substring(0, 5);
     const userName = this.userNameRef.current.value;
     if (!userName) return;
 
     this.setState({ isLoading: true });
-    this.props.setSessionUserName(userName);
     let lang = constants.DEFAULT_LANG;
     if (this.langSelectRef.current) {
       const dropdown = this.langSelectRef.current;
       const selectedIndex = dropdown.selectedIndex;
       lang = dropdown.options[selectedIndex].value;
     }
-    clientSocket
-      .send(new CreateRoomMessage(roomCode, userName, lang))
-      .then(() => {
-        navigationService.goTo(`/room/${roomCode}`);
-      });
+
+    this.props.createRoom(userName, lang);
   }
 
   handleBackClick() {

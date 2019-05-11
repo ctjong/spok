@@ -16,15 +16,20 @@ import { returnType, StoreShape } from "../reducers";
 import { setError } from "../actions/error";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
-import { setSessionRoomCode } from "../actions/session";
 import util from "../../util";
-import { setRoomPromptStatus, refreshState } from "../actions/room";
+import {
+  setRoomPromptStatus,
+  syncRoom,
+  joinRoom,
+  exitRoom
+} from "../actions/room";
 
 const actionCreators = {
   setError,
-  setSessionRoomCode,
   setRoomPromptStatus,
-  refreshState
+  syncRoom,
+  joinRoom,
+  exitRoom
 };
 type DispatchProps = typeof actionCreators;
 
@@ -32,8 +37,8 @@ const mapStateToProps = (state: StoreShape) => {
   return {
     room: state.room.data,
     isPromptEnabled: state.room.isPromptEnabled,
-    userName: state.session.userName,
-    roomCode: state.session.roomCode,
+    userName: state.room.userName,
+    roomCode: state.room.roomCode,
     activeNotifCode: state.notification.activeCode
   };
 };
@@ -55,13 +60,32 @@ class RoomView extends React.Component<
   }
 
   componentDidMount() {
-    this.props.setSessionRoomCode(this.props.match.params.roomCode);
-    this.props.refreshState(
-      this.props.userName,
-      this.props.match.params.roomCode
-    );
+    console.log("[RoomView.componentDidMount]");
+    if (!this.props.roomCode) {
+      const urlRoomCode = this.props.match.params.roomCode;
+      const savedUserName = sessionStorage.getItem(constants.USER_NAME_SSKEY);
+      if (savedUserName) {
+        this.props.joinRoom(savedUserName, urlRoomCode);
+      } else {
+        this.props.exitRoom(constants.notifCodes.NOT_IN_ROOM);
+      }
+    } else {
+      this.props.syncRoom(this.props.userName, this.props.roomCode);
+    }
+
     if (!this.props.isPromptEnabled) {
       this.props.setRoomPromptStatus(true);
+    }
+  }
+
+  componentDidUpdate(prevProps: DispatchProps & StoreProps & RoomViewProps) {
+    console.log(
+      "[RoomView.componentDidUpdate]",
+      prevProps.roomCode,
+      this.props.roomCode
+    );
+    if (!prevProps.roomCode && this.props.roomCode && !this.props.room) {
+      this.props.syncRoom(this.props.userName, this.props.roomCode);
     }
   }
 

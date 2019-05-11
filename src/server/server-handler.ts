@@ -206,7 +206,6 @@ class ServerHandler {
       reply(new ErrorResponse(constants.notifCodes.ROUND_ONGOING));
       return;
     }
-    const newPlayer = new Player(msg.userName, socket.id);
 
     // accept the request if:
     // - the chosen name is already present in the room (reconnect attempt), OR
@@ -214,22 +213,18 @@ class ServerHandler {
     socket.join(roomCode, () => {
       if (existingPlayer) {
         delete this.socketToRoomMap[existingPlayer.socketId];
-        this.socketToRoomMap[newPlayer.socketId] = roomCode;
+        this.socketToRoomMap[socket.id] = roomCode;
         existingPlayer.isOnline = true;
-        existingPlayer.socketId = newPlayer.socketId;
+        existingPlayer.socketId = socket.id;
         this.broadcastSystemChat(
           socket,
           room,
           `${existingPlayer.userName} has reconnected`
         );
       } else {
-        this.socketToRoomMap[newPlayer.socketId] = roomCode;
-        room.players[newPlayer.userName] = newPlayer;
-        this.broadcastSystemChat(
-          socket,
-          room,
-          `${newPlayer.userName} has joined`
-        );
+        this.socketToRoomMap[socket.id] = roomCode;
+        room.players[msg.userName] = new Player(msg.userName, socket.id);
+        this.broadcastSystemChat(socket, room, `${msg.userName} has joined`);
       }
 
       console.log(`sending JoinApprovedResponse to ${socket.id}`);

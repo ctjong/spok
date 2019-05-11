@@ -9,7 +9,7 @@ import { setNotification, hideNotification } from "../actions/notification";
 import {
   updateRoom,
   setRoomPromptStatus,
-  refreshState,
+  syncRoom,
   exitRoom
 } from "../actions/room";
 import { connect } from "react-redux";
@@ -22,7 +22,7 @@ const actionCreators = {
   hideNotification,
   updateRoom,
   setRoomPromptStatus,
-  refreshState,
+  syncRoom,
   exitRoom,
   pushChat
 };
@@ -31,8 +31,8 @@ type DispatchProps = typeof actionCreators;
 const mapStateToProps = (state: StoreShape) => {
   return {
     room: state.room.data,
-    userName: state.session.userName,
-    roomCode: state.session.roomCode
+    userName: state.room.userName,
+    roomCode: state.room.roomCode
   };
 };
 
@@ -56,6 +56,11 @@ class ClientHandler extends React.Component<DispatchProps & StoreProps, {}> {
       !existingPlayer ||
       clientSocket.getSocketId() !== existingPlayer.socketId
     ) {
+      console.log(
+        clientSocket.getSocketId(),
+        existingPlayer,
+        this.props.userName
+      );
       this.props.exitRoom(constants.notifCodes.PLAYER_KICKED);
     } else if (navigationService.isInRoomView()) {
       this.props.updateRoom(msg.newRoomState);
@@ -64,11 +69,11 @@ class ClientHandler extends React.Component<DispatchProps & StoreProps, {}> {
 
   async handleDisconnected() {
     console.log("[ClientHandler.handleDisconnected]");
-    if (!navigationService.isInRoomView() || clientSocket.isClosed) return;
+    if (!navigationService.isInRoomView()) return;
 
     this.props.setNotification(constants.notifCodes.RECONNECTING);
     if (await clientSocket.reconnect()) {
-      this.props.refreshState(this.props.userName, this.props.roomCode);
+      this.props.syncRoom(this.props.userName, this.props.roomCode);
     } else {
       this.props.exitRoom(constants.notifCodes.CLIENT_DISCONNECTED);
     }

@@ -7,13 +7,12 @@ export type SocketErrorHandler = (notifCode: string) => void;
 export type SocketDisconnectHandler = () => void;
 
 class ClientSocket {
-  messageHandlers: SocketMessageHandler[] = null;
-  errorHandlers: SocketErrorHandler[] = null;
-  disconnectHandlers: SocketDisconnectHandler[] = null;
+  messageHandlers: SocketMessageHandler[] = [];
+  errorHandlers: SocketErrorHandler[] = [];
+  disconnectHandlers: SocketDisconnectHandler[] = [];
   initPromise: Promise<any> = null;
   socket: any = null;
   isReconnecting: boolean = false;
-  isClosed: boolean = false;
 
   constructor() {
     this.connect();
@@ -35,13 +34,11 @@ class ClientSocket {
         socket.on(constants.eventNames.CONNECT, () => {
           this.socket = socket;
           this.initPromise = null;
-          this.isClosed = false;
           resolve();
         });
         socket.on(constants.eventNames.CONNECT_ERROR, () => {
           this.handleError(constants.notifCodes.CONNECT_ERROR);
           this.initPromise = null;
-          this.isClosed = false;
           resolve();
         });
         socket.on(constants.eventNames.MSG, (msg: SpokMessage) => {
@@ -102,9 +99,14 @@ class ClientSocket {
   // Close the socket instance. This will disable all socket functionality except send(),
   // which will re-open a new socket.
   close() {
-    if (this.socket) this.socket.close();
+    if (this.socket) {
+      this.socket.off(constants.eventNames.CONNECT);
+      this.socket.off(constants.eventNames.CONNECT_ERROR);
+      this.socket.off(constants.eventNames.MSG);
+      this.socket.off(constants.eventNames.DISCONNECT);
+      this.socket.close();
+    }
     this.socket = null;
-    this.isClosed = true;
   }
 
   handleMessage(msg: SpokMessage) {
@@ -123,13 +125,8 @@ class ClientSocket {
     this.errorHandlers.forEach(handler => handler(notifCode));
   }
 
-  // Try to reconnect, and return whether or not it is successful. This should return false
-  // if the instance has been closed.
+  // Try to reconnect, and return whether or not it is successful
   async reconnect() {
-    if (this.isClosed) {
-      return false;
-    }
-
     let elapsed = 0;
     this.isReconnecting = true;
     while (!this.socket && elapsed <= constants.RECONNECT_TIMEOUT) {

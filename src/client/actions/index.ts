@@ -3,10 +3,9 @@ import { Room, ChatMessage } from "../../models";
 export enum SpokActionType {
   SetErrorActionType,
   UpdateRoomActionType,
+  SetRoomInfoActionType,
   SetRoomPromptStatusActionType,
   SetNotificationActionType,
-  SetSessionUserNameActionType,
-  SetSessionRoomCodeActionType,
   PushChatActionType
 }
 
@@ -32,6 +31,14 @@ export type UpdateRoomAction = {
   newRoom: Room;
 };
 
+type SetRoomInfoActionTypeType = "SET_ROOM_INFO";
+export const SetRoomInfoActionType = "SET_ROOM_INFO";
+export type SetRoomInfoAction = {
+  type: SetRoomInfoActionTypeType;
+  userName: string;
+  roomCode: string;
+};
+
 type SetRoomPromptStatusActionTypeType = "SET_ROOM_PROMPT_STATUS";
 export const SetRoomPromptStatusActionType = "SET_ROOM_PROMPT_STATUS";
 export type SetRoomPromptStatusAction = {
@@ -51,24 +58,6 @@ export type SetNotificationAction = {
 };
 
 /*----------------------------------
-  Session
-----------------------------------*/
-
-type SetSessionUserNameActionTypeType = "SET_SESSION_USER_NAME";
-export const SetSessionUserNameActionType = "SET_SESSION_USER_NAME";
-export type SetSessionUserNameAction = {
-  type: SetSessionUserNameActionTypeType;
-  userName: string;
-};
-
-type SetSessionRoomCodeActionTypeType = "SET_SESSION_ROOM_CODE";
-export const SetSessionRoomCodeActionType = "SET_SESSION_ROOM_CODE";
-export type SetSessionRoomCodeAction = {
-  type: SetSessionRoomCodeActionTypeType;
-  roomCode: string;
-};
-
-/*----------------------------------
   Chat
 ----------------------------------*/
 
@@ -82,10 +71,9 @@ export type PushChatAction = {
 export type SpokAction =
   | SetErrorAction
   | UpdateRoomAction
+  | SetRoomInfoAction
   | SetRoomPromptStatusAction
   | SetNotificationAction
-  | SetSessionUserNameAction
-  | SetSessionRoomCodeAction
   | PushChatAction;
 
 export type SpokActionCreator = AsyncIterableIterator<SpokAction>;

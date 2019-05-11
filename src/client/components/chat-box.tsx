@@ -13,8 +13,8 @@ type DispatchProps = typeof actionCreators;
 const mapStateToProps = (state: StoreShape) => {
   return {
     room: state.room.data,
-    userName: state.session.userName,
-    roomCode: state.session.roomCode,
+    userName: state.room.userName,
+    roomCode: state.room.roomCode,
     chatMessages: state.chat.messages
   };
 };

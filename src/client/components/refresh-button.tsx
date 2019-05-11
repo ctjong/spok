@@ -1,18 +1,18 @@
 import * as React from "react";
 import RefreshImg from "../images/refresh.png";
 import "./refresh-button.css";
-import { refreshState } from "../actions/room";
+import { syncRoom } from "../actions/room";
 import { StoreShape, returnType } from "../reducers";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 
-const actionCreators = { refreshState };
+const actionCreators = { syncRoom };
 type DispatchProps = typeof actionCreators;
 
 const mapStateToProps = (state: StoreShape) => {
   return {
-    userName: state.session.userName,
-    roomCode: state.session.roomCode
+    userName: state.room.userName,
+    roomCode: state.room.roomCode
   };
 };
 
@@ -21,7 +21,7 @@ type StoreProps = typeof storeProps.returnType;
 
 class RefreshButton extends React.Component<DispatchProps & StoreProps, {}> {
   handleRefreshClick() {
-    this.props.refreshState(this.props.userName, this.props.roomCode);
+    this.props.syncRoom(this.props.userName, this.props.roomCode);
   }
 
   render() {

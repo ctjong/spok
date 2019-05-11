@@ -1,25 +1,22 @@
 import * as React from "react";
 import constants from "../../constants";
 import Title from "../components/title";
-import { JoinRequestMessage, SpokResponse, ErrorResponse } from "../../models";
 import "./join-view.css";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import { setError } from "../actions/error";
-import { setSessionUserName } from "../actions/session";
 import { returnType, StoreShape } from "../reducers";
 import navigationService from "../services/navigation-service";
-import clientSocket from "../services/client-socket";
-import { exitRoom } from "../actions/room";
+import { exitRoom, joinRoom } from "../actions/room";
 
-const actionCreators = { setError, setSessionUserName, exitRoom };
+const actionCreators = { setError, exitRoom, joinRoom };
 type DispatchProps = typeof actionCreators;
 
 const mapStateToProps = (state: StoreShape) => {
   return {
     room: state.room.data,
-    userName: state.session.userName,
-    roomCode: state.session.roomCode
+    userName: state.room.userName,
+    roomCode: state.room.roomCode
   };
 };
 
@@ -47,29 +44,18 @@ class JoinView extends React.Component<
     this.state = { notifCode: null, isLoading: false };
   }
 
-  componentDidMount() {
-    if (this.props.room) {
-      this.props.exitRoom(constants.notifCodes.UNKNOWN_ERROR);
+  componentDidUpdate(prevProps: DispatchProps & StoreProps) {
+    if (!prevProps.roomCode && this.props.roomCode) {
+      navigationService.goTo(`/room/${this.props.roomCode}`);
     }
   }
 
-  handleSubmitClick() {
+  async handleSubmitClick() {
     const roomCode = this.roomCodeRef.current.value;
     const userName = this.userNameRef.current.value;
 
     this.setState({ isLoading: true });
-    this.props.setSessionUserName(userName);
-    clientSocket
-      .send(new JoinRequestMessage(roomCode, userName))
-      .then((response: SpokResponse) => {
-        if (!response.isSuccess) {
-          const errResponse = response as ErrorResponse;
-          this.setState({
-            isLoading: false,
-            notifCode: errResponse.notifCode
-          });
-        } else navigationService.goTo(`/room/${roomCode}`);
-      });
+    await this.props.joinRoom(userName, roomCode);
   }
 
   handleBackClick() {

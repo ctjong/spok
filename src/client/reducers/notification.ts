@@ -1,4 +1,5 @@
 import { SpokAction, SetNotificationActionType } from "../actions";
+import constants from "../../constants";
 
 export interface NotificationState {
   activeCode: string;
@@ -13,7 +14,14 @@ export function notificationReducer(
   action: SpokAction
 ): NotificationState {
   if (action.type === SetNotificationActionType) {
-    return { ...state, activeCode: action.code };
+    // Don't update the notification code if the new code doesn't have a higher
+    // severity than the active one.
+    if (
+      constants.fatalErrors.indexOf(state.activeCode) < 0 ||
+      constants.fatalErrors.indexOf(action.code) >= 0
+    ) {
+      return { ...state, activeCode: action.code };
+    }
   }
 
   return state;
