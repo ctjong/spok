@@ -33,7 +33,8 @@ const mapStateToProps = (state: StoreShape) => {
     room: state.room.data,
     isPromptEnabled: state.room.isPromptEnabled,
     userName: state.session.userName,
-    roomCode: state.session.roomCode
+    roomCode: state.session.roomCode,
+    activeNotifCode: state.notification.activeCode
   };
 };
 
@@ -44,23 +45,21 @@ interface RoomViewProps {
   match: any;
 }
 
-interface RoomViewState {
-  isPromptDisabled: boolean;
-  notifCode: string;
-}
-
 class RoomView extends React.Component<
   DispatchProps & StoreProps & RoomViewProps,
-  RoomViewState
+  {}
 > {
   constructor(props: DispatchProps & StoreProps & RoomViewProps) {
     super(props);
     this.state = { isPromptDisabled: false, notifCode: null };
-    this.props.setSessionRoomCode(this.props.match.params.roomCode);
-    this.props.refreshState(this.props.userName, this.props.roomCode);
   }
 
   componentDidMount() {
+    this.props.setSessionRoomCode(this.props.match.params.roomCode);
+    this.props.refreshState(
+      this.props.userName,
+      this.props.match.params.roomCode
+    );
     if (!this.props.isPromptEnabled) {
       this.props.setRoomPromptStatus(true);
     }
@@ -97,8 +96,8 @@ class RoomView extends React.Component<
     ) : null;
 
     let body = null;
-    if (this.state.notifCode)
-      body = <div>{constants.notifStrings[this.state.notifCode]}</div>;
+    if (this.props.activeNotifCode)
+      body = <div>{constants.notifStrings[this.props.activeNotifCode]}</div>;
     else if (!this.props.room)
       body = <div>{constants.notifStrings[constants.notifCodes.LOADING]}</div>;
     else {

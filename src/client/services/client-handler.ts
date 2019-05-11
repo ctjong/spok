@@ -42,9 +42,7 @@ type StoreProps = typeof storeProps.returnType;
 class ClientHandler extends React.Component<DispatchProps & StoreProps, {}> {
   constructor(props: DispatchProps & StoreProps) {
     super(props);
-    clientSocket.addDisconnectedHandler(() => this.handleDisconnected());
-    clientSocket.addReconnectingHandler(() => this.handleReconnecting());
-    clientSocket.addReconnectedHandler(() => this.handleReconnected());
+    clientSocket.addDisconnectHandler(() => this.handleDisconnected());
     clientSocket.addErrorHandler((code: string) => this.handleError(code));
     clientSocket.addMessageHandler((msg: SpokMessage) =>
       this.handleMessage(msg)
@@ -64,22 +62,16 @@ class ClientHandler extends React.Component<DispatchProps & StoreProps, {}> {
     }
   }
 
-  handleDisconnected() {
+  async handleDisconnected() {
     console.log("[ClientHandler.handleDisconnected]");
-    if (!navigationService.isInRoomView()) return;
-    this.props.exitRoom(constants.notifCodes.CLIENT_DISCONNECTED);
-  }
+    if (!navigationService.isInRoomView() || clientSocket.isClosed) return;
 
-  handleReconnecting() {
-    console.log("[ClientHandler.handleReconnecting]");
-    if (!navigationService.isInRoomView()) return;
     this.props.setNotification(constants.notifCodes.RECONNECTING);
-  }
-
-  handleReconnected() {
-    console.log("[ClientHandler.handleReconnected]");
-    if (!navigationService.isInRoomView()) return;
-    this.props.refreshState(this.props.userName, this.props.roomCode);
+    if (await clientSocket.reconnect()) {
+      this.props.refreshState(this.props.userName, this.props.roomCode);
+    } else {
+      this.props.exitRoom(constants.notifCodes.CLIENT_DISCONNECTED);
+    }
   }
 
   handleError(notifCode: string) {

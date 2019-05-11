@@ -60,7 +60,18 @@ class ServerHandler {
     msg: SpokMessage,
     reply: (res: any) => void
   ) => {
-    console.log(`received ${msg.type} from ${socket.id}`);
+    console.log(`received from ${socket.id}`, msg);
+
+    if (!msg.roomCode) {
+      console.log(
+        `sending ErrorResponse ${constants.notifCodes.INVALID_ARGUMENT} to ${
+          socket.id
+        }`
+      );
+      reply(new ErrorResponse(constants.notifCodes.INVALID_ARGUMENT));
+      return;
+    }
+
     if (
       msg.type !== constants.msgTypes.CREATE_ROOM &&
       !this.rooms[msg.roomCode]
