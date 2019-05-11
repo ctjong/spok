@@ -1,11 +1,15 @@
 import * as React from "react";
-import constants from "../../constants";
 import "./notfound-view.css";
-import navigationService from "../services/navigation-service";
+import { goToHome } from "../actions/navigation";
+import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
 
-class NotFoundView extends React.Component<{}, {}> {
+const actionCreators = { goToHome };
+type DispatchProps = typeof actionCreators;
+
+class NotFoundView extends React.Component<DispatchProps, {}> {
   handleHomeClick() {
-    navigationService.goTo(constants.HOME_PATH);
+    this.props.goToHome();
   }
 
   render() {
@@ -24,4 +28,7 @@ class NotFoundView extends React.Component<{}, {}> {
   }
 }
 
-export default NotFoundView;
+export default connect(
+  null,
+  dispatch => bindActionCreators(actionCreators, dispatch)
+)(NotFoundView);

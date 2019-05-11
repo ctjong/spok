@@ -5,7 +5,9 @@ export enum SpokActionType {
   UpdateRoomActionType,
   SetRoomInfoActionType,
   SetNotificationActionType,
-  PushChatActionType
+  PushChatActionType,
+  GoToActionType,
+  GoToHomeActionType
 }
 
 /*----------------------------------
@@ -60,11 +62,30 @@ export type PushChatAction = {
   message: ChatMessage;
 };
 
+/*----------------------------------
+  Navigation
+----------------------------------*/
+
+type GoToActionTypeType = "GO_TO";
+export const GoToActionType = "GO_TO";
+export type GoToAction = {
+  type: GoToActionTypeType;
+  newPath: string;
+};
+
+type GoToHomeActionTypeType = "GO_TO_HOME";
+export const GoToHomeActionType = "GO_TO_HOME";
+export type GoToHomeAction = {
+  type: GoToHomeActionTypeType;
+};
+
 export type SpokAction =
   | SetErrorAction
   | UpdateRoomAction
   | SetRoomInfoAction
   | SetNotificationAction
-  | PushChatAction;
+  | PushChatAction
+  | GoToAction
+  | GoToHomeAction;
 
 export type SpokActionCreator = AsyncIterableIterator<SpokAction>;

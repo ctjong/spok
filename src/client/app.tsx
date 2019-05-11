@@ -13,7 +13,7 @@ import "./declare.d.ts";
 import "./app.css";
 import configureStore from "./configure-store";
 import ClientHandler from "./services/client-handler";
-import navigationService from "./services/navigation-service";
+import NavigationHandler from "./services/navigation-handler";
 
 class App extends React.Component {
   render() {
@@ -22,10 +22,11 @@ class App extends React.Component {
         <Route
           path="*"
           render={props => {
-            navigationService.initialize(props.history);
             return (
               <div className="app">
+                <NavigationHandler history={props.history} />
                 <ClientHandler />
+
                 <Switch>
                   <Route
                     path="/join"

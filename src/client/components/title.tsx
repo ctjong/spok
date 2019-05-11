@@ -1,16 +1,20 @@
 import * as React from "react";
 import TitleImg from "../images/title.png";
-import constants from "../../constants";
 import "./title.css";
-import navigationService from "../services/navigation-service";
+import { goToHome } from "../actions/navigation";
+import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
+
+const actionCreators = { goToHome };
+type DispatchProps = typeof actionCreators;
 
 interface TitleProps {
   isLarge: boolean;
 }
 
-class Title extends React.Component<TitleProps> {
+class Title extends React.Component<DispatchProps & TitleProps, {}> {
   handleClick() {
-    navigationService.goTo(constants.HOME_PATH);
+    this.props.goToHome();
   }
 
   render() {
@@ -27,4 +31,7 @@ class Title extends React.Component<TitleProps> {
   }
 }
 
-export default Title;
+export default connect(
+  null,
+  dispatch => bindActionCreators(actionCreators, dispatch)
+)(Title);

@@ -6,9 +6,9 @@ import { connect } from "react-redux";
 import { StoreShape, returnType } from "../reducers";
 import { bindActionCreators } from "redux";
 import { hideNotification } from "../actions/notification";
-import navigationService from "../services/navigation-service";
+import { goTo } from "../actions/navigation";
 
-const actionCreators = { hideNotification };
+const actionCreators = { hideNotification, goTo };
 type DispatchProps = typeof actionCreators;
 
 const mapStateToProps = (state: StoreShape) => {
@@ -27,15 +27,15 @@ class HomeView extends React.Component<StoreProps & DispatchProps, {}> {
   }
 
   handleCreateClick() {
-    navigationService.goTo("/create");
+    this.props.goTo("/create");
   }
 
   handleJoinClick() {
-    navigationService.goTo("/join");
+    this.props.goTo("/join");
   }
 
   handleHowToClick() {
-    navigationService.goTo("/howto");
+    this.props.goTo("/howto");
   }
 
   render() {

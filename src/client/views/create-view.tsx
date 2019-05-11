@@ -6,10 +6,10 @@ import "./create-view.css";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import { StoreShape, returnType } from "../reducers";
-import navigationService from "../services/navigation-service";
 import { createRoom } from "../actions/room";
+import { goToHome, goTo } from "../actions/navigation";
 
-const actionCreators = { createRoom };
+const actionCreators = { createRoom, goToHome, goTo };
 type DispatchProps = typeof actionCreators;
 
 const mapStateToProps = (state: StoreShape) => {
@@ -43,7 +43,7 @@ class CreateView extends React.Component<
 
   componentDidUpdate() {
     if (this.props.roomCode && this.props.room) {
-      navigationService.goTo(`/room/${this.props.roomCode}`);
+      this.props.goTo(`/room/${this.props.roomCode}`);
     }
   }
 
@@ -63,7 +63,7 @@ class CreateView extends React.Component<
   }
 
   handleBackClick() {
-    navigationService.goTo(constants.HOME_PATH);
+    this.props.goToHome();
   }
 
   render() {

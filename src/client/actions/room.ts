@@ -2,7 +2,8 @@ import {
   SpokActionCreator,
   UpdateRoomActionType,
   SetNotificationActionType,
-  SetRoomInfoActionType
+  SetRoomInfoActionType,
+  GoToHomeActionType
 } from ".";
 import {
   Room,
@@ -14,7 +15,6 @@ import {
 } from "../../models";
 import constants from "../../constants";
 import clientSocket from "../services/client-socket";
-import navigationService from "../services/navigation-service";
 import util from "../../util";
 
 /**
@@ -35,7 +35,7 @@ export async function* syncRoom(
   roomCode: string
 ): SpokActionCreator {
   console.log("[syncRoom]", userName, roomCode);
-  if (!navigationService.isInRoomView()) return;
+  if (!util.isInRoomView()) return;
 
   yield {
     type: SetNotificationActionType,
@@ -65,8 +65,8 @@ export async function* exitRoom(errorCode: string): SpokActionCreator {
   yield { type: SetRoomInfoActionType, userName: null, roomCode: null };
   sessionStorage.setItem(constants.USER_NAME_SSKEY, null);
   clientSocket.close();
-  if (!navigationService.isInHomeView()) {
-    navigationService.goTo(constants.HOME_PATH);
+  if (!util.isInHomeView()) {
+    yield { type: GoToHomeActionType };
   }
 }
 

@@ -5,10 +5,10 @@ import "./join-view.css";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import { returnType, StoreShape } from "../reducers";
-import navigationService from "../services/navigation-service";
 import { joinRoom } from "../actions/room";
+import { goTo } from "../actions/navigation";
 
-const actionCreators = { joinRoom };
+const actionCreators = { joinRoom, goTo };
 type DispatchProps = typeof actionCreators;
 
 const mapStateToProps = (state: StoreShape) => {
@@ -45,7 +45,7 @@ class JoinView extends React.Component<
 
   componentDidUpdate() {
     if (this.props.roomCode && this.props.room) {
-      navigationService.goTo(`/room/${this.props.roomCode}`);
+      this.props.goTo(`/room/${this.props.roomCode}`);
     }
   }
 
@@ -58,7 +58,7 @@ class JoinView extends React.Component<
   }
 
   handleBackClick() {
-    navigationService.goTo(constants.HOME_PATH);
+    this.props.goTo(constants.HOME_PATH);
   }
 
   render() {

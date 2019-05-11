@@ -1,7 +1,6 @@
 import { RoomUpdateMessage, SpokMessage, ChatMessage } from "../../models";
 import constants from "../../constants";
 import clientSocket from "./client-socket";
-import navigationService from "./navigation-service";
 import { StoreShape, returnType } from "../reducers";
 import * as React from "react";
 import { setNotification, hideNotification } from "../actions/notification";
@@ -9,6 +8,7 @@ import { updateRoom, syncRoom, exitRoom } from "../actions/room";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import { pushChat } from "../actions/chat";
+import util from "../../util";
 
 const actionCreators = {
   setNotification,
@@ -54,14 +54,14 @@ class ClientHandler extends React.Component<DispatchProps & StoreProps, {}> {
         existingPlayer.socketId
       );
       this.props.exitRoom(constants.notifCodes.JOINED_OTHER_DEVICE);
-    } else if (navigationService.isInRoomView()) {
+    } else if (util.isInRoomView()) {
       this.props.updateRoom(msg.newRoomState);
     }
   }
 
   async handleDisconnected() {
     console.log("[ClientHandler.handleDisconnected]");
-    if (!navigationService.isInRoomView()) return;
+    if (!util.isInRoomView()) return;
 
     this.props.setNotification(constants.notifCodes.RECONNECTING);
     if (await clientSocket.reconnect()) {
@@ -86,7 +86,7 @@ class ClientHandler extends React.Component<DispatchProps & StoreProps, {}> {
       this.handeRoomUpdate(msg as RoomUpdateMessage);
     } else if (
       msg.type === constants.msgTypes.CHAT_MESSAGE &&
-      navigationService.isInRoomView()
+      util.isInRoomView()
     ) {
       this.props.pushChat(msg as ChatMessage);
     }
