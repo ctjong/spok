@@ -91,9 +91,9 @@ export async function* joinRoom(
   roomCode: string
 ): SpokActionCreator {
   console.log("[joinRoom]", userName, roomCode);
-  await clientSocket.send(new JoinRequestMessage(roomCode, userName));
   sessionStorage.setItem(constants.USER_NAME_SSKEY, userName);
   yield { type: SetRoomInfoActionType, userName, roomCode };
+  await clientSocket.send(new JoinRequestMessage(roomCode, userName));
 }
 
 /**
@@ -107,7 +107,7 @@ export async function* createRoom(
 ): SpokActionCreator {
   console.log("[createRoom]", userName, lang);
   const roomCode = util.getRandomCode().substring(0, 5);
-  await clientSocket.send(new CreateRoomMessage(roomCode, userName, lang));
   sessionStorage.setItem(constants.USER_NAME_SSKEY, userName);
   yield { type: SetRoomInfoActionType, userName, roomCode };
+  await clientSocket.send(new CreateRoomMessage(roomCode, userName, lang));
 }

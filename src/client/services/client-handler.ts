@@ -57,6 +57,7 @@ class ClientHandler extends React.Component<DispatchProps & StoreProps, {}> {
       clientSocket.getSocketId() !== existingPlayer.socketId
     ) {
       console.log(
+        "[ClientHandler.handeRoomUpdate]",
         clientSocket.getSocketId(),
         existingPlayer,
         this.props.userName
