@@ -31,7 +31,7 @@ class HomeView extends React.Component<StoreProps & DispatchProps, {}> {
   }
 
   componentWillUnmount() {
-    this.props.hideNotification();
+    if (this.props.activeNotifCode) this.props.hideNotification();
   }
 
   handleCreateClick() {

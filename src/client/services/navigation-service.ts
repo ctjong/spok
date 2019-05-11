@@ -1,26 +1,16 @@
 import { History } from "history";
 import constants from "../../constants";
+import { createBrowserHistory } from "history";
 
 class NavigationService {
   history: History = null;
-  registeredHistoryHandlerNames: string[] = [];
 
-  goTo(path: string) {
-    this.history.push(path);
-  }
-
-  setHistory(history: History) {
+  initialize(history: History) {
     this.history = history;
   }
 
-  addHistoryChangeHandler(
-    handlerName: string,
-    handler: History.LocationListener
-  ) {
-    if (this.registeredHistoryHandlerNames.indexOf(handlerName) < 0) {
-      this.registeredHistoryHandlerNames.push(handlerName);
-      this.history.listen(handler);
-    }
+  goTo(path: string) {
+    this.history.push(path);
   }
 
   isInRoomView() {
