@@ -4,7 +4,7 @@ export enum SpokActionType {
   SetErrorActionType,
   UpdateRoomActionType,
   SetRoomPromptStatusActionType,
-  SetNotificationctionType,
+  SetNotificationActionType,
   SetSessionUserNameActionType,
   SetSessionRoomCodeActionType
 }
@@ -43,8 +43,8 @@ export type SetRoomPromptStatusAction = {
 ----------------------------------*/
 
 type SetNotificationActionTypeType = "SET_NOTIFICATION";
-export const SetNotificationctionType = "SET_NOTIFICATION";
-export type SetNotificationction = {
+export const SetNotificationActionType = "SET_NOTIFICATION";
+export type SetNotificationAction = {
   type: SetNotificationActionTypeType;
   code: string;
 };
@@ -71,7 +71,7 @@ export type SpokAction =
   | SetErrorAction
   | UpdateRoomAction
   | SetRoomPromptStatusAction
-  | SetNotificationction
+  | SetNotificationAction
   | SetSessionUserNameAction
   | SetSessionRoomCodeAction;
 

@@ -12,12 +12,14 @@ import registerServiceWorker from "./register-service-worker";
 import "./declare.d.ts";
 import "./app.css";
 import configureStore from "./configure-store";
+import ClientHandler from "./services/client-handler";
 
 class App extends React.Component {
   render() {
     return (
       <BrowserRouter>
         <div className="app">
+          <ClientHandler />
           <Switch>
             <Route path="/join" render={props => <JoinView {...props} />} />
             <Route path="/create" render={props => <CreateView {...props} />} />

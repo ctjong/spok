@@ -2,7 +2,7 @@ import {
   SpokActionCreator,
   UpdateRoomActionType,
   SetRoomPromptStatusActionType,
-  SetNotificationctionType
+  SetNotificationActionType
 } from ".";
 import { Room, StateResponse, StateRequestMessage } from "../../models";
 import constants from "../../constants";
@@ -24,7 +24,7 @@ export async function* refreshState(
   roomCode: string
 ): SpokActionCreator {
   yield {
-    type: SetNotificationctionType,
+    type: SetNotificationActionType,
     code: constants.notifCodes.SYNCING_STATE
   };
 
@@ -33,7 +33,7 @@ export async function* refreshState(
   )) as StateResponse;
 
   yield {
-    type: SetNotificationctionType,
+    type: SetNotificationActionType,
     code: null
   };
 
@@ -43,7 +43,7 @@ export async function* refreshState(
 export async function* exitRoom(reasonCode: string): SpokActionCreator {
   console.log(`[exitRoom] Reason: ${reasonCode}`);
   yield {
-    type: SetNotificationctionType,
+    type: SetNotificationActionType,
     code: reasonCode
   };
 

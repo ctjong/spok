@@ -19,7 +19,6 @@ import { bindActionCreators } from "redux";
 import { setSessionRoomCode } from "../actions/session";
 import util from "../../util";
 import { setRoomPromptStatus } from "../actions/room";
-import ClientHandler from "../services/client-handler";
 
 const actionCreators = { setError, setSessionRoomCode, setRoomPromptStatus };
 type DispatchProps = typeof actionCreators;
@@ -120,7 +119,6 @@ class RoomView extends React.Component<
 
     return (
       <div className="view room-view">
-        <ClientHandler />
         {prompt}
         <Title isLarge={false} />
         {body}

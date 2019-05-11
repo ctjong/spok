@@ -1,4 +1,4 @@
-import { SpokAction, SetNotificationctionType } from "../actions";
+import { SpokAction, SetNotificationActionType } from "../actions";
 
 export interface NotificationState {
   activeCode: string;
@@ -12,7 +12,7 @@ export function notificationReducer(
   state: NotificationState = initialState,
   action: SpokAction
 ): NotificationState {
-  if (action.type === SetNotificationctionType) {
+  if (action.type === SetNotificationActionType) {
     return { ...state, activeCode: action.code };
   }
 
