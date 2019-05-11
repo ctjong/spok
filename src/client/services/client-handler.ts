@@ -1,4 +1,4 @@
-import { RoomUpdateMessage, SpokMessage } from "../../models";
+import { RoomUpdateMessage, SpokMessage, ChatMessage } from "../../models";
 import constants from "../../constants";
 import clientSocket from "./client-socket";
 import navigationService from "./navigation-service";
@@ -14,6 +14,7 @@ import {
 } from "../actions/room";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
+import { pushChat } from "../actions/chat";
 
 const actionCreators = {
   setError,
@@ -22,7 +23,8 @@ const actionCreators = {
   updateRoom,
   setRoomPromptStatus,
   refreshState,
-  exitRoom
+  exitRoom,
+  pushChat
 };
 type DispatchProps = typeof actionCreators;
 
@@ -97,8 +99,7 @@ class ClientHandler extends React.Component<DispatchProps & StoreProps, {}> {
       msg.type === constants.msgTypes.CHAT_MESSAGE &&
       navigationService.isInRoomView()
     ) {
-      //TODO
-      // this.activeView.chatBox.pushMessage(msg as ChatMessage);
+      this.props.pushChat(msg as ChatMessage);
     }
   }
 }

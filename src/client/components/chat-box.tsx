@@ -14,24 +14,17 @@ const mapStateToProps = (state: StoreShape) => {
   return {
     room: state.room.data,
     userName: state.session.userName,
-    roomCode: state.session.roomCode
+    roomCode: state.session.roomCode,
+    chatMessages: state.chat.messages
   };
 };
 
 const storeProps = returnType(mapStateToProps);
 type StoreProps = typeof storeProps.returnType;
 
-interface ChatBoxState {
-  messages: ChatMessage[];
-}
-
-class ChatBox extends React.Component<
-  DispatchProps & StoreProps,
-  ChatBoxState
-> {
+class ChatBox extends React.Component<DispatchProps & StoreProps, {}> {
   inputRef: React.RefObject<any>;
   scrollViewRef: React.RefObject<any>;
-  state: ChatBoxState;
 
   constructor(props: DispatchProps & StoreProps) {
     super(props);
@@ -43,13 +36,6 @@ class ChatBox extends React.Component<
   componentDidUpdate() {
     const el = this.scrollViewRef.current;
     el.scrollTo(0, el.scrollHeight);
-  }
-
-  pushMessage(chatMsg: ChatMessage) {
-    const newMessages = [];
-    this.state.messages.forEach(msg => newMessages.push(msg));
-    newMessages.push(chatMsg);
-    this.setState({ messages: newMessages });
   }
 
   handleSendClick() {
@@ -68,7 +54,7 @@ class ChatBox extends React.Component<
   render() {
     let counter = 0;
     const rows: any[] = [];
-    this.state.messages.forEach(msg => {
+    this.props.chatMessages.forEach(msg => {
       if (msg.authorUserName) {
         rows.push(
           <div key={counter++}>

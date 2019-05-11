@@ -1,14 +1,15 @@
-import { Room } from "models";
 import { roomReducer, RoomState } from "./room";
 import { ErrorState, errorReducer } from "./error";
 import { notificationReducer, NotificationState } from "./notification";
 import { SessionState, sessionReducer } from "./session";
+import { chatReducer, ChatState } from "./chat";
 
 export const reducers = {
   room: roomReducer,
   error: errorReducer,
   notification: notificationReducer,
-  session: sessionReducer
+  session: sessionReducer,
+  chat: chatReducer
 };
 
 export interface StoreShape {
@@ -16,6 +17,7 @@ export interface StoreShape {
   error: ErrorState;
   notification: NotificationState;
   session: SessionState;
+  chat: ChatState;
 }
 
 export function returnType<R>(f: (...args: any[]) => R): { returnType: R } {
