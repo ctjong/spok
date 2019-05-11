@@ -102,6 +102,10 @@ class ClientHandler extends React.Component<DispatchProps & StoreProps, {}> {
       this.props.pushChat(msg as ChatMessage);
     }
   }
+
+  render(): any {
+    return null;
+  }
 }
 
 export default connect(
