@@ -60,7 +60,6 @@ class RoomView extends React.Component<
   }
 
   componentDidMount() {
-    console.log("[RoomView.componentDidMount]");
     if (!this.props.roomCode) {
       const urlRoomCode = this.props.match.params.roomCode;
       const savedUserName = sessionStorage.getItem(constants.USER_NAME_SSKEY);
@@ -79,11 +78,6 @@ class RoomView extends React.Component<
   }
 
   componentDidUpdate(prevProps: DispatchProps & StoreProps & RoomViewProps) {
-    console.log(
-      "[RoomView.componentDidUpdate]",
-      prevProps.roomCode,
-      this.props.roomCode
-    );
     if (!prevProps.roomCode && this.props.roomCode && !this.props.room) {
       this.props.syncRoom(this.props.userName, this.props.roomCode);
     }
