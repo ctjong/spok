@@ -1,25 +1,39 @@
 import * as React from "react";
-import ClientHandler from "../../client-handler";
-import { KickPlayerMessage, SetAsHostMessage, Player } from "../../../models";
+import { KickPlayerMessage, SetAsHostMessage, Player } from "../../models";
 import "./participant-list.css";
+import clientSocket from "../services/client-socket";
+import { returnType, StoreShape } from "../reducers";
+import { connect } from "react-redux";
+import util from "../../util";
 
-class ParticipantList extends React.Component {
+const mapStateToProps = (state: StoreShape) => {
+  return {
+    room: state.room.data,
+    userName: state.room.userName,
+    roomCode: state.room.roomCode
+  };
+};
+
+const storeProps = returnType(mapStateToProps);
+type StoreProps = typeof storeProps.returnType;
+
+class ParticipantList extends React.Component<StoreProps, {}> {
   handleKickButtonClick(player: Player) {
-    ClientHandler.send(
-      new KickPlayerMessage(ClientHandler.roomCode, player.userName)
+    clientSocket.send(
+      new KickPlayerMessage(this.props.roomCode, player.userName)
     );
   }
 
   handleSetAsHostButtonClick(player: Player) {
-    ClientHandler.send(
-      new SetAsHostMessage(ClientHandler.roomCode, player.userName)
+    clientSocket.send(
+      new SetAsHostMessage(this.props.roomCode, player.userName)
     );
   }
 
   getList() {
     const playerList: Player[] = [];
-    Object.keys(ClientHandler.getRoomState().players).forEach(userName => {
-      playerList.push(ClientHandler.getRoomState().players[userName]);
+    Object.keys(this.props.room.players).forEach(userName => {
+      playerList.push(this.props.room.players[userName]);
     });
     playerList.sort((a: Player, b: Player) => {
       return b.score - a.score;
@@ -29,8 +43,8 @@ class ParticipantList extends React.Component {
     playerList.forEach(player => {
       const className = "player " + (player.isOnline ? "" : "offline");
       const hostControls =
-        ClientHandler.isHostUser() &&
-        ClientHandler.userName !== player.userName ? (
+        util.isHostUser(this.props.room, this.props.userName) &&
+        this.props.userName !== player.userName ? (
           <span>
             (<a onClick={() => this.handleKickButtonClick(player)}>kick</a>) (
             <a onClick={() => this.handleSetAsHostButtonClick(player)}>
@@ -40,7 +54,7 @@ class ParticipantList extends React.Component {
           </span>
         ) : null;
       const hostLabel =
-        ClientHandler.getRoomState().hostUserName === player.userName ? (
+        this.props.room.hostUserName === player.userName ? (
           <span>(host)</span>
         ) : null;
       playerDivs.push(
@@ -65,4 +79,4 @@ class ParticipantList extends React.Component {
   }
 }
 
-export default ParticipantList;
+export default connect(mapStateToProps)(ParticipantList);

@@ -1,18 +1,27 @@
 import * as React from "react";
-import ClientHandler from "../../client-handler";
-import { ChatMessage } from "../../../models";
+import { ChatMessage } from "../../models";
 import "./chat-box.css";
+import clientSocket from "../services/client-socket";
+import { StoreShape, returnType } from "../reducers";
+import { connect } from "react-redux";
 
-interface ChatBoxState {
-  messages: ChatMessage[];
-}
+const mapStateToProps = (state: StoreShape) => {
+  return {
+    room: state.room.data,
+    userName: state.room.userName,
+    roomCode: state.room.roomCode,
+    chatMessages: state.chat.messages
+  };
+};
 
-class ChatBox extends React.Component {
+const storeProps = returnType(mapStateToProps);
+type StoreProps = typeof storeProps.returnType;
+
+class ChatBox extends React.Component<StoreProps, {}> {
   inputRef: React.RefObject<any>;
   scrollViewRef: React.RefObject<any>;
-  state: ChatBoxState;
 
-  constructor(props: {}) {
+  constructor(props: StoreProps) {
     super(props);
     this.inputRef = React.createRef();
     this.scrollViewRef = React.createRef();
@@ -24,19 +33,12 @@ class ChatBox extends React.Component {
     el.scrollTo(0, el.scrollHeight);
   }
 
-  pushMessage(chatMsg: ChatMessage) {
-    const newMessages = [];
-    this.state.messages.forEach(msg => newMessages.push(msg));
-    newMessages.push(chatMsg);
-    this.setState({ messages: newMessages });
-  }
-
   handleSendClick() {
     const text = this.inputRef.current.value;
     if (!text) return;
     this.inputRef.current.value = "";
-    ClientHandler.send(
-      new ChatMessage(ClientHandler.roomCode, ClientHandler.userName, text)
+    clientSocket.send(
+      new ChatMessage(this.props.roomCode, this.props.userName, text)
     );
   }
 
@@ -47,7 +49,7 @@ class ChatBox extends React.Component {
   render() {
     let counter = 0;
     const rows: any[] = [];
-    this.state.messages.forEach(msg => {
+    this.props.chatMessages.forEach(msg => {
       if (msg.authorUserName) {
         rows.push(
           <div key={counter++}>
@@ -83,4 +85,4 @@ class ChatBox extends React.Component {
   }
 }
 
-export default ChatBox;
+export default connect(mapStateToProps)(ChatBox);

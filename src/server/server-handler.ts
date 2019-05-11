@@ -7,7 +7,7 @@ import {
   SuccessResponse,
   JoinRequestMessage,
   Player,
-  JoinApprovedResponse,
+  RoomJoinedResponse,
   SubmitPartMessage,
   GoToLobbyMessage,
   KickPlayerMessage,
@@ -20,9 +20,10 @@ import {
   StateResponse,
   RoomUpdateMessage
 } from "../models";
-import Constants from "../constants";
+import constants from "../constants";
 import { Http2Server } from "http2";
 import { Part } from "models";
+import util from "../util";
 
 class ServerHandler {
   io: Socket = null;
@@ -37,14 +38,14 @@ class ServerHandler {
     this.io = require("socket.io")(http);
     this.io.on("connection", (socket: Socket) => {
       socket.on(
-        Constants.eventNames.MSG,
+        constants.eventNames.MSG,
         (msg: SpokMessage, reply: (res: any) => void) =>
           this.handleMessage(socket, msg, reply)
       );
-      socket.on(Constants.eventNames.DISCONNECT, () =>
+      socket.on(constants.eventNames.DISCONNECT, () =>
         this.handleDisconnect(socket)
       );
-      socket.on(Constants.eventNames.RECONNECT, () =>
+      socket.on(constants.eventNames.RECONNECT, () =>
         this.handleReconnect(socket)
       );
     });
@@ -59,49 +60,60 @@ class ServerHandler {
     msg: SpokMessage,
     reply: (res: any) => void
   ) => {
-    console.log(`received ${msg.type} from ${socket.id}`);
-    if (
-      msg.type !== Constants.msgTypes.CREATE_ROOM &&
-      !this.rooms[msg.roomCode]
-    ) {
+    console.log(`received from ${socket.id}`, msg);
+
+    if (!msg.roomCode) {
       console.log(
-        `sending ErrorResponse ${Constants.notifCodes.ROOM_NOT_EXIST} to ${
+        `sending ErrorResponse ${constants.notifCodes.INVALID_ARGUMENT} to ${
           socket.id
         }`
       );
-      reply(new ErrorResponse(Constants.notifCodes.ROOM_NOT_EXIST));
+      reply(new ErrorResponse(constants.notifCodes.INVALID_ARGUMENT));
+      return;
+    }
+
+    if (
+      msg.type !== constants.msgTypes.CREATE_ROOM &&
+      !this.rooms[msg.roomCode]
+    ) {
+      console.log(
+        `sending ErrorResponse ${constants.notifCodes.ROOM_NOT_EXIST} to ${
+          socket.id
+        }`
+      );
+      reply(new ErrorResponse(constants.notifCodes.ROOM_NOT_EXIST));
       return;
     }
 
     switch (msg.type) {
-      case Constants.msgTypes.CREATE_ROOM:
+      case constants.msgTypes.CREATE_ROOM:
         this.handleCreateRoom(socket, msg as CreateRoomMessage, reply);
         break;
-      case Constants.msgTypes.JOIN_REQUEST:
+      case constants.msgTypes.JOIN_REQUEST:
         this.handleJoinRequest(socket, msg as JoinRequestMessage, reply);
         break;
-      case Constants.msgTypes.SUBMIT_PART:
+      case constants.msgTypes.SUBMIT_PART:
         this.handleSubmitPart(socket, msg as SubmitPartMessage, reply);
         break;
-      case Constants.msgTypes.GO_TO_LOBBY:
+      case constants.msgTypes.GO_TO_LOBBY:
         this.handleGoToLobby(socket, msg as GoToLobbyMessage, reply);
         break;
-      case Constants.msgTypes.KICK_PLAYER:
+      case constants.msgTypes.KICK_PLAYER:
         this.handleKickPlayer(socket, msg as KickPlayerMessage, reply);
         break;
-      case Constants.msgTypes.SET_AS_HOST:
+      case constants.msgTypes.SET_AS_HOST:
         this.handleSetAsHost(socket, msg as SetAsHostMessage, reply);
         break;
-      case Constants.msgTypes.START_ROUND:
+      case constants.msgTypes.START_ROUND:
         this.handleStartRound(socket, msg as StartRoundMessage, reply);
         break;
-      case Constants.msgTypes.SCORE_UPDATE:
+      case constants.msgTypes.SCORE_UPDATE:
         this.handleScoreUpdate(socket, msg as ScoreUpdateMessage, reply);
         break;
-      case Constants.msgTypes.STATE_REQUEST:
+      case constants.msgTypes.STATE_REQUEST:
         this.handleStateRequest(socket, msg as StateRequestMessage, reply);
         break;
-      case Constants.msgTypes.CHAT_MESSAGE:
+      case constants.msgTypes.CHAT_MESSAGE:
         this.handleChatMessage(socket, msg as ChatMessage, reply);
         break;
       default:
@@ -162,16 +174,12 @@ class ServerHandler {
   ) => {
     const roomCode = msg.roomCode;
     this.socketToRoomMap[socket.id] = roomCode;
-    this.rooms[roomCode] = new Room(
-      roomCode,
-      msg.lang,
-      msg.hostUserName,
-      socket
-    );
+    const newRoom = new Room(roomCode, msg.lang, msg.hostUserName, socket);
+    this.rooms[roomCode] = newRoom;
     socket.join(roomCode, () => {
       console.log(`room ${roomCode} created`);
       console.log(`sending SuccessResponse to ${socket.id}`);
-      reply(new SuccessResponse());
+      reply(new RoomJoinedResponse(newRoom));
     });
   };
 
@@ -185,16 +193,15 @@ class ServerHandler {
 
     // if round is currently ongoing and the request is not for reconnection, reject it.
     const existingPlayer = room.players[msg.userName];
-    if (!existingPlayer && room.phase > Constants.phases.LOBBY) {
+    if (!existingPlayer && room.phase > constants.phases.LOBBY) {
       console.log(
-        `sending ErrorResponse ${Constants.notifCodes.ROUND_ONGOING} to ${
+        `sending ErrorResponse ${constants.notifCodes.ROUND_ONGOING} to ${
           socket.id
         }`
       );
-      reply(new ErrorResponse(Constants.notifCodes.ROUND_ONGOING));
+      reply(new ErrorResponse(constants.notifCodes.ROUND_ONGOING));
       return;
     }
-    const newPlayer = new Player(msg.userName, socket.id);
 
     // accept the request if:
     // - the chosen name is already present in the room (reconnect attempt), OR
@@ -202,26 +209,22 @@ class ServerHandler {
     socket.join(roomCode, () => {
       if (existingPlayer) {
         delete this.socketToRoomMap[existingPlayer.socketId];
-        this.socketToRoomMap[newPlayer.socketId] = roomCode;
+        this.socketToRoomMap[socket.id] = roomCode;
         existingPlayer.isOnline = true;
-        existingPlayer.socketId = newPlayer.socketId;
+        existingPlayer.socketId = socket.id;
         this.broadcastSystemChat(
           socket,
           room,
           `${existingPlayer.userName} has reconnected`
         );
       } else {
-        this.socketToRoomMap[newPlayer.socketId] = roomCode;
-        room.players[newPlayer.userName] = newPlayer;
-        this.broadcastSystemChat(
-          socket,
-          room,
-          `${newPlayer.userName} has joined`
-        );
+        this.socketToRoomMap[socket.id] = roomCode;
+        room.players[msg.userName] = new Player(msg.userName, socket.id);
+        this.broadcastSystemChat(socket, room, `${msg.userName} has joined`);
       }
 
-      console.log(`sending JoinApprovedResponse to ${socket.id}`);
-      reply(new JoinApprovedResponse(room));
+      console.log(`sending RoomJoinedResponse to ${socket.id}`);
+      reply(new RoomJoinedResponse(room));
       this.broadcastStateUpdate(socket, room);
     });
   };
@@ -237,11 +240,11 @@ class ServerHandler {
     const paper = room.papers[part.paperId];
     if (!paper) {
       console.log(
-        `sending ErrorResponse ${Constants.notifCodes.SUBMIT_PART_FAILED} to ${
+        `sending ErrorResponse ${constants.notifCodes.SUBMIT_PART_FAILED} to ${
           socket.id
         }`
       );
-      reply(new ErrorResponse(Constants.notifCodes.SUBMIT_PART_FAILED));
+      reply(new ErrorResponse(constants.notifCodes.SUBMIT_PART_FAILED));
       return;
     }
     paper.parts[room.activePart] = part;
@@ -258,7 +261,7 @@ class ServerHandler {
   ) => {
     const roomCode = msg.roomCode;
     const room = this.rooms[roomCode];
-    room.phase = Constants.phases.LOBBY;
+    room.phase = constants.phases.LOBBY;
     console.log(`sending SuccessResponse to ${socket.id}`);
     reply(new SuccessResponse());
     this.broadcastStateUpdate(socket, room);
@@ -274,7 +277,7 @@ class ServerHandler {
     const userName = msg.userName;
     if (room.players[userName]) {
       delete room.players[userName];
-      if (room.phase === Constants.phases.WRITE)
+      if (room.phase === constants.phases.WRITE)
         this.updateWritePhaseState(room);
       this.broadcastSystemChat(socket, room, `${userName} has been kicked`);
       this.broadcastStateUpdate(socket, room);
@@ -305,11 +308,11 @@ class ServerHandler {
   ) => {
     const roomCode = msg.roomCode;
     const room = this.rooms[roomCode];
-    room.phase = Constants.phases.WRITE;
+    room.phase = constants.phases.WRITE;
     room.activePart = 0;
     room.papers = {};
     Object.keys(room.players).forEach(userName => {
-      const paper = new Paper(this.getRandomCode());
+      const paper = new Paper(util.getRandomCode());
       const player = room.players[userName];
       player.paperId = paper.id;
       room.papers[paper.id] = paper;
@@ -329,11 +332,11 @@ class ServerHandler {
     const paper = room.papers[msg.paperId];
     if (!paper) {
       console.log(
-        `sending ErrorResponse ${Constants.notifCodes.UNKNOWN_ERROR} to ${
+        `sending ErrorResponse ${constants.notifCodes.UNKNOWN_ERROR} to ${
           socket.id
         }`
       );
-      reply(new ErrorResponse(Constants.notifCodes.UNKNOWN_ERROR));
+      reply(new ErrorResponse(constants.notifCodes.UNKNOWN_ERROR));
       return;
     }
     paper.parts.forEach((part: Part) => {
@@ -367,11 +370,11 @@ class ServerHandler {
     const player = room.players[userName];
     if (!player) {
       console.log(
-        `sending ErrorResponse ${Constants.notifCodes.NOT_IN_ROOM} to ${
+        `sending ErrorResponse ${constants.notifCodes.NOT_IN_ROOM} to ${
           socket.id
         }`
       );
-      reply(new ErrorResponse(Constants.notifCodes.NOT_IN_ROOM));
+      reply(new ErrorResponse(constants.notifCodes.NOT_IN_ROOM));
       return;
     }
     if (player.socketId !== socket.id) {
@@ -392,8 +395,8 @@ class ServerHandler {
 
   broadcast(socket: Socket, msg: SpokMessage) {
     console.log(`sending ${msg.type} to ${msg.roomCode}`);
-    socket.to(msg.roomCode).emit(Constants.eventNames.MSG, msg);
-    socket.emit(Constants.eventNames.MSG, msg);
+    socket.to(msg.roomCode).emit(constants.eventNames.MSG, msg);
+    socket.emit(constants.eventNames.MSG, msg);
   }
 
   broadcastStateUpdate(socket: Socket, room: Room) {
@@ -413,8 +416,8 @@ class ServerHandler {
     });
 
     if (readyToProceed) {
-      if (room.activePart >= Constants.TOTAL_PARTS - 1)
-        room.phase = Constants.phases.REVEAL;
+      if (room.activePart >= constants.TOTAL_PARTS - 1)
+        room.phase = constants.phases.REVEAL;
       else {
         this.movePapers(room);
         room.activePart++;
@@ -466,10 +469,6 @@ class ServerHandler {
       delete this.rooms[roomCode];
       return;
     }
-  }
-
-  getRandomCode() {
-    return Math.floor((1 + Math.random()) * 0x1000000000).toString(16);
   }
 }
 

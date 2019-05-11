@@ -1,13 +1,26 @@
 import * as React from "react";
-import ClientHandler from "../../client-handler";
-import Strings from "../../strings";
-import { Part, SubmitPartMessage } from "../../../models";
+import Strings from "../strings";
+import { Part, SubmitPartMessage } from "../../models";
 import "./write-pane.css";
+import clientSocket from "../services/client-socket";
+import { returnType, StoreShape } from "../reducers";
+import { connect } from "react-redux";
 
-class WritePane extends React.Component {
+const mapStateToProps = (state: StoreShape) => {
+  return {
+    room: state.room.data,
+    userName: state.room.userName,
+    roomCode: state.room.roomCode
+  };
+};
+
+const storeProps = returnType(mapStateToProps);
+type StoreProps = typeof storeProps.returnType;
+
+class WritePane extends React.Component<StoreProps, {}> {
   inputRef: React.RefObject<any>;
 
-  constructor(props: {}) {
+  constructor(props: StoreProps) {
     super(props);
     this.inputRef = React.createRef();
   }
@@ -17,22 +30,17 @@ class WritePane extends React.Component {
     const text = this.inputRef.current.value;
     if (!text) return;
     this.inputRef.current.value = "";
-    const paperId = ClientHandler.getRoomState().players[ClientHandler.userName]
-      .paperId;
+    const paperId = this.props.room.players[this.props.userName].paperId;
 
-    const part = new Part(paperId, text, ClientHandler.userName);
-    ClientHandler.send(new SubmitPartMessage(ClientHandler.roomCode, part));
+    const part = new Part(paperId, text, this.props.userName);
+    clientSocket.send(new SubmitPartMessage(this.props.roomCode, part));
   }
 
   render() {
     const label =
-      Strings[ClientHandler.getRoomState().lang].labels[
-        ClientHandler.getRoomState().activePart
-      ];
+      Strings[this.props.room.lang].labels[this.props.room.activePart];
     const placeholder =
-      Strings[ClientHandler.getRoomState().lang].placeholders[
-        ClientHandler.getRoomState().activePart
-      ];
+      Strings[this.props.room.lang].placeholders[this.props.room.activePart];
 
     return (
       <div className="pane write-pane">
@@ -62,4 +70,4 @@ class WritePane extends React.Component {
   }
 }
 
-export default WritePane;
+export default connect(mapStateToProps)(WritePane);

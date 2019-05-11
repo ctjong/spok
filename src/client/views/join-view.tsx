@@ -1,71 +1,64 @@
 import * as React from "react";
-import { ViewBase, ViewBaseProps } from "../../view-base";
-import ClientHandler from "../../client-handler";
-import Constants from "../../../constants";
-import Title from "../shared/title";
-import {
-  JoinRequestMessage,
-  SpokResponse,
-  ErrorResponse,
-  Room
-} from "../../../models";
+import constants from "../../constants";
+import Title from "../components/title";
 import "./join-view.css";
+import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
+import { returnType, StoreShape } from "../reducers";
+import { joinRoom } from "../actions/room";
+import { goTo } from "../actions/navigation";
 
-interface JoinViewStates {
-  notifCode: number;
+const actionCreators = { joinRoom, goTo };
+type DispatchProps = typeof actionCreators;
+
+const mapStateToProps = (state: StoreShape) => {
+  return {
+    room: state.room.data,
+    userName: state.room.userName,
+    roomCode: state.room.roomCode
+  };
+};
+
+const storeProps = returnType(mapStateToProps);
+type StoreProps = typeof storeProps.returnType;
+
+interface JoinViewState {
+  notifCode: string;
   isLoading: boolean;
 }
 
-class JoinView extends ViewBase<{}, JoinViewStates> {
+class JoinView extends React.Component<
+  DispatchProps & StoreProps,
+  JoinViewState
+> {
   roomCodeRef: React.RefObject<any>;
   userNameRef: React.RefObject<any>;
   isJoinView: boolean;
 
-  constructor(props: ViewBaseProps) {
+  constructor(props: DispatchProps & StoreProps) {
     super(props);
     this.roomCodeRef = React.createRef();
     this.userNameRef = React.createRef();
     this.isJoinView = true;
-    this.state = { room: null, notifCode: null, isLoading: false };
+    this.state = { notifCode: null, isLoading: false };
   }
 
-  handleSubmitClick() {
+  componentDidUpdate() {
+    if (this.props.roomCode && this.props.room) {
+      this.props.goTo(`/room/${this.props.roomCode}`);
+    }
+  }
+
+  async handleSubmitClick() {
     const roomCode = this.roomCodeRef.current.value;
     const userName = this.userNameRef.current.value;
 
     this.setState({ isLoading: true });
-    ClientHandler.setUserName(userName);
-    ClientHandler.send(new JoinRequestMessage(roomCode, userName)).then(
-      (response: SpokResponse) => {
-        if (!response.isSuccess) {
-          const errResponse = response as ErrorResponse;
-          this.setState({
-            isLoading: false,
-            notifCode: errResponse.notifCode
-          });
-        } else ClientHandler.goTo(`/room/${roomCode}`);
-      }
-    );
+    await this.props.joinRoom(userName, roomCode);
   }
 
   handleBackClick() {
-    ClientHandler.goTo(Constants.HOME_PATH);
-  }
-
-  showNotifUI(notifCode: number) {
-    throw new Error("Not implemented");
-  }
-
-  hideNotifUI() {
-    throw new Error("Not implemented");
-  }
-
-  updateRoomState(state: Room) {
-    throw new Error("Not implemented");
-  }
-
-  disablePrompt() {
-    throw new Error("Not implemented");
+    this.props.goTo(constants.HOME_PATH);
   }
 
   render() {
@@ -75,7 +68,7 @@ class JoinView extends ViewBase<{}, JoinViewStates> {
       body = (
         <div>
           <div className="error">
-            {Constants.notifStrings[this.state.notifCode]}
+            {constants.notifStrings[this.state.notifCode]}
           </div>
           <div className="control-group">
             <div>
@@ -132,4 +125,7 @@ class JoinView extends ViewBase<{}, JoinViewStates> {
   }
 }
 
-export default JoinView;
+export default connect(
+  mapStateToProps,
+  dispatch => bindActionCreators(actionCreators, dispatch)
+)(JoinView);

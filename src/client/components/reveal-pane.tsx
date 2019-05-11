@@ -1,17 +1,31 @@
 import * as React from "react";
-import ClientHandler from "../../client-handler";
-import Strings from "../../strings";
-import { ScoreUpdateMessage, Part } from "../../../models";
-import LikeImg from "../../images/like.png";
-import LikeActiveImg from "../../images/like_active.png";
-import DislikeImg from "../../images/dislike.png";
-import DislikeActiveImg from "../../images/dislike_active.png";
+import Strings from "../strings";
+import { ScoreUpdateMessage, Part } from "../../models";
+import LikeImg from "../images/like.png";
+import LikeActiveImg from "../images/like_active.png";
+import DislikeImg from "../images/dislike.png";
+import DislikeActiveImg from "../images/dislike_active.png";
 import "./reveal-pane.css";
+import clientSocket from "../services/client-socket";
+import { connect } from "react-redux";
+import { returnType, StoreShape } from "../reducers";
+import util from "../../util";
 
-class RevealPane extends React.Component {
+const mapStateToProps = (state: StoreShape) => {
+  return {
+    room: state.room.data,
+    userName: state.room.userName,
+    roomCode: state.room.roomCode
+  };
+};
+
+const storeProps = returnType(mapStateToProps);
+type StoreProps = typeof storeProps.returnType;
+
+class RevealPane extends React.Component<StoreProps, {}> {
   state: { votes: { [key: string]: number } };
 
-  constructor(props: {}) {
+  constructor(props: StoreProps) {
     super(props);
     this.state = { votes: {} };
   }
@@ -22,22 +36,21 @@ class RevealPane extends React.Component {
     const oldVote = cloneVotes[paperId];
     cloneVotes[paperId] = newVote;
     const delta = newVote - oldVote;
-    ClientHandler.send(
-      new ScoreUpdateMessage(ClientHandler.roomCode, paperId, delta)
+    clientSocket.send(
+      new ScoreUpdateMessage(this.props.roomCode, paperId, delta)
     );
     this.setState({ votes: cloneVotes });
   }
 
   getSentenceRows() {
     const rows: any[] = [];
-    Object.keys(ClientHandler.getRoomState().papers).forEach(paperId => {
-      const paper = ClientHandler.getRoomState().papers[paperId];
+    Object.keys(this.props.room.papers).forEach(paperId => {
+      const paper = this.props.room.papers[paperId];
       const texts: string[] = [];
       paper.parts.forEach((part: Part, index: number) => {
         if (part.text) texts.push(part.text);
         else {
-          const randomArr =
-            Strings[ClientHandler.getRoomState().lang].randoms[index + 1];
+          const randomArr = Strings[this.props.room.lang].randoms[index + 1];
           const randomIdx = Math.floor(
             Math.random() * Math.floor(randomArr.length)
           );
@@ -93,7 +106,10 @@ class RevealPane extends React.Component {
   }
 
   render() {
-    const bottomControls = ClientHandler.isHostUser() ? null : (
+    const bottomControls = util.isHostUser(
+      this.props.room,
+      this.props.userName
+    ) ? null : (
       <div className="reveal-mode-wait-text">
         Waiting for host to take action
       </div>
@@ -109,4 +125,4 @@ class RevealPane extends React.Component {
   }
 }
 
-export default RevealPane;
+export default connect(mapStateToProps)(RevealPane);

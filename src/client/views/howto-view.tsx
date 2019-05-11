@@ -1,30 +1,23 @@
 import * as React from "react";
-import { ViewBase } from "../../view-base";
-import Constants from "../../../constants";
-import ClientHandler from "../../client-handler";
-import Title from "../shared/title";
+import Title from "../components/title";
 import "./howto-view.css";
-import { Room } from "../../../models";
+import { connect } from "react-redux";
+import { StoreShape, returnType } from "../reducers";
+import { goToHome } from "../actions/navigation";
+import { bindActionCreators } from "redux";
 
-class HowToView extends ViewBase<{}, {}> {
+const actionCreators = { goToHome };
+type DispatchProps = typeof actionCreators;
+
+const mapStateToProps = (state: StoreShape) => {
+  return { room: state.room.data };
+};
+const storeProps = returnType(mapStateToProps);
+type StoreProps = typeof storeProps.returnType;
+
+class HowToView extends React.Component<DispatchProps & StoreProps, {}> {
   handleBackClick() {
-    ClientHandler.goTo(Constants.HOME_PATH);
-  }
-
-  showNotifUI(notifCode: number) {
-    throw new Error("Not implemented");
-  }
-
-  hideNotifUI() {
-    throw new Error("Not implemented");
-  }
-
-  updateRoomState(state: Room) {
-    throw new Error("Not implemented");
-  }
-
-  disablePrompt() {
-    throw new Error("Not implemented");
+    this.props.goToHome();
   }
 
   render() {
@@ -67,4 +60,7 @@ class HowToView extends ViewBase<{}, {}> {
   }
 }
 
-export default HowToView;
+export default connect(
+  mapStateToProps,
+  dispatch => bindActionCreators(actionCreators, dispatch)
+)(HowToView);
