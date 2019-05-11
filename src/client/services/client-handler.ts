@@ -47,7 +47,6 @@ class ClientHandler extends React.Component<DispatchProps & StoreProps, {}> {
     clientSocket.addMessageHandler((msg: SpokMessage) =>
       this.handleMessage(msg)
     );
-    this.props.refreshState(this.props.userName, this.props.roomCode);
   }
 
   handeRoomUpdate(msg: RoomUpdateMessage) {

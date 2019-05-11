@@ -18,9 +18,14 @@ import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import { setSessionRoomCode } from "../actions/session";
 import util from "../../util";
-import { setRoomPromptStatus } from "../actions/room";
+import { setRoomPromptStatus, refreshState } from "../actions/room";
 
-const actionCreators = { setError, setSessionRoomCode, setRoomPromptStatus };
+const actionCreators = {
+  setError,
+  setSessionRoomCode,
+  setRoomPromptStatus,
+  refreshState
+};
 type DispatchProps = typeof actionCreators;
 
 const mapStateToProps = (state: StoreShape) => {
@@ -52,6 +57,7 @@ class RoomView extends React.Component<
     super(props);
     this.state = { isPromptDisabled: false, notifCode: null };
     this.props.setSessionRoomCode(this.props.match.params.roomCode);
+    this.props.refreshState(this.props.userName, this.props.roomCode);
   }
 
   componentDidMount() {
