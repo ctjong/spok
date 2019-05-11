@@ -5,12 +5,11 @@ import Title from "../components/title";
 import "./create-view.css";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
-import { setError } from "../actions/error";
 import { StoreShape, returnType } from "../reducers";
 import navigationService from "../services/navigation-service";
-import { exitRoom, createRoom } from "../actions/room";
+import { createRoom } from "../actions/room";
 
-const actionCreators = { setError, exitRoom, createRoom };
+const actionCreators = { createRoom };
 type DispatchProps = typeof actionCreators;
 
 const mapStateToProps = (state: StoreShape) => {
@@ -42,9 +41,10 @@ class CreateView extends React.Component<
     this.state = { isLoading: false };
   }
 
-  componentDidUpdate(prevProps: DispatchProps & StoreProps) {
-    if (!prevProps.roomCode && this.props.roomCode)
+  componentDidUpdate() {
+    if (this.props.roomCode && this.props.room) {
       navigationService.goTo(`/room/${this.props.roomCode}`);
+    }
   }
 
   handleSubmitClick() {

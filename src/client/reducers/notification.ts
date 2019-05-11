@@ -14,6 +14,10 @@ export function notificationReducer(
   action: SpokAction
 ): NotificationState {
   if (action.type === SetNotificationActionType) {
+    if (action.code === null) {
+      return { ...state, activeCode: null };
+    }
+
     // Don't update the notification code if the new code doesn't have a higher
     // severity than the active one.
     if (

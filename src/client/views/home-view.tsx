@@ -5,12 +5,10 @@ import "./home-view.css";
 import { connect } from "react-redux";
 import { StoreShape, returnType } from "../reducers";
 import { bindActionCreators } from "redux";
-import { setError } from "../actions/error";
 import { hideNotification } from "../actions/notification";
 import navigationService from "../services/navigation-service";
-import { exitRoom } from "../actions/room";
 
-const actionCreators = { setError, hideNotification, exitRoom };
+const actionCreators = { hideNotification };
 type DispatchProps = typeof actionCreators;
 
 const mapStateToProps = (state: StoreShape) => {
@@ -24,12 +22,6 @@ const storeProps = returnType(mapStateToProps);
 type StoreProps = typeof storeProps.returnType;
 
 class HomeView extends React.Component<StoreProps & DispatchProps, {}> {
-  componentDidMount() {
-    if (this.props.room) {
-      this.props.exitRoom(constants.notifCodes.UNKNOWN_ERROR);
-    }
-  }
-
   componentWillUnmount() {
     if (this.props.activeNotifCode) this.props.hideNotification();
   }

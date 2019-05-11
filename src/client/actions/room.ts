@@ -1,7 +1,6 @@
 import {
   SpokActionCreator,
   UpdateRoomActionType,
-  SetRoomPromptStatusActionType,
   SetNotificationActionType,
   SetRoomInfoActionType
 } from ".";
@@ -10,7 +9,8 @@ import {
   StateResponse,
   StateRequestMessage,
   JoinRequestMessage,
-  CreateRoomMessage
+  CreateRoomMessage,
+  RoomJoinedResponse
 } from "../../models";
 import constants from "../../constants";
 import clientSocket from "../services/client-socket";
@@ -23,16 +23,6 @@ import util from "../../util";
  */
 export async function* updateRoom(room: Room): SpokActionCreator {
   yield { type: UpdateRoomActionType, newRoom: room };
-}
-
-/**
- * Update the enabled/disabled status of the room prompt
- * @param isEnabled whether or not the prompt is enabled
- */
-export async function* setRoomPromptStatus(
-  isEnabled: boolean
-): SpokActionCreator {
-  yield { type: SetRoomPromptStatusActionType, isEnabled };
 }
 
 /**
@@ -66,15 +56,14 @@ export async function* syncRoom(
 
 /**
  * Exit the room
- * @param reasonCode reason for the exit
+ * @param errorCode error code. Set to null to exit gracefully.
  */
-export async function* exitRoom(reasonCode: string): SpokActionCreator {
-  console.log("[exitRoom]", reasonCode);
-  yield { type: SetNotificationActionType, code: reasonCode };
-  yield { type: SetRoomPromptStatusActionType, isEnabled: false };
+export async function* exitRoom(errorCode: string): SpokActionCreator {
+  console.log("[exitRoom]", errorCode);
+  if (errorCode) yield { type: SetNotificationActionType, code: errorCode };
+  yield { type: UpdateRoomActionType, newRoom: null };
   yield { type: SetRoomInfoActionType, userName: null, roomCode: null };
   sessionStorage.setItem(constants.USER_NAME_SSKEY, null);
-
   clientSocket.close();
   if (!navigationService.isInHomeView()) {
     navigationService.goTo(constants.HOME_PATH);
@@ -93,7 +82,10 @@ export async function* joinRoom(
   console.log("[joinRoom]", userName, roomCode);
   sessionStorage.setItem(constants.USER_NAME_SSKEY, userName);
   yield { type: SetRoomInfoActionType, userName, roomCode };
-  await clientSocket.send(new JoinRequestMessage(roomCode, userName));
+  const response: RoomJoinedResponse = (await clientSocket.send(
+    new JoinRequestMessage(roomCode, userName)
+  )) as RoomJoinedResponse;
+  yield { type: UpdateRoomActionType, newRoom: response.roomState };
 }
 
 /**
@@ -109,5 +101,8 @@ export async function* createRoom(
   const roomCode = util.getRandomCode().substring(0, 5);
   sessionStorage.setItem(constants.USER_NAME_SSKEY, userName);
   yield { type: SetRoomInfoActionType, userName, roomCode };
-  await clientSocket.send(new CreateRoomMessage(roomCode, userName, lang));
+  const response: RoomJoinedResponse = (await clientSocket.send(
+    new CreateRoomMessage(roomCode, userName, lang)
+  )) as RoomJoinedResponse;
+  yield { type: UpdateRoomActionType, newRoom: response.roomState };
 }

@@ -4,12 +4,11 @@ import Title from "../components/title";
 import "./join-view.css";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
-import { setError } from "../actions/error";
 import { returnType, StoreShape } from "../reducers";
 import navigationService from "../services/navigation-service";
-import { exitRoom, joinRoom } from "../actions/room";
+import { joinRoom } from "../actions/room";
 
-const actionCreators = { setError, exitRoom, joinRoom };
+const actionCreators = { joinRoom };
 type DispatchProps = typeof actionCreators;
 
 const mapStateToProps = (state: StoreShape) => {
@@ -44,8 +43,8 @@ class JoinView extends React.Component<
     this.state = { notifCode: null, isLoading: false };
   }
 
-  componentDidUpdate(prevProps: DispatchProps & StoreProps) {
-    if (!prevProps.roomCode && this.props.roomCode) {
+  componentDidUpdate() {
+    if (this.props.roomCode && this.props.room) {
       navigationService.goTo(`/room/${this.props.roomCode}`);
     }
   }

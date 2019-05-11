@@ -4,12 +4,7 @@ import Title from "../components/title";
 import "./howto-view.css";
 import navigationService from "../services/navigation-service";
 import { connect } from "react-redux";
-import { exitRoom } from "../actions/room";
 import { StoreShape, returnType } from "../reducers";
-import { bindActionCreators } from "redux";
-
-const actionCreators = { exitRoom };
-type DispatchProps = typeof actionCreators;
 
 const mapStateToProps = (state: StoreShape) => {
   return { room: state.room.data };
@@ -17,13 +12,7 @@ const mapStateToProps = (state: StoreShape) => {
 const storeProps = returnType(mapStateToProps);
 type StoreProps = typeof storeProps.returnType;
 
-class HowToView extends React.Component<StoreProps & DispatchProps, {}> {
-  componentDidMount() {
-    if (this.props.room) {
-      this.props.exitRoom(constants.notifCodes.UNKNOWN_ERROR);
-    }
-  }
-
+class HowToView extends React.Component<StoreProps, {}> {
   handleBackClick() {
     navigationService.goTo(constants.HOME_PATH);
   }
@@ -67,7 +56,4 @@ class HowToView extends React.Component<StoreProps & DispatchProps, {}> {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  dispatch => bindActionCreators(actionCreators, dispatch)
-)(HowToView);
+export default connect(mapStateToProps)(HowToView);

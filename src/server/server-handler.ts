@@ -7,7 +7,7 @@ import {
   SuccessResponse,
   JoinRequestMessage,
   Player,
-  JoinApprovedResponse,
+  RoomJoinedResponse,
   SubmitPartMessage,
   GoToLobbyMessage,
   KickPlayerMessage,
@@ -174,16 +174,12 @@ class ServerHandler {
   ) => {
     const roomCode = msg.roomCode;
     this.socketToRoomMap[socket.id] = roomCode;
-    this.rooms[roomCode] = new Room(
-      roomCode,
-      msg.lang,
-      msg.hostUserName,
-      socket
-    );
+    const newRoom = new Room(roomCode, msg.lang, msg.hostUserName, socket);
+    this.rooms[roomCode] = newRoom;
     socket.join(roomCode, () => {
       console.log(`room ${roomCode} created`);
       console.log(`sending SuccessResponse to ${socket.id}`);
-      reply(new SuccessResponse());
+      reply(new RoomJoinedResponse(newRoom));
     });
   };
 
@@ -227,8 +223,8 @@ class ServerHandler {
         this.broadcastSystemChat(socket, room, `${msg.userName} has joined`);
       }
 
-      console.log(`sending JoinApprovedResponse to ${socket.id}`);
-      reply(new JoinApprovedResponse(room));
+      console.log(`sending RoomJoinedResponse to ${socket.id}`);
+      reply(new RoomJoinedResponse(room));
       this.broadcastStateUpdate(socket, room);
     });
   };

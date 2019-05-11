@@ -2,14 +2,9 @@ import * as React from "react";
 import { KickPlayerMessage, SetAsHostMessage, Player } from "../../models";
 import "./participant-list.css";
 import clientSocket from "../services/client-socket";
-import { setError } from "../actions/error";
 import { returnType, StoreShape } from "../reducers";
-import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
 import util from "../../util";
-
-const actionCreators = { setError };
-type DispatchProps = typeof actionCreators;
 
 const mapStateToProps = (state: StoreShape) => {
   return {
@@ -22,7 +17,7 @@ const mapStateToProps = (state: StoreShape) => {
 const storeProps = returnType(mapStateToProps);
 type StoreProps = typeof storeProps.returnType;
 
-class ParticipantList extends React.Component<DispatchProps & StoreProps, {}> {
+class ParticipantList extends React.Component<StoreProps, {}> {
   handleKickButtonClick(player: Player) {
     clientSocket.send(
       new KickPlayerMessage(this.props.roomCode, player.userName)
@@ -84,7 +79,4 @@ class ParticipantList extends React.Component<DispatchProps & StoreProps, {}> {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  dispatch => bindActionCreators(actionCreators, dispatch)
-)(ParticipantList);
+export default connect(mapStateToProps)(ParticipantList);

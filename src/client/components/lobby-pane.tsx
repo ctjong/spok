@@ -2,14 +2,9 @@ import * as React from "react";
 import { StartRoundMessage } from "../../models";
 import "./lobby-pane.css";
 import clientSocket from "../services/client-socket";
-import { setError } from "../actions/error";
 import { StoreShape, returnType } from "../reducers";
 import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
 import util from "../../util";
-
-const actionCreators = { setError };
-type DispatchProps = typeof actionCreators;
 
 const mapStateToProps = (state: StoreShape) => {
   return {
@@ -22,7 +17,7 @@ const mapStateToProps = (state: StoreShape) => {
 const storeProps = returnType(mapStateToProps);
 type StoreProps = typeof storeProps.returnType;
 
-class LobbyPane extends React.Component<DispatchProps & StoreProps, {}> {
+class LobbyPane extends React.Component<StoreProps, {}> {
   handleStartClick() {
     clientSocket.send(new StartRoundMessage(this.props.roomCode));
   }
@@ -55,7 +50,4 @@ class LobbyPane extends React.Component<DispatchProps & StoreProps, {}> {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  dispatch => bindActionCreators(actionCreators, dispatch)
-)(LobbyPane);
+export default connect(mapStateToProps)(LobbyPane);

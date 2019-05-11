@@ -9,25 +9,16 @@ import WaitPane from "../components/wait-pane";
 import WritePane from "../components/write-pane";
 import Title from "../components/title";
 import RefreshButton from "../components/refresh-button";
-import { GoToLobbyMessage, Room } from "../../models";
+import { GoToLobbyMessage } from "../../models";
 import "./room-view.css";
 import clientSocket from "../services/client-socket";
 import { returnType, StoreShape } from "../reducers";
-import { setError } from "../actions/error";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import util from "../../util";
-import {
-  setRoomPromptStatus,
-  syncRoom,
-  joinRoom,
-  exitRoom
-} from "../actions/room";
+import { joinRoom, exitRoom } from "../actions/room";
 
 const actionCreators = {
-  setError,
-  setRoomPromptStatus,
-  syncRoom,
   joinRoom,
   exitRoom
 };
@@ -36,7 +27,6 @@ type DispatchProps = typeof actionCreators;
 const mapStateToProps = (state: StoreShape) => {
   return {
     room: state.room.data,
-    isPromptEnabled: state.room.isPromptEnabled,
     userName: state.room.userName,
     roomCode: state.room.roomCode,
     activeNotifCode: state.notification.activeCode
@@ -60,6 +50,9 @@ class RoomView extends React.Component<
   }
 
   componentDidMount() {
+    // If the user deep links directly into a room URL, the room will not already
+    // be joined when the RoomView is loaded. So here we need to check if a saved
+    // username exists and join the room if it does. Otherwise, exit the room.
     if (!this.props.roomCode) {
       const urlRoomCode = this.props.match.params.roomCode;
       const savedUserName = sessionStorage.getItem(constants.USER_NAME_SSKEY);
@@ -68,18 +61,14 @@ class RoomView extends React.Component<
       } else {
         this.props.exitRoom(constants.notifCodes.NOT_IN_ROOM);
       }
-    } else {
-      this.props.syncRoom(this.props.userName, this.props.roomCode);
-    }
-
-    if (!this.props.isPromptEnabled) {
-      this.props.setRoomPromptStatus(true);
     }
   }
 
-  componentDidUpdate(prevProps: DispatchProps & StoreProps & RoomViewProps) {
-    if (!prevProps.roomCode && this.props.roomCode && !this.props.room) {
-      this.props.syncRoom(this.props.userName, this.props.roomCode);
+  componentWillUnmount() {
+    // If the user navigates away from the room and hits OK on the prompt,
+    // exit the room gracefully
+    if (this.props.room) {
+      this.props.exitRoom(null);
     }
   }
 
@@ -107,7 +96,7 @@ class RoomView extends React.Component<
   }
 
   render() {
-    const prompt = this.props.isPromptEnabled ? (
+    const prompt = this.props.room ? (
       // React-router's Prompt element will be shown automatically
       // before the page unloads.
       <Prompt message="Are you sure you want to leave?" />

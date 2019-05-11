@@ -2,26 +2,18 @@ import { RoomUpdateMessage, SpokMessage, ChatMessage } from "../../models";
 import constants from "../../constants";
 import clientSocket from "./client-socket";
 import navigationService from "./navigation-service";
-import { setError } from "../actions/error";
 import { StoreShape, returnType } from "../reducers";
 import * as React from "react";
 import { setNotification, hideNotification } from "../actions/notification";
-import {
-  updateRoom,
-  setRoomPromptStatus,
-  syncRoom,
-  exitRoom
-} from "../actions/room";
+import { updateRoom, syncRoom, exitRoom } from "../actions/room";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import { pushChat } from "../actions/chat";
 
 const actionCreators = {
-  setError,
   setNotification,
   hideNotification,
   updateRoom,
-  setRoomPromptStatus,
   syncRoom,
   exitRoom,
   pushChat
@@ -52,17 +44,16 @@ class ClientHandler extends React.Component<DispatchProps & StoreProps, {}> {
   handeRoomUpdate(msg: RoomUpdateMessage) {
     const newRoomState = msg.newRoomState;
     const existingPlayer = newRoomState.players[this.props.userName];
-    if (
-      !existingPlayer ||
-      clientSocket.getSocketId() !== existingPlayer.socketId
-    ) {
-      console.log(
-        "[ClientHandler.handeRoomUpdate]",
-        clientSocket.getSocketId(),
-        existingPlayer,
-        this.props.userName
-      );
+    if (!existingPlayer) {
+      console.log("[ClientHandler.handeRoomUpdate] player kicked");
       this.props.exitRoom(constants.notifCodes.PLAYER_KICKED);
+    } else if (clientSocket.getSocketId() !== existingPlayer.socketId) {
+      console.log(
+        "[ClientHandler.handeRoomUpdate] joined on another device",
+        clientSocket.getSocketId(),
+        existingPlayer.socketId
+      );
+      this.props.exitRoom(constants.notifCodes.JOINED_OTHER_DEVICE);
     } else if (navigationService.isInRoomView()) {
       this.props.updateRoom(msg.newRoomState);
     }

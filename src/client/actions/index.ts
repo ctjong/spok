@@ -4,7 +4,6 @@ export enum SpokActionType {
   SetErrorActionType,
   UpdateRoomActionType,
   SetRoomInfoActionType,
-  SetRoomPromptStatusActionType,
   SetNotificationActionType,
   PushChatActionType
 }
@@ -39,13 +38,6 @@ export type SetRoomInfoAction = {
   roomCode: string;
 };
 
-type SetRoomPromptStatusActionTypeType = "SET_ROOM_PROMPT_STATUS";
-export const SetRoomPromptStatusActionType = "SET_ROOM_PROMPT_STATUS";
-export type SetRoomPromptStatusAction = {
-  type: SetRoomPromptStatusActionTypeType;
-  isEnabled: boolean;
-};
-
 /*----------------------------------
   Notification
 ----------------------------------*/
@@ -72,7 +64,6 @@ export type SpokAction =
   | SetErrorAction
   | UpdateRoomAction
   | SetRoomInfoAction
-  | SetRoomPromptStatusAction
   | SetNotificationAction
   | PushChatAction;
 

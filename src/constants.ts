@@ -5,7 +5,7 @@ constants.msgTypes = {
   JOIN_REQUEST: "joinRoomRequest",
   SUBMIT_PART: "submitPart",
   CHAT_MESSAGE: "chatMsg",
-  ROOM_UPDATE: "stateUpdate",
+  ROOM_UPDATE: "roomUpdate",
   STATE_REQUEST: "stateRequest",
   GO_TO_LOBBY: "goToLobby",
   KICK_PLAYER: "kickPlayer",
@@ -34,7 +34,7 @@ constants.notifCodes = {
   SUBMIT_PART_FAILED: "SUBMIT_PART_FAILED",
   ROOM_NOT_EXIST: "ROOM_NOT_EXIST",
   PLAYER_KICKED: "PLAYER_KICKED",
-  REQUEST_TIMEOUT: "REQUEST_TIMEOUT",
+  JOINED_OTHER_DEVICE: "JOINED_OTHER_DEVICE",
   NOT_IN_ROOM: "NOT_IN_ROOM",
   CONNECT_ERROR: "CONNECT_ERROR",
   UNKNOWN_ERROR: "UNKNOWN_ERROR",
@@ -55,11 +55,11 @@ constants.notifStrings[constants.notifCodes.SUBMIT_PART_FAILED] =
 constants.notifStrings[constants.notifCodes.ROOM_NOT_EXIST] =
   "Room does not exist. Please create a new room or join another one.";
 constants.notifStrings[constants.notifCodes.PLAYER_KICKED] =
-  "You have been removed from the game, either because you joined on another device or you were kicked by the host.";
-constants.notifStrings[constants.notifCodes.REQUEST_TIMEOUT] =
-  "Request timed out. Please try again later.";
+  "You were kicked by the host.";
+constants.notifStrings[constants.notifCodes.JOINED_OTHER_DEVICE] =
+  "Exited room because you joined on another device.";
 constants.notifStrings[constants.notifCodes.NOT_IN_ROOM] =
-  "You haven't joined the room. Please join the room first.";
+  "You haven't joined a room. Please join a room first.";
 constants.notifStrings[constants.notifCodes.CONNECT_ERROR] =
   "Failed to connect with server. Please try again later.";
 constants.notifStrings[constants.notifCodes.UNKNOWN_ERROR] =
@@ -72,6 +72,7 @@ constants.notifStrings[constants.notifCodes.RECONNECTING] =
 constants.fatalErrors = [
   constants.notifCodes.ROOM_NOT_EXIST,
   constants.notifCodes.PLAYER_KICKED,
+  constants.notifCodes.JOINED_OTHER_DEVICE,
   constants.notifCodes.CLIENT_DISCONNECTED,
   constants.notifCodes.NOT_IN_ROOM,
   constants.notifCodes.CONNECT_ERROR
@@ -81,7 +82,6 @@ constants.INITIAL_PHASE = constants.phases.LOBBY;
 constants.TOTAL_PARTS = 4;
 constants.USER_NAME_SSKEY = "userName";
 constants.DEFAULT_LANG = "en";
-constants.REQUEST_TIMEOUT = 20000;
 constants.HOME_PATH = "/";
 constants.ROOM_PATH = "/room";
 constants.RECONNECT_TIMEOUT = 300000;

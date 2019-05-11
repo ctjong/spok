@@ -1,21 +1,18 @@
 import {
   SpokAction,
   UpdateRoomActionType,
-  SetRoomPromptStatusActionType,
   SetRoomInfoActionType
 } from "../actions";
 import { Room } from "../../models";
 
 export interface RoomState {
   data: Room;
-  isPromptEnabled: boolean;
   userName: string;
   roomCode: string;
 }
 
 const initialState: RoomState = {
   data: null,
-  isPromptEnabled: true,
   roomCode: null,
   userName: null
 };
@@ -26,8 +23,6 @@ export function roomReducer(
 ): RoomState {
   if (action.type === UpdateRoomActionType) {
     return { ...state, data: action.newRoom };
-  } else if (action.type === SetRoomPromptStatusActionType) {
-    return { ...state, isPromptEnabled: action.isEnabled };
   } else if (action.type === SetRoomInfoActionType) {
     return { ...state, userName: action.userName, roomCode: action.roomCode };
   }

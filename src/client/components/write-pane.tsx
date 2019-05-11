@@ -4,12 +4,7 @@ import { Part, SubmitPartMessage } from "../../models";
 import "./write-pane.css";
 import clientSocket from "../services/client-socket";
 import { returnType, StoreShape } from "../reducers";
-import { setError } from "../actions/error";
-import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
-
-const actionCreators = { setError };
-type DispatchProps = typeof actionCreators;
 
 const mapStateToProps = (state: StoreShape) => {
   return {
@@ -22,10 +17,10 @@ const mapStateToProps = (state: StoreShape) => {
 const storeProps = returnType(mapStateToProps);
 type StoreProps = typeof storeProps.returnType;
 
-class WritePane extends React.Component<DispatchProps & StoreProps, {}> {
+class WritePane extends React.Component<StoreProps, {}> {
   inputRef: React.RefObject<any>;
 
-  constructor(props: DispatchProps & StoreProps) {
+  constructor(props: StoreProps) {
     super(props);
     this.inputRef = React.createRef();
   }
@@ -75,7 +70,4 @@ class WritePane extends React.Component<DispatchProps & StoreProps, {}> {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  dispatch => bindActionCreators(actionCreators, dispatch)
-)(WritePane);
+export default connect(mapStateToProps)(WritePane);

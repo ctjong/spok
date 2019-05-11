@@ -7,7 +7,7 @@ import JoinView from "./views/join-view";
 import CreateView from "./views/create-view";
 import RoomView from "./views/room-view";
 import HowToView from "./views/howto-view";
-import ErrorView from "./views/error-view";
+import NotFoundView from "./views/notfound-view";
 import registerServiceWorker from "./register-service-worker";
 import "./declare.d.ts";
 import "./app.css";
@@ -44,7 +44,10 @@ class App extends React.Component {
                     render={props => <HowToView {...props} />}
                   />
                   <Route path="/" render={props => <HomeView {...props} />} />
-                  <Route path="*" render={props => <ErrorView {...props} />} />
+                  <Route
+                    path="*"
+                    render={props => <NotFoundView {...props} />}
+                  />
                 </Switch>
               </div>
             );

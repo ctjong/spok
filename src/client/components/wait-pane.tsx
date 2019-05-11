@@ -4,13 +4,8 @@ import { Part, SubmitPartMessage } from "../../models";
 import "./wait-pane.css";
 import clientSocket from "../services/client-socket";
 import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
-import { setError } from "../actions/error";
 import { StoreShape, returnType } from "../reducers";
 import util from "../../util";
-
-const actionCreators = { setError };
-type DispatchProps = typeof actionCreators;
 
 const mapStateToProps = (state: StoreShape) => {
   return {
@@ -23,7 +18,7 @@ const mapStateToProps = (state: StoreShape) => {
 const storeProps = returnType(mapStateToProps);
 type StoreProps = typeof storeProps.returnType;
 
-class WaitPane extends React.Component<DispatchProps & StoreProps, {}> {
+class WaitPane extends React.Component<StoreProps, {}> {
   handleSkipClick() {
     Object.keys(this.props.room.papers).forEach(paperId => {
       const paper = this.props.room.papers[paperId];
@@ -79,7 +74,4 @@ class WaitPane extends React.Component<DispatchProps & StoreProps, {}> {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  dispatch => bindActionCreators(actionCreators, dispatch)
-)(WaitPane);
+export default connect(mapStateToProps)(WaitPane);

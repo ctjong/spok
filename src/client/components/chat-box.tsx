@@ -2,13 +2,8 @@ import * as React from "react";
 import { ChatMessage } from "../../models";
 import "./chat-box.css";
 import clientSocket from "../services/client-socket";
-import { setError } from "../actions/error";
 import { StoreShape, returnType } from "../reducers";
 import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
-
-const actionCreators = { setError };
-type DispatchProps = typeof actionCreators;
 
 const mapStateToProps = (state: StoreShape) => {
   return {
@@ -22,11 +17,11 @@ const mapStateToProps = (state: StoreShape) => {
 const storeProps = returnType(mapStateToProps);
 type StoreProps = typeof storeProps.returnType;
 
-class ChatBox extends React.Component<DispatchProps & StoreProps, {}> {
+class ChatBox extends React.Component<StoreProps, {}> {
   inputRef: React.RefObject<any>;
   scrollViewRef: React.RefObject<any>;
 
-  constructor(props: DispatchProps & StoreProps) {
+  constructor(props: StoreProps) {
     super(props);
     this.inputRef = React.createRef();
     this.scrollViewRef = React.createRef();
@@ -90,7 +85,4 @@ class ChatBox extends React.Component<DispatchProps & StoreProps, {}> {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  dispatch => bindActionCreators(actionCreators, dispatch)
-)(ChatBox);
+export default connect(mapStateToProps)(ChatBox);

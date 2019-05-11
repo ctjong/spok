@@ -219,7 +219,7 @@ export interface SpokResponse {
   isSuccess: boolean;
 }
 
-export class JoinApprovedResponse implements SpokResponse {
+export class RoomJoinedResponse implements SpokResponse {
   isSuccess: boolean;
   roomState: Room;
 

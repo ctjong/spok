@@ -6,7 +6,8 @@ import {
   compose
 } from "redux";
 import { reducers, StoreShape } from "./reducers";
-import { setError } from "./actions/error";
+import { setNotification } from "./actions/notification";
+import constants from "../constants";
 
 const asyncGeneratorMiddleware: Middleware<{}, {}, any> = ({
   dispatch
@@ -17,7 +18,8 @@ const asyncGeneratorMiddleware: Middleware<{}, {}, any> = ({
         dispatch(_action);
       }
     } catch (e) {
-      dispatch(setError(e));
+      console.error("[asyncGeneratorMiddleware]", e);
+      dispatch(setNotification(constants.notifCodes.UNKNOWN_ERROR));
     }
   } else {
     return next(action);

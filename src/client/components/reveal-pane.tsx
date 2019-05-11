@@ -8,13 +8,8 @@ import DislikeActiveImg from "../images/dislike_active.png";
 import "./reveal-pane.css";
 import clientSocket from "../services/client-socket";
 import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
 import { returnType, StoreShape } from "../reducers";
-import { setError } from "../actions/error";
 import util from "../../util";
-
-const actionCreators = { setError };
-type DispatchProps = typeof actionCreators;
 
 const mapStateToProps = (state: StoreShape) => {
   return {
@@ -27,10 +22,10 @@ const mapStateToProps = (state: StoreShape) => {
 const storeProps = returnType(mapStateToProps);
 type StoreProps = typeof storeProps.returnType;
 
-class RevealPane extends React.Component<DispatchProps & StoreProps, {}> {
+class RevealPane extends React.Component<StoreProps, {}> {
   state: { votes: { [key: string]: number } };
 
-  constructor(props: DispatchProps & StoreProps) {
+  constructor(props: StoreProps) {
     super(props);
     this.state = { votes: {} };
   }
@@ -130,7 +125,4 @@ class RevealPane extends React.Component<DispatchProps & StoreProps, {}> {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  dispatch => bindActionCreators(actionCreators, dispatch)
-)(RevealPane);
+export default connect(mapStateToProps)(RevealPane);
