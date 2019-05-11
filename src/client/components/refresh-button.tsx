@@ -1,11 +1,27 @@
 import * as React from "react";
-import clientHandler from "../services/client-handler";
 import RefreshImg from "../images/refresh.png";
 import "./refresh-button.css";
+import { refreshState } from "../actions/room";
+import { StoreShape, returnType } from "../reducers";
+import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
 
-class RefreshButton extends React.Component {
+const actionCreators = { refreshState };
+type DispatchProps = typeof actionCreators;
+
+const mapStateToProps = (state: StoreShape) => {
+  return {
+    userName: state.session.userName,
+    roomCode: state.session.roomCode
+  };
+};
+
+const storeProps = returnType(mapStateToProps);
+type StoreProps = typeof storeProps.returnType;
+
+class RefreshButton extends React.Component<DispatchProps & StoreProps, {}> {
   handleRefreshClick() {
-    clientHandler.refreshState();
+    this.props.refreshState(this.props.userName, this.props.roomCode);
   }
 
   render() {
@@ -17,4 +33,7 @@ class RefreshButton extends React.Component {
   }
 }
 
-export default RefreshButton;
+export default connect(
+  mapStateToProps,
+  dispatch => bindActionCreators(actionCreators, dispatch)
+)(RefreshButton);

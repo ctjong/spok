@@ -1,5 +1,5 @@
 import { Room } from "models";
-import { roomReducer } from "./room";
+import { roomReducer, RoomState } from "./room";
 import { ErrorState, errorReducer } from "./error";
 import { notificationReducer, NotificationState } from "./notification";
 import { SessionState, sessionReducer } from "./session";
@@ -12,7 +12,7 @@ export const reducers = {
 };
 
 export interface StoreShape {
-  room: Room;
+  room: RoomState;
   error: ErrorState;
   notification: NotificationState;
   session: SessionState;

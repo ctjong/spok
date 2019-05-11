@@ -1,5 +1,4 @@
 import * as React from "react";
-import clientHandler from "../services/client-handler";
 import Strings from "../strings";
 import { Part, SubmitPartMessage } from "../../models";
 import "./wait-pane.css";
@@ -8,14 +7,16 @@ import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import { setError } from "../actions/error";
 import { StoreShape, returnType } from "../reducers";
+import util from "../../util";
 
 const actionCreators = { setError };
 type DispatchProps = typeof actionCreators;
 
 const mapStateToProps = (state: StoreShape) => {
   return {
-    room: state.room,
-    session: state.session
+    room: state.room.data,
+    userName: state.session.userName,
+    roomCode: state.session.roomCode
   };
 };
 
@@ -33,9 +34,7 @@ class WaitPane extends React.Component<DispatchProps & StoreProps, {}> {
           Math.random() * Math.floor(randomArr.length)
         );
         const part = new Part(paperId, randomArr[randomIdx], null);
-        clientSocket.send(
-          new SubmitPartMessage(this.props.session.roomCode, part)
-        );
+        clientSocket.send(new SubmitPartMessage(this.props.roomCode, part));
       }
     });
   }
@@ -50,7 +49,7 @@ class WaitPane extends React.Component<DispatchProps & StoreProps, {}> {
     });
     const playerNamesJoined = playerNames.join(", ");
 
-    const skipBtn = clientHandler.isHostUser() ? (
+    const skipBtn = util.isHostUser(this.props.room, this.props.userName) ? (
       <div>
         <button
           className="btn-box skip-btn"

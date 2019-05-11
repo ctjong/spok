@@ -13,8 +13,9 @@ type DispatchProps = typeof actionCreators;
 
 const mapStateToProps = (state: StoreShape) => {
   return {
-    room: state.room,
-    session: state.session
+    room: state.room.data,
+    userName: state.session.userName,
+    roomCode: state.session.roomCode
   };
 };
 
@@ -34,11 +35,10 @@ class WritePane extends React.Component<DispatchProps & StoreProps, {}> {
     const text = this.inputRef.current.value;
     if (!text) return;
     this.inputRef.current.value = "";
-    const paperId = this.props.room.players[this.props.session.userName]
-      .paperId;
+    const paperId = this.props.room.players[this.props.userName].paperId;
 
-    const part = new Part(paperId, text, this.props.session.userName);
-    clientSocket.send(new SubmitPartMessage(this.props.session.roomCode, part));
+    const part = new Part(paperId, text, this.props.userName);
+    clientSocket.send(new SubmitPartMessage(this.props.roomCode, part));
   }
 
   render() {

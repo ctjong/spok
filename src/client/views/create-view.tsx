@@ -1,5 +1,4 @@
 import * as React from "react";
-import { ViewBase, ViewBaseProps } from "../view-base";
 import constants from "../../constants";
 import Strings from "../strings";
 import Title from "../components/title";
@@ -13,14 +12,16 @@ import { setError } from "../actions/error";
 import { StoreShape, returnType } from "../reducers";
 import { setSessionUserName } from "../actions/session";
 import navigationService from "../services/navigation-service";
+import { exitRoom } from "../actions/room";
 
-const actionCreators = { setError, setSessionUserName };
+const actionCreators = { setError, setSessionUserName, exitRoom };
 type DispatchProps = typeof actionCreators;
 
 const mapStateToProps = (state: StoreShape) => {
   return {
-    room: state.room,
-    session: state.session
+    room: state.room.data,
+    userName: state.session.userName,
+    roomCode: state.session.roomCode
   };
 };
 
@@ -31,15 +32,24 @@ interface CreateViewState {
   isLoading: boolean;
 }
 
-class CreateView extends ViewBase<DispatchProps & StoreProps, CreateViewState> {
+class CreateView extends React.Component<
+  DispatchProps & StoreProps,
+  CreateViewState
+> {
   userNameRef: React.RefObject<any>;
   langSelectRef: React.RefObject<any>;
 
-  constructor(props: DispatchProps & StoreProps & ViewBaseProps) {
+  constructor(props: DispatchProps & StoreProps) {
     super(props);
     this.userNameRef = React.createRef();
     this.langSelectRef = React.createRef();
-    this.state = { room: null, isLoading: false };
+    this.state = { isLoading: false };
+  }
+
+  componentDidMount() {
+    if (this.props.room) {
+      this.props.exitRoom(constants.notifCodes.UNKNOWN_ERROR);
+    }
   }
 
   handleSubmitClick() {
@@ -64,22 +74,6 @@ class CreateView extends ViewBase<DispatchProps & StoreProps, CreateViewState> {
 
   handleBackClick() {
     navigationService.goTo(constants.HOME_PATH);
-  }
-
-  showNotifUI(notifCode: string) {
-    throw new Error("Not implemented");
-  }
-
-  hideNotifUI() {
-    throw new Error("Not implemented");
-  }
-
-  updateRoomState(state: Room) {
-    throw new Error("Not implemented");
-  }
-
-  disablePrompt() {
-    throw new Error("Not implemented");
   }
 
   render() {

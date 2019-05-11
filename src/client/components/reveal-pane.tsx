@@ -1,5 +1,4 @@
 import * as React from "react";
-import clientHandler from "../services/client-handler";
 import Strings from "../strings";
 import { ScoreUpdateMessage, Part } from "../../models";
 import LikeImg from "../images/like.png";
@@ -12,14 +11,16 @@ import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import { returnType, StoreShape } from "../reducers";
 import { setError } from "../actions/error";
+import util from "../../util";
 
 const actionCreators = { setError };
 type DispatchProps = typeof actionCreators;
 
 const mapStateToProps = (state: StoreShape) => {
   return {
-    room: state.room,
-    session: state.session
+    room: state.room.data,
+    userName: state.session.userName,
+    roomCode: state.session.roomCode
   };
 };
 
@@ -41,7 +42,7 @@ class RevealPane extends React.Component<DispatchProps & StoreProps, {}> {
     cloneVotes[paperId] = newVote;
     const delta = newVote - oldVote;
     clientSocket.send(
-      new ScoreUpdateMessage(this.props.session.roomCode, paperId, delta)
+      new ScoreUpdateMessage(this.props.roomCode, paperId, delta)
     );
     this.setState({ votes: cloneVotes });
   }
@@ -110,7 +111,10 @@ class RevealPane extends React.Component<DispatchProps & StoreProps, {}> {
   }
 
   render() {
-    const bottomControls = clientHandler.isHostUser() ? null : (
+    const bottomControls = util.isHostUser(
+      this.props.room,
+      this.props.userName
+    ) ? null : (
       <div className="reveal-mode-wait-text">
         Waiting for host to take action
       </div>

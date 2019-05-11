@@ -1,27 +1,45 @@
-import {
-  StateRequestMessage,
-  RoomUpdateMessage,
-  SpokMessage,
-  ChatMessage,
-  StateResponse
-} from "../../models";
+import { RoomUpdateMessage, SpokMessage } from "../../models";
 import constants from "../../constants";
 import clientSocket from "./client-socket";
-import { ViewBase } from "../view-base";
-import { History } from "history";
-import util from "../../util";
 import navigationService from "./navigation-service";
+import { setError } from "../actions/error";
+import { StoreShape, returnType } from "../reducers";
+import * as React from "react";
+import { setNotification, hideNotification } from "../actions/notification";
+import {
+  updateRoom,
+  setRoomPromptStatus,
+  refreshState,
+  exitRoom
+} from "../actions/room";
+import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
 
-class ClientHandler {
-  activeView: ViewBase<any, any> = null;
-  history: History = null;
-  userName: string = null;
-  roomCode: string = null;
-  isReconnecting: boolean = false;
+const actionCreators = {
+  setError,
+  setNotification,
+  hideNotification,
+  updateRoom,
+  setRoomPromptStatus,
+  refreshState,
+  exitRoom
+};
+type DispatchProps = typeof actionCreators;
 
-  constructor() {
-    this.userName = sessionStorage.getItem(constants.USER_NAME_SSKEY);
-    this.roomCode = sessionStorage.getItem(constants.ROOM_CODE_SSKEY);
+const mapStateToProps = (state: StoreShape) => {
+  return {
+    room: state.room.data,
+    userName: state.session.userName,
+    roomCode: state.session.roomCode
+  };
+};
+
+const storeProps = returnType(mapStateToProps);
+type StoreProps = typeof storeProps.returnType;
+
+class ClientHandler extends React.Component<DispatchProps & StoreProps, {}> {
+  constructor(props: DispatchProps & StoreProps) {
+    super(props);
     clientSocket.addDisconnectedHandler(() => this.handleDisconnected());
     clientSocket.addReconnectingHandler(() => this.handleReconnecting());
     clientSocket.addReconnectedHandler(() => this.handleReconnected());
@@ -29,71 +47,38 @@ class ClientHandler {
     clientSocket.addMessageHandler((msg: SpokMessage) =>
       this.handleMessage(msg)
     );
-  }
-
-  getRoomState() {
-    if (!this.activeView.isRoomView || !this.activeView.state) return null;
-    return this.activeView.state.room;
-  }
-
-  isHostUser() {
-    const roomState = this.getRoomState();
-    return roomState && this.userName === roomState.hostUserName;
-  }
-
-  async refreshState() {
-    if (!this.activeView.isRoomView) {
-      this.exitRoom(constants.notifCodes.UNKNOWN_ERROR);
-      return;
-    }
-    this.activeView.showNotifUI(constants.notifCodes.SYNCING_STATE);
-    const response: StateResponse = (await clientSocket.send(
-      new StateRequestMessage(this.roomCode, this.userName)
-    )) as StateResponse;
-    if (!this.activeView.isRoomView) return;
-    this.activeView.hideNotifUI();
-    this.activeView.updateRoomState(response.state);
-  }
-
-  exitRoom(reasonCode: string) {
-    console.log(`[ClientHandler.exitRoom] Reason: ${reasonCode}`);
-    // TODO: set activeNotifCode state
-    if (this.activeView.isRoomView) this.activeView.disablePrompt();
-    sessionStorage.setItem(constants.USER_NAME_SSKEY, null);
-    sessionStorage.setItem(constants.ROOM_CODE_SSKEY, null);
-    clientSocket.close();
-    if (navigationService.history.location.pathname !== constants.HOME_PATH)
-      navigationService.goTo(constants.HOME_PATH);
+    this.props.refreshState(this.props.userName, this.props.roomCode);
   }
 
   handeRoomUpdate(msg: RoomUpdateMessage) {
     const newRoomState = msg.newRoomState;
-    const existingPlayer = newRoomState.players[this.userName];
+    const existingPlayer = newRoomState.players[this.props.userName];
     if (
       !existingPlayer ||
       clientSocket.getSocketId() !== existingPlayer.socketId
-    )
-      this.exitRoom(constants.notifCodes.PLAYER_KICKED);
-    else if (this.activeView.isRoomView)
-      this.activeView.updateRoomState(msg.newRoomState);
+    ) {
+      this.props.exitRoom(constants.notifCodes.PLAYER_KICKED);
+    } else if (navigationService.isInRoomView()) {
+      this.props.updateRoom(msg.newRoomState);
+    }
   }
 
   handleDisconnected() {
     console.log("[ClientHandler.handleDisconnected]");
-    if (!this.activeView.isRoomView) return;
-    this.exitRoom(constants.notifCodes.CLIENT_DISCONNECTED);
+    if (!navigationService.isInRoomView()) return;
+    this.props.exitRoom(constants.notifCodes.CLIENT_DISCONNECTED);
   }
 
   handleReconnecting() {
     console.log("[ClientHandler.handleReconnecting]");
-    if (!this.activeView.isRoomView) return;
-    this.activeView.showNotifUI(constants.notifCodes.RECONNECTING);
+    if (!navigationService.isInRoomView()) return;
+    this.props.setNotification(constants.notifCodes.RECONNECTING);
   }
 
   handleReconnected() {
     console.log("[ClientHandler.handleReconnected]");
-    if (!this.activeView.isRoomView) return;
-    this.refreshState();
+    if (!navigationService.isInRoomView()) return;
+    this.props.refreshState(this.props.userName, this.props.roomCode);
   }
 
   handleError(notifCode: string) {
@@ -102,7 +87,7 @@ class ClientHandler {
       constants.fatalErrors.indexOf(notifCode) >= 0
     ) {
       console.log("[ClientHandler.handleError] Fatal error received");
-      this.exitRoom(notifCode);
+      this.props.exitRoom(notifCode);
     }
   }
 
@@ -111,11 +96,15 @@ class ClientHandler {
       this.handeRoomUpdate(msg as RoomUpdateMessage);
     } else if (
       msg.type === constants.msgTypes.CHAT_MESSAGE &&
-      this.activeView.isRoomView
+      navigationService.isInRoomView()
     ) {
-      this.activeView.chatBox.pushMessage(msg as ChatMessage);
+      //TODO
+      // this.activeView.chatBox.pushMessage(msg as ChatMessage);
     }
   }
 }
 
-export default new ClientHandler();
+export default connect(
+  mapStateToProps,
+  dispatch => bindActionCreators(actionCreators, dispatch)
+)(ClientHandler);

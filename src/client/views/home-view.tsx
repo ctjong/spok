@@ -1,22 +1,21 @@
 import * as React from "react";
-import { ViewBase } from "../view-base";
 import constants from "../../constants";
 import Title from "../components/title";
 import "./home-view.css";
-import { Room } from "../../models";
 import { connect } from "react-redux";
 import { StoreShape, returnType } from "../reducers";
 import { bindActionCreators } from "redux";
 import { setError } from "../actions/error";
 import { hideNotification } from "../actions/notification";
 import navigationService from "../services/navigation-service";
+import { exitRoom } from "../actions/room";
 
-const actionCreators = { setError, hideNotification };
+const actionCreators = { setError, hideNotification, exitRoom };
 type DispatchProps = typeof actionCreators;
 
 const mapStateToProps = (state: StoreShape) => {
   return {
-    room: state.room,
+    room: state.room.data,
     activeNotifCode: state.notification.activeCode
   };
 };
@@ -24,7 +23,13 @@ const mapStateToProps = (state: StoreShape) => {
 const storeProps = returnType(mapStateToProps);
 type StoreProps = typeof storeProps.returnType;
 
-class HomeView extends ViewBase<StoreProps & DispatchProps, {}> {
+class HomeView extends React.Component<StoreProps & DispatchProps, {}> {
+  componentDidMount() {
+    if (this.props.room) {
+      this.props.exitRoom(constants.notifCodes.UNKNOWN_ERROR);
+    }
+  }
+
   componentWillUnmount() {
     this.props.hideNotification();
   }
@@ -39,22 +44,6 @@ class HomeView extends ViewBase<StoreProps & DispatchProps, {}> {
 
   handleHowToClick() {
     navigationService.goTo("/howto");
-  }
-
-  showNotifUI(notifCode: string) {
-    throw new Error("Not implemented");
-  }
-
-  hideNotifUI() {
-    throw new Error("Not implemented");
-  }
-
-  updateRoomState(state: Room) {
-    throw new Error("Not implemented");
-  }
-
-  disablePrompt() {
-    throw new Error("Not implemented");
   }
 
   render() {

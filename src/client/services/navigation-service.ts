@@ -1,4 +1,5 @@
 import { History } from "history";
+import constants from "../../constants";
 
 class NavigationService {
   history: History = null;
@@ -20,6 +21,14 @@ class NavigationService {
       this.registeredHistoryHandlerNames.push(handlerName);
       this.history.listen(handler);
     }
+  }
+
+  isInRoomView() {
+    return this.history.location.pathname.indexOf(constants.ROOM_PATH) === 0;
+  }
+
+  isInHomeView() {
+    return this.history.location.pathname === constants.HOME_PATH;
   }
 }
 

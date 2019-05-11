@@ -2,11 +2,16 @@ import { Room } from "../../models";
 
 export enum SpokActionType {
   SetErrorActionType,
-  SetRoomActionType,
+  UpdateRoomActionType,
+  SetRoomPromptStatusActionType,
   SetNotificationctionType,
   SetSessionUserNameActionType,
   SetSessionRoomCodeActionType
 }
+
+/*----------------------------------
+  Error
+----------------------------------*/
 
 type SetErrorActionTypeType = "SET_ERROR";
 export const SetErrorActionType = "SET_ERROR";
@@ -15,12 +20,27 @@ export type SetErrorAction = {
   msg: string;
 };
 
-type SetRoomActionTypeType = "SET_ROOM";
-export const SetRoomActionType = "SET_ROOM";
-export type SetRoomAction = {
-  type: SetRoomActionTypeType;
+/*----------------------------------
+  Room
+----------------------------------*/
+
+type UpdateRoomActionTypeType = "UPDATE_ROOM";
+export const UpdateRoomActionType = "UPDATE_ROOM";
+export type UpdateRoomAction = {
+  type: UpdateRoomActionTypeType;
   newRoom: Room;
 };
+
+type SetRoomPromptStatusActionTypeType = "SET_ROOM_PROMPT_STATUS";
+export const SetRoomPromptStatusActionType = "SET_ROOM_PROMPT_STATUS";
+export type SetRoomPromptStatusAction = {
+  type: SetRoomPromptStatusActionTypeType;
+  isEnabled: boolean;
+};
+
+/*----------------------------------
+  Notification
+----------------------------------*/
 
 type SetNotificationActionTypeType = "SET_NOTIFICATION";
 export const SetNotificationctionType = "SET_NOTIFICATION";
@@ -28,6 +48,10 @@ export type SetNotificationction = {
   type: SetNotificationActionTypeType;
   code: string;
 };
+
+/*----------------------------------
+  Session
+----------------------------------*/
 
 type SetSessionUserNameActionTypeType = "SET_SESSION_USER_NAME";
 export const SetSessionUserNameActionType = "SET_SESSION_USER_NAME";
@@ -45,7 +69,8 @@ export type SetSessionRoomCodeAction = {
 
 export type SpokAction =
   | SetErrorAction
-  | SetRoomAction
+  | UpdateRoomAction
+  | SetRoomPromptStatusAction
   | SetNotificationction
   | SetSessionUserNameAction
   | SetSessionRoomCodeAction;

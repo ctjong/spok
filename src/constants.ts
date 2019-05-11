@@ -83,6 +83,7 @@ constants.USER_NAME_SSKEY = "userName";
 constants.DEFAULT_LANG = "en";
 constants.REQUEST_TIMEOUT = 20000;
 constants.HOME_PATH = "/";
+constants.ROOM_PATH = "/room";
 constants.RECONNECT_TIMEOUT = 300000;
 constants.RECONNECT_INTERVAL = 1000;
 

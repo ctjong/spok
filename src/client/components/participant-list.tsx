@@ -1,5 +1,4 @@
 import * as React from "react";
-import clientHandler from "../services/client-handler";
 import { KickPlayerMessage, SetAsHostMessage, Player } from "../../models";
 import "./participant-list.css";
 import clientSocket from "../services/client-socket";
@@ -7,14 +6,16 @@ import { setError } from "../actions/error";
 import { returnType, StoreShape } from "../reducers";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
+import util from "../../util";
 
 const actionCreators = { setError };
 type DispatchProps = typeof actionCreators;
 
 const mapStateToProps = (state: StoreShape) => {
   return {
-    room: state.room,
-    session: state.session
+    room: state.room.data,
+    userName: state.session.userName,
+    roomCode: state.session.roomCode
   };
 };
 
@@ -24,13 +25,13 @@ type StoreProps = typeof storeProps.returnType;
 class ParticipantList extends React.Component<DispatchProps & StoreProps, {}> {
   handleKickButtonClick(player: Player) {
     clientSocket.send(
-      new KickPlayerMessage(this.props.session.roomCode, player.userName)
+      new KickPlayerMessage(this.props.roomCode, player.userName)
     );
   }
 
   handleSetAsHostButtonClick(player: Player) {
     clientSocket.send(
-      new SetAsHostMessage(this.props.session.roomCode, player.userName)
+      new SetAsHostMessage(this.props.roomCode, player.userName)
     );
   }
 
@@ -47,8 +48,8 @@ class ParticipantList extends React.Component<DispatchProps & StoreProps, {}> {
     playerList.forEach(player => {
       const className = "player " + (player.isOnline ? "" : "offline");
       const hostControls =
-        clientHandler.isHostUser() &&
-        this.props.session.userName !== player.userName ? (
+        util.isHostUser(this.props.room, this.props.userName) &&
+        this.props.userName !== player.userName ? (
           <span>
             (<a onClick={() => this.handleKickButtonClick(player)}>kick</a>) (
             <a onClick={() => this.handleSetAsHostButtonClick(player)}>

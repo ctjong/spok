@@ -12,8 +12,9 @@ type DispatchProps = typeof actionCreators;
 
 const mapStateToProps = (state: StoreShape) => {
   return {
-    room: state.room,
-    session: state.session
+    room: state.room.data,
+    userName: state.session.userName,
+    roomCode: state.session.roomCode
   };
 };
 
@@ -56,11 +57,7 @@ class ChatBox extends React.Component<
     if (!text) return;
     this.inputRef.current.value = "";
     clientSocket.send(
-      new ChatMessage(
-        this.props.session.roomCode,
-        this.props.session.userName,
-        text
-      )
+      new ChatMessage(this.props.roomCode, this.props.userName, text)
     );
   }
 

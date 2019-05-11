@@ -1,7 +1,5 @@
 import * as React from "react";
 import { Prompt } from "react-router";
-import { ViewBase, ViewBaseProps } from "../view-base";
-import clientHandler from "../services/client-handler";
 import constants from "../../constants";
 import ParticipantList from "../components/participant-list";
 import ChatBox from "../components/chat-box";
@@ -19,53 +17,60 @@ import { setError } from "../actions/error";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import { setSessionRoomCode } from "../actions/session";
+import util from "../../util";
+import { setRoomPromptStatus } from "../actions/room";
+import ClientHandler from "../services/client-handler";
 
-const actionCreators = { setError, setSessionRoomCode };
+const actionCreators = { setError, setSessionRoomCode, setRoomPromptStatus };
 type DispatchProps = typeof actionCreators;
 
 const mapStateToProps = (state: StoreShape) => {
   return {
-    room: state.room,
-    session: state.session
+    room: state.room.data,
+    isPromptEnabled: state.room.isPromptEnabled,
+    userName: state.session.userName,
+    roomCode: state.session.roomCode
   };
 };
 
 const storeProps = returnType(mapStateToProps);
 type StoreProps = typeof storeProps.returnType;
 
+interface RoomViewProps {
+  match: any;
+}
+
 interface RoomViewState {
   isPromptDisabled: boolean;
   notifCode: string;
 }
 
-class RoomView extends ViewBase<DispatchProps & StoreProps, RoomViewState> {
-  isCompMounted: boolean;
-
-  constructor(props: DispatchProps & StoreProps & ViewBaseProps) {
+class RoomView extends React.Component<
+  DispatchProps & StoreProps & RoomViewProps,
+  RoomViewState
+> {
+  constructor(props: DispatchProps & StoreProps & RoomViewProps) {
     super(props);
-    this.state = { room: null, isPromptDisabled: false, notifCode: null };
-    this.isRoomView = true;
-    this.chatBox = null;
-    this.isCompMounted = false;
+    this.state = { isPromptDisabled: false, notifCode: null };
     this.props.setSessionRoomCode(this.props.match.params.roomCode);
-    clientHandler.refreshState();
   }
 
   componentDidMount() {
-    this.isCompMounted = true;
-    this.setState({ isPromptDisabled: false });
+    if (!this.props.isPromptEnabled) {
+      this.props.setRoomPromptStatus(true);
+    }
   }
 
   getActivePane() {
-    switch (this.state.room.phase) {
+    switch (this.props.room.phase) {
       case constants.phases.LOBBY:
         return <LobbyPane />;
       case constants.phases.WRITE:
-        const player = this.state.room.players[this.props.session.userName];
+        const player = this.props.room.players[this.props.userName];
         if (!player) return;
         const currentPaperId = player.paperId;
         const currentPaper = this.props.room.papers[currentPaperId];
-        if (currentPaper && !currentPaper.parts[this.state.room.activePart])
+        if (currentPaper && !currentPaper.parts[this.props.room.activePart])
           return <WritePane />;
         else return <WaitPane />;
       case constants.phases.REVEAL:
@@ -75,44 +80,25 @@ class RoomView extends ViewBase<DispatchProps & StoreProps, RoomViewState> {
     }
   }
 
-  showNotifUI(notifCode: string) {
-    if (this.isCompMounted) this.setState({ notifCode });
-    else this.state = { ...this.state, notifCode };
-  }
-
-  hideNotifUI() {
-    if (this.isCompMounted) this.setState({ notifCode: null });
-    else this.state = { ...this.state, notifCode: null };
-  }
-
-  disablePrompt() {
-    if (this.isCompMounted) this.setState({ isPromptDisabled: true });
-    else this.state = { ...this.state, isPromptDisabled: true };
-  }
-
-  updateRoomState(newRoomState: Room) {
-    if (this.isCompMounted) this.setState({ room: newRoomState });
-    else this.state = { ...this.state, room: newRoomState };
-  }
-
   handleLobbyButtonClick() {
-    clientSocket.send(new GoToLobbyMessage(this.props.session.roomCode));
+    clientSocket.send(new GoToLobbyMessage(this.props.roomCode));
   }
 
   render() {
-    const prompt = this.state.isPromptDisabled ? null : (
+    const prompt = this.props.isPromptEnabled ? (
       // React-router's Prompt element will be shown automatically
       // before the page unloads.
       <Prompt message="Are you sure you want to leave?" />
-    );
+    ) : null;
+
     let body = null;
     if (this.state.notifCode)
       body = <div>{constants.notifStrings[this.state.notifCode]}</div>;
-    else if (!this.state.room)
+    else if (!this.props.room)
       body = <div>{constants.notifStrings[constants.notifCodes.LOADING]}</div>;
     else {
       const lobbyBtn =
-        clientHandler.isHostUser() &&
+        util.isHostUser(this.props.room, this.props.userName) &&
         this.props.room.phase > constants.phases.LOBBY ? (
           <button
             className="btn-box lobby-btn"
@@ -127,13 +113,14 @@ class RoomView extends ViewBase<DispatchProps & StoreProps, RoomViewState> {
           {this.getActivePane()}
           {lobbyBtn}
           <ParticipantList />
-          <ChatBox ref={el => (this.chatBox = el)} />
+          <ChatBox />
         </div>
       );
     }
 
     return (
       <div className="view room-view">
+        <ClientHandler />
         {prompt}
         <Title isLarge={false} />
         {body}
