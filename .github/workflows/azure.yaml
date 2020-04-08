@@ -1,6 +1,9 @@
-on: [push]
+name: Deploy to Azure	
 
-name: Linux_Container_Node_Workflow
+on:	
+  push:	
+    branches:	
+      - master	
 
 jobs:
   build-and-deploy:
