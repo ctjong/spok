@@ -18,12 +18,19 @@ jobs:
       with:
         node-version: '12.13.0'
 
-    - run: |
-        yarn
+    - run: yarn
 
     - run: yarn buildprod
       env:
         CI: false
+
+    - run: rm -rf node_modules package.json yarn.lock
+
+    - run: mv package.server.json package.json
+
+    - run: yarn
+
+    - run: rm -rf config public src .editorconfig .gitignore Dockerfile README.md tsconfig.json
 
     - name: 'Deploy to Azure Web App'
       uses: azure/webapps-deploy@v1
