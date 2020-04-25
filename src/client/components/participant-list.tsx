@@ -44,15 +44,15 @@ class ParticipantList extends React.Component<StoreProps, {}> {
       const className = "player " + (player.isOnline ? "" : "offline");
       const hostControls =
         util.isHostUser(this.props.room, this.props.userName) &&
-        this.props.userName !== player.userName ? (
-          <span>
-            (<a onClick={() => this.handleKickButtonClick(player)}>kick</a>) (
-            <a onClick={() => this.handleSetAsHostButtonClick(player)}>
-              set as host
+          this.props.userName !== player.userName ? (
+            <span>
+              (<a href="#" onClick={() => this.handleKickButtonClick(player)}>kick</a>) (
+              <a href="#" onClick={() => this.handleSetAsHostButtonClick(player)}>
+                set as host
             </a>
             )
-          </span>
-        ) : null;
+            </span>
+          ) : null;
       const hostLabel =
         this.props.room.hostUserName === player.userName ? (
           <span>(host)</span>
