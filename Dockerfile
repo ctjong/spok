@@ -9,10 +9,10 @@ ADD public ./public
 ADD src ./src
 ADD package.json ./
 ADD tsconfig.json ./
-RUN npm install
-RUN npm run buildprod
+RUN yarn
+RUN yarn buildprod
 
 RUN ls
 
-CMD ["npm", "start"]
+CMD ["yarn", "start"]
 EXPOSE 1337
