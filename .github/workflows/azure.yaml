@@ -21,8 +21,9 @@ jobs:
     - run: |
         yarn
 
-    - run: |
-        yarn buildprod
+    - run: yarn buildprod
+      env:
+        CI: false
 
     - name: 'Deploy to Azure Web App'
       uses: azure/webapps-deploy@v1
