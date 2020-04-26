@@ -1,5 +1,5 @@
 {
-  "name": "spok",
+  "name": "spok-server",
   "version": "1.0.0",
   "dependencies": {
     "applicationinsights": "^1.0.3",
