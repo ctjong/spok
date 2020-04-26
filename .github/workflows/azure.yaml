@@ -20,15 +20,11 @@ jobs:
 
     - run: yarn
 
-    - run: cd client && yarn build
+    - run: yarn build
       env:
         CI: false
 
-    - run: cd server && yarn build
-      env:
-        CI: false
-
-    - run: cd client && rm -rf node_modules package.json yarn.lock
+    - run: cd client && rm -rf node_modules
 
     - name: 'Deploy to Azure Web App'
       uses: azure/webapps-deploy@v1

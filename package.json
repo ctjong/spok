@@ -2,6 +2,7 @@
   "name": "spok",
   "version": "1.0.0",
   "scripts": {
+    "build": "cd shared && yarn build && cd ../server && yarn add ../shared/build && yarn build && cd ../client && yarn add ../shared/build && yarn build",
     "start": "node server/build/server.js"
   }
 }

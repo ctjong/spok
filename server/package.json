@@ -5,7 +5,7 @@
     "applicationinsights": "^1.0.3",
     "express": "^4.16.3",
     "socket.io": "^2.1.1",
-    "spok-shared": "../shared"
+    "spok-shared": "../shared/build"
   },
   "scripts": {
     "build": "tsc -p ./tsconfig.json",
