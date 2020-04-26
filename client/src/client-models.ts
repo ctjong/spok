@@ -1,4 +1,4 @@
-import constants from "./constants";
+import constants from "./client-constants";
 
 export class Paper {
   id: string;

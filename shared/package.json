@@ -1,7 +1,0 @@
-{
-  "name": "spok-shared",
-  "version": "1.0.0",
-  "scripts": {
-    "build": "tsc -p ./tsconfig.json && cp package.json ./build"
-  }
-}

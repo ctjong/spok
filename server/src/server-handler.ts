@@ -20,10 +20,9 @@ import {
   StateResponse,
   RoomUpdateMessage,
   Part,
-} from "spok-shared/models";
-import constants from "spok-shared/constants";
+} from "./server-models";
+import constants from "./server-constants";
 import { Http2Server } from "http2";
-import util from "spok-shared/util";
 
 class ServerHandler {
   io: Socket = null;
@@ -312,7 +311,7 @@ class ServerHandler {
     room.activePart = 0;
     room.papers = {};
     Object.keys(room.players).forEach(userName => {
-      const paper = new Paper(util.getRandomCode());
+      const paper = new Paper(this.getRandomCode().toString());
       const player = room.players[userName];
       player.paperId = paper.id;
       room.papers[paper.id] = paper;
@@ -469,6 +468,10 @@ class ServerHandler {
       delete this.rooms[roomCode];
       return;
     }
+  }
+
+  getRandomCode() {
+    return Math.floor((1 + Math.random()) * 0x1000000000).toString(16);
   }
 }
 

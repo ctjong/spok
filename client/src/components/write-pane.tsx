@@ -1,6 +1,6 @@
 import * as React from "react";
 import Strings from "../strings";
-import { Part, SubmitPartMessage } from "spok-shared/models";
+import { Part, SubmitPartMessage } from "../client-models";
 import "./write-pane.css";
 import clientSocket from "../services/client-socket";
 import { returnType, StoreShape } from "../reducers";

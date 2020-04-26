@@ -4,8 +4,7 @@
   "dependencies": {
     "applicationinsights": "^1.0.3",
     "express": "^4.16.3",
-    "socket.io": "^2.1.1",
-    "spok-shared": "../shared/build"
+    "socket.io": "^2.1.1"
   },
   "scripts": {
     "build": "tsc -p ./tsconfig.json",

@@ -1,6 +1,5 @@
-﻿import * as io from "socket.io-client";
-import constants from "spok-shared/constants";
-import { SpokMessage, SpokResponse, ErrorResponse } from "spok-shared/models";
+﻿import constants from "../client-constants";
+import { SpokMessage, SpokResponse, ErrorResponse } from "../client-models";
 
 export type SocketMessageHandler = (msg: SpokMessage) => void;
 export type SocketErrorHandler = (notifCode: string) => void;
@@ -30,6 +29,7 @@ class ClientSocket {
             ? "http://localhost:1337"
             : window.location.origin;
 
+        var io = require("socket.io-client");
         const socket = io(origin, { reconnection: false });
         socket.on(constants.eventNames.CONNECT, () => {
           this.socket = socket;

@@ -1,5 +1,5 @@
-import { RoomUpdateMessage, SpokMessage, ChatMessage } from "spok-shared/models";
-import constants from "spok-shared/constants";
+import { RoomUpdateMessage, SpokMessage, ChatMessage } from "../client-models";
+import constants from "../client-constants";
 import clientSocket from "./client-socket";
 import { StoreShape, returnType } from "../reducers";
 import * as React from "react";
@@ -8,7 +8,7 @@ import { updateRoom, syncRoom, exitRoom } from "../actions/room";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import { pushChat } from "../actions/chat";
-import util from "spok-shared/util";
+import util from "../client-util";
 
 const actionCreators = {
   setNotification,

@@ -1,5 +1,5 @@
 import * as React from "react";
-import constants from "spok-shared/constants";
+import constants from "../client-constants";
 import Title from "../components/title";
 import "./home-view.css";
 import { connect } from "react-redux";

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Prompt } from "react-router";
-import constants from "spok-shared/constants";
+import constants from "../client-constants";
 import ParticipantList from "../components/participant-list";
 import ChatBox from "../components/chat-box";
 import LobbyPane from "../components/lobby-pane";
@@ -9,13 +9,13 @@ import WaitPane from "../components/wait-pane";
 import WritePane from "../components/write-pane";
 import Title from "../components/title";
 import RefreshButton from "../components/refresh-button";
-import { GoToLobbyMessage } from "spok-shared/models";
+import { GoToLobbyMessage } from "../client-models";
 import "./room-view.css";
 import clientSocket from "../services/client-socket";
 import { returnType, StoreShape } from "../reducers";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
-import util from "spok-shared/util";
+import util from "../client-util";
 import { joinRoom, exitRoom } from "../actions/room";
 
 const actionCreators = {

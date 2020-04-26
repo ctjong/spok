@@ -1,6 +1,6 @@
 import * as React from "react";
 import Strings from "../strings";
-import { ScoreUpdateMessage, Part } from "spok-shared/models";
+import { ScoreUpdateMessage, Part } from "../client-models";
 import LikeImg from "../images/like.png";
 import LikeActiveImg from "../images/like_active.png";
 import DislikeImg from "../images/dislike.png";
@@ -9,7 +9,7 @@ import "./reveal-pane.css";
 import clientSocket from "../services/client-socket";
 import { connect } from "react-redux";
 import { returnType, StoreShape } from "../reducers";
-import util from "spok-shared/util";
+import util from "../client-util";
 
 const mapStateToProps = (state: StoreShape) => {
   return {
