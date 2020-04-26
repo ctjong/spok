@@ -70,8 +70,8 @@
     "workbox-webpack-plugin": "4.2.0"
   },
   "scripts": {
-    "builddev": "tsc -p ./tsconfig.json && node ./scripts/build.js development",
-    "buildprod": "tsc -p ./tsconfig.json && node ./scripts/build.js production"
+    "debug": "node ./scripts/build.js development",
+    "build": "node ./scripts/build.js production"
   },
   "devDependencies": {
     "@babel/core": "7.4.3",

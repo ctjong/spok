@@ -1,32 +1,32 @@
 "use strict";
 
 const fs = require("fs");
-const isWsl = require("./src/is-wsl");
+const isWsl = require("is-wsl");
 const path = require("path");
-const webpack = require("./src/webpack");
-const resolve = require("./src/resolve");
-const PnpWebpackPlugin = require("./src/pnp-webpack-plugin");
-const HtmlWebpackPlugin = require("./src/html-webpack-plugin");
-const CaseSensitivePathsPlugin = require("./src/case-sensitive-paths-webpack-plugin");
-const InlineChunkHtmlPlugin = require("./src/react-dev-utils/InlineChunkHtmlPlugin");
-const TerserPlugin = require("./src/terser-webpack-plugin");
-const MiniCssExtractPlugin = require("./src/mini-css-extract-plugin");
-const OptimizeCSSAssetsPlugin = require("./src/optimize-css-assets-webpack-plugin");
-const safePostCssParser = require("./src/postcss-safe-parser");
-const ManifestPlugin = require("./src/webpack-manifest-plugin");
-const InterpolateHtmlPlugin = require("./src/react-dev-utils/InterpolateHtmlPlugin");
-const WorkboxWebpackPlugin = require("./src/workbox-webpack-plugin");
-const WatchMissingNodeModulesPlugin = require("./src/react-dev-utils/WatchMissingNodeModulesPlugin");
-const ModuleScopePlugin = require("./src/react-dev-utils/ModuleScopePlugin");
-const getCSSModuleLocalIdent = require("./src/react-dev-utils/getCSSModuleLocalIdent");
-const paths = require("./scripts/paths");
-const modules = require("./scripts/modules");
-const getClientEnvironment = require("./scripts/env");
-const ModuleNotFoundPlugin = require("./src/react-dev-utils/ModuleNotFoundPlugin");
-const ForkTsCheckerWebpackPlugin = require("./src/react-dev-utils/ForkTsCheckerWebpackPlugin");
-const typescriptFormatter = require("./src/react-dev-utils/typescriptFormatter");
+const webpack = require("webpack");
+const resolve = require("resolve");
+const PnpWebpackPlugin = require("pnp-webpack-plugin");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const CaseSensitivePathsPlugin = require("case-sensitive-paths-webpack-plugin");
+const InlineChunkHtmlPlugin = require("react-dev-utils/InlineChunkHtmlPlugin");
+const TerserPlugin = require("terser-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
+const safePostCssParser = require("postcss-safe-parser");
+const ManifestPlugin = require("webpack-manifest-plugin");
+const InterpolateHtmlPlugin = require("react-dev-utils/InterpolateHtmlPlugin");
+const WorkboxWebpackPlugin = require("workbox-webpack-plugin");
+const WatchMissingNodeModulesPlugin = require("react-dev-utils/WatchMissingNodeModulesPlugin");
+const ModuleScopePlugin = require("react-dev-utils/ModuleScopePlugin");
+const getCSSModuleLocalIdent = require("react-dev-utils/getCSSModuleLocalIdent");
+const paths = require("./paths");
+const modules = require("./modules");
+const getClientEnvironment = require("./env");
+const ModuleNotFoundPlugin = require("react-dev-utils/ModuleNotFoundPlugin");
+const ForkTsCheckerWebpackPlugin = require("react-dev-utils/ForkTsCheckerWebpackPlugin");
+const typescriptFormatter = require("react-dev-utils/typescriptFormatter");
 
-const postcssNormalize = require("./src/postcss-normalize");
+const postcssNormalize = require("postcss-normalize");
 
 // Source maps are resource heavy and can cause out of memory issue for large source files.
 const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== "false";

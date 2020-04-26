@@ -22,16 +22,16 @@ process.on("unhandledRejection", err => {
 require("./env");
 
 const path = require("path");
-const chalk = require("./src/react-dev-utils/chalk");
-const fs = require("./src/fs-extra");
-const webpack = require("./src/webpack");
-const configFactory = require("../webpack.config");
+const chalk = require("react-dev-utils/chalk");
+const fs = require("fs-extra");
+const webpack = require("webpack");
+const configFactory = require("./webpack.config");
 const paths = require("./paths");
-const checkRequiredFiles = require("./src/react-dev-utils/checkRequiredFiles");
-const formatWebpackMessages = require("./src/react-dev-utils/formatWebpackMessages");
-const printHostingInstructions = require("./src/react-dev-utils/printHostingInstructions");
-const FileSizeReporter = require("./src/react-dev-utils/FileSizeReporter");
-const printBuildError = require("./src/react-dev-utils/printBuildError");
+const checkRequiredFiles = require("react-dev-utils/checkRequiredFiles");
+const formatWebpackMessages = require("react-dev-utils/formatWebpackMessages");
+const printHostingInstructions = require("react-dev-utils/printHostingInstructions");
+const FileSizeReporter = require("react-dev-utils/FileSizeReporter");
+const printBuildError = require("react-dev-utils/printBuildError");
 
 const measureFileSizesBeforeBuild =
   FileSizeReporter.measureFileSizesBeforeBuild;
@@ -54,7 +54,7 @@ const config = configFactory(envName);
 
 // We require that you explicitly set browsers and do not fall back to
 // browserslist defaults.
-const { checkBrowsers } = require("./src/react-dev-utils/browsersHelper");
+const { checkBrowsers } = require("react-dev-utils/browsersHelper");
 checkBrowsers(paths.appPath, isInteractive)
   .then(() => {
     // First, read the current file sizes in build directory.
