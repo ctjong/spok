@@ -3,7 +3,7 @@ import {
   UpdateRoomActionType,
   SetRoomInfoActionType
 } from "../actions";
-import { Room } from "../models";
+import { Room } from "spok-shared/models";
 
 export interface RoomState {
   data: Room;

@@ -1,10 +1,10 @@
 import * as React from "react";
-import { KickPlayerMessage, SetAsHostMessage, Player } from "../models";
+import { KickPlayerMessage, SetAsHostMessage, Player } from "spok-shared/models";
 import "./participant-list.css";
 import clientSocket from "../services/client-socket";
 import { returnType, StoreShape } from "../reducers";
 import { connect } from "react-redux";
-import util from "../util";
+import util from "spok-shared/util";
 
 const mapStateToProps = (state: StoreShape) => {
   return {

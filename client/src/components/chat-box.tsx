@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ChatMessage } from "../models";
+import { ChatMessage } from "spok-shared/models";
 import "./chat-box.css";
 import clientSocket from "../services/client-socket";
 import { StoreShape, returnType } from "../reducers";

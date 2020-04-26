@@ -1,5 +1,5 @@
 import { SpokAction, SetNotificationActionType } from "../actions";
-import constants from "../constants";
+import constants from "spok-shared/constants";
 
 export interface NotificationState {
   activeCode: string;

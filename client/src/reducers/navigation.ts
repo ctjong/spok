@@ -1,5 +1,5 @@
 import { SpokAction, GoToActionType, GoToHomeActionType } from "../actions";
-import constants from "../constants";
+import constants from "spok-shared/constants";
 
 export interface NavigationState {
   path: string;

@@ -1,5 +1,5 @@
 import { SpokAction, PushChatActionType } from "../actions";
-import { ChatMessage } from "../models";
+import { ChatMessage } from "spok-shared/models";
 
 export interface ChatState {
   messages: ChatMessage[];

@@ -1,4 +1,4 @@
-import { Room, ChatMessage } from "../models";
+import { Room, ChatMessage } from "spok-shared/models";
 
 export enum SpokActionType {
   SetErrorActionType,

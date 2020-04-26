@@ -1,11 +1,11 @@
 import * as React from "react";
 import Strings from "../strings";
-import { Part, SubmitPartMessage } from "../models";
+import { Part, SubmitPartMessage } from "spok-shared/models";
 import "./wait-pane.css";
 import clientSocket from "../services/client-socket";
 import { connect } from "react-redux";
 import { StoreShape, returnType } from "../reducers";
-import util from "../util";
+import util from "spok-shared/util";
 
 const mapStateToProps = (state: StoreShape) => {
   return {

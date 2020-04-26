@@ -12,10 +12,10 @@ import {
   JoinRequestMessage,
   CreateRoomMessage,
   RoomJoinedResponse
-} from "../models";
-import constants from "../constants";
+} from "spok-shared/models";
+import constants from "spok-shared/constants";
 import clientSocket from "../services/client-socket";
-import util from "../util";
+import util from "spok-shared/util";
 
 /**
  * Update room data

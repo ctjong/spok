@@ -1,10 +1,10 @@
 import * as React from "react";
-import { StartRoundMessage } from "../models";
+import { StartRoundMessage } from "spok-shared/models";
 import "./lobby-pane.css";
 import clientSocket from "../services/client-socket";
 import { StoreShape, returnType } from "../reducers";
 import { connect } from "react-redux";
-import util from "../util";
+import util from "spok-shared/util";
 
 const mapStateToProps = (state: StoreShape) => {
   return {

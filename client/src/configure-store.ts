@@ -7,7 +7,7 @@ import {
 } from "redux";
 import { reducers, StoreShape } from "./reducers";
 import { setNotification } from "./actions/notification";
-import constants from "./constants";
+import constants from "spok-shared/constants";
 
 const asyncGeneratorMiddleware: Middleware<{}, {}, any> = ({
   dispatch

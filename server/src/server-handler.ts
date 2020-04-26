@@ -20,10 +20,10 @@ import {
   StateResponse,
   RoomUpdateMessage,
   Part,
-} from "./models";
-import constants from "./constants";
+} from "spok-shared/models";
+import constants from "spok-shared/constants";
 import { Http2Server } from "http2";
-import util from "./util";
+import util from "spok-shared/util";
 
 class ServerHandler {
   io: Socket = null;

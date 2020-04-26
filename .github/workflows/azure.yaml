@@ -20,17 +20,15 @@ jobs:
 
     - run: yarn
 
-    - run: yarn buildprod
+    - run: cd client && yarn build
       env:
         CI: false
 
-    - run: rm -rf node_modules package.json yarn.lock
+    - run: cd server && yarn build
+      env:
+        CI: false
 
-    - run: mv package.server.json package.json
-
-    - run: yarn
-
-    - run: rm -rf config public src .editorconfig .gitignore Dockerfile README.md tsconfig.json
+    - run: cd client && rm -rf node_modules package.json yarn.lock
 
     - name: 'Deploy to Azure Web App'
       uses: azure/webapps-deploy@v1

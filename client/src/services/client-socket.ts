@@ -1,6 +1,6 @@
 ﻿import * as io from "socket.io-client";
-import constants from "../constants";
-import { SpokMessage, SpokResponse, ErrorResponse } from "../models";
+import constants from "spok-shared/constants";
+import { SpokMessage, SpokResponse, ErrorResponse } from "spok-shared/models";
 
 export type SocketMessageHandler = (msg: SpokMessage) => void;
 export type SocketErrorHandler = (notifCode: string) => void;
