@@ -1,0 +1,7 @@
+{
+  "name": "spok",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node server/build/server.js"
+  }
+}
