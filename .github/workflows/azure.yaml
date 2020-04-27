@@ -23,17 +23,17 @@ jobs:
         password: ${{ secrets.REGISTRY_PASSWORD }}
     - name: 'Building docker image'
       run: |
-        docker build . -t ctdockerhub.azurecr.io/spok:${{ github.sha }}
+        docker build . -t ctdockerhub.azurecr.io/spok:latest
       env:
         CI: false
     - name: 'Pushing docker image to private docker hub'
       run: |
-        docker push ctdockerhub.azurecr.io/spok:${{ github.sha }} 
+        docker push ctdockerhub.azurecr.io/spok:latest
     - name: 'Deploying to Azure Web App'
       uses: azure/webapps-container-deploy@v1
       with:
         app-name: 'ct-spok'
-        images: 'ctdockerhub.azurecr.io/spok:${{ github.sha }}'
+        images: 'ctdockerhub.azurecr.io/spok:latest'
     - name: 'Log out from Azure'
       run: |
         az logout
