@@ -24,6 +24,8 @@ jobs:
     - name: 'Building docker image'
       run: |
         docker build . -t ctdockerhub.azurecr.io/spok:${{ github.sha }}
+      env:
+        CI: false
     - name: 'Pushing docker image to private docker hub'
       run: |
         docker push ctdockerhub.azurecr.io/spok:${{ github.sha }} 

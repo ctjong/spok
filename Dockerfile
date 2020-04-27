@@ -8,6 +8,7 @@ ADD config ./config
 ADD public ./public
 ADD src ./src
 ADD package.json ./
+ADD package.server.json ./
 ADD tsconfig.json ./
 RUN yarn
 RUN yarn buildprod
