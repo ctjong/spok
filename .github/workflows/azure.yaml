@@ -37,5 +37,5 @@ jobs:
       with:
         app-name: 'ct-spok'
         slot-name: 'production'
-        publish-profile: ${{ secrets.AzureAppService_PublishProfile_e56f7e34183a4050b655a52f610cb438 }}
+        publish-profile: ${{ secrets.AzureAppService_PublishProfile_ca8e104da5c74de58f7a5245d2fb6fb9 }}
         package: .
