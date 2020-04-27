@@ -1,41 +1,37 @@
-
 name: azure deploy
 
-on:
-  push:
-    branches:
-      - master
+on:	
+  push:	
+    branches:	
+      - master	
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@master
-
-    - name: Set up Node.js version
-      uses: actions/setup-node@v1
+    - name: 'Checkout Github Action' 
+      uses: actions/checkout@master
+    - name: 'Login to Azure'
+      uses: azure/login@v1
       with:
-        node-version: '12.13.0'
-
-    - run: yarn
-
-    - run: yarn buildprod
-      env:
-        CI: false
-
-    - run: rm -rf node_modules package.json yarn.lock
-
-    - run: mv package.server.json package.json
-
-    - run: yarn
-
-    - run: rm -rf config public src .editorconfig .gitignore Dockerfile README.md tsconfig.json
-
-    - name: 'Deploy to Azure Web App'
-      uses: azure/webapps-deploy@v1
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: 'Login to private docker hub'
+      uses: azure/docker-login@v1
+      with:
+        login-server: ctdockerhub.azurecr.io
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+    - name: 'Building docker image'
+      run: |
+        docker build . -t ctdockerhub.azurecr.io/spok:${{ github.sha }}
+    - name: 'Pushing docker image to private docker hub'
+      run: |
+        docker push ctdockerhub.azurecr.io/spok:${{ github.sha }} 
+    - name: 'Deploying to Azure Web App'
+      uses: azure/webapps-container-deploy@v1
       with:
         app-name: 'ct-spok'
-        slot-name: 'production'
-        publish-profile: ${{ secrets.AzureAppService_PublishProfile_ca8e104da5c74de58f7a5245d2fb6fb9 }}
-        package: .
+        images: 'ctdockerhub.azurecr.io/spok:${{ github.sha }}'
+    - name: 'Log out from Azure'
+      run: |
+        az logout
