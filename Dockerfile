@@ -11,6 +11,9 @@ ADD package.json ./
 ADD tsconfig.json ./
 RUN yarn
 RUN yarn buildprod
+RUN rm -rf node_modules package.json yarn.lock
+RUN mv package.server.json package.json
+RUN yarn
 
 RUN ls
 
